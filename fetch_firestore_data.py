@@ -165,8 +165,10 @@ def export_to_excel(data, filename=None):
         low_fill = PatternFill(start_color='F8D7DA', end_color='F8D7DA', fill_type='solid')
         
         grade_colors = {
-            'A+': 'D4EDDA', 'A': 'D4EDDA', 'B': 'CCE5FF',
-            'C': 'FFF3CD', 'D': 'FFF3CD', 'E': 'F8D7DA', 'F': 'F8D7DA'
+            'A1': 'D4EDDA', 'A2': 'D4EDDA', 
+            'B1': 'CCE5FF', 'B2': 'FFF3CD', 
+            'C1': 'FFF3CD', 'C2': 'F8D7DA', 
+            'D': 'F8D7DA', 'E': 'EE192D'
         }
         
         for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=10, max_col=10):

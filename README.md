@@ -262,13 +262,14 @@ Score = (Correct × 1) - (Wrong × 0.25)
 ### Grade Thresholds
 | Percentage | Grade |
 |------------|-------|
-| ≥ 90% | A+ |
-| ≥ 80% | A |
-| ≥ 70% | B |
-| ≥ 60% | C |
-| ≥ 50% | D |
-| ≥ 40% | E |
-| < 40% | F |
+| ≥ 90% | A1 |
+| ≥ 80% | A2 |
+| ≥ 70% | B1 |
+| ≥ 60% | B2 |
+| ≥ 50% | C1 |
+| ≥ 40% | C2 |
+| ≥ 33% | D  |
+| < 33% | E  |
 
 ---
 
@@ -458,7 +459,7 @@ python fetch_firestore_data.py
 ### Features
 - Automatically fetches all quiz results from Firestore
 - Exports to formatted Excel file with headers
-- Color-coded grades (A+=green, F=red)
+- Color-coded grades (A1=green, E=red)
 - Summary statistics (average, highest, lowest scores)
 - Grade distribution breakdown
 - Files saved to `exports/` folder

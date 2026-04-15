@@ -68,3 +68,4 @@ coverage/
 serviceAccountKey.json
 src/services/firebaseService.js
 exports/
+README.pdf

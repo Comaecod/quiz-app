@@ -137,13 +137,14 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
 export const getGrade = (percentage) => {
   const pct = parseFloat(percentage);
   
-  if (pct >= 90) return 'A+';
-  if (pct >= 80) return 'A';
-  if (pct >= 70) return 'B';
-  if (pct >= 60) return 'C';
-  if (pct >= 50) return 'D';
-  if (pct >= 40) return 'E';
-  return 'F';
+  if (pct >= 90) return 'A1';
+  if (pct >= 80) return 'A2';
+  if (pct >= 70) return 'B1';
+  if (pct >= 60) return 'B2';
+  if (pct >= 50) return 'C1';
+  if (pct >= 40) return 'C2';
+  if (pct >= 33) return 'D';
+  return 'E';
 };
 
 /**
