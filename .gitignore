@@ -6,6 +6,9 @@ dist/
 dist-ssr/
 *.local
 
+# Firebase config (contains sensitive API keys)
+src/firebase.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -62,3 +65,6 @@ coverage/
 *.seed
 *.pid.lock
 *.etag
+serviceAccountKey.json
+src/services/firebaseService.js
+exports/

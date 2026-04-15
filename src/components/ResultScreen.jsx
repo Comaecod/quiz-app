@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { 
   calculateTotalScore, 
   getPerformanceMessage,
 } from '../utils/scoring';
+import { saveQuizResult } from '../services/firebaseService';
 
 /**
  * ResultScreen Component
@@ -16,6 +17,7 @@ const ResultScreen = ({
   onRestart 
 }) => {
   const { examTitle, wrongAnswerPenaltyFraction } = config;
+  const hasSaved = useRef(false);
 
   const results = useMemo(() => {
     return calculateTotalScore(
@@ -26,6 +28,13 @@ const ResultScreen = ({
   }, [questions, answers, wrongAnswerPenaltyFraction]);
 
   const performance = getPerformanceMessage(results.percentage);
+
+  useEffect(() => {
+    if (!hasSaved.current) {
+      hasSaved.current = true;
+      saveQuizResult(studentInfo, config, results).catch(console.error);
+    }
+  }, []);
 
   return (
     <div style={{ 

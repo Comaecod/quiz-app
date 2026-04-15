@@ -392,6 +392,86 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ---
 
+## 🔥 Firebase Integration
+
+Results are automatically saved to Firebase Firestore when a quiz is completed.
+
+### Data Stored
+| Field | Description |
+|-------|-------------|
+| `timestamp` | Server timestamp of submission |
+| `rollNumber` | Student's roll number |
+| `fullName` | Student's full name |
+| `class` | Class/Grade |
+| `examName` | Examination title |
+| `totalMarks` | Total possible marks |
+| `percentage` | Score percentage |
+| `score` | Actual score earned |
+| `grade` | Letter grade |
+| `correctCount` | Correct answers |
+| `wrongCount` | Wrong answers |
+| `skippedCount` | Skipped questions |
+
+### Setup Steps
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable **Firestore Database** (test mode for dev)
+3. Go to **Project Settings** → **Your apps** → Add Web app
+4. Copy your `firebaseConfig` object
+5. Rename `src/firebase.example.js` to `src/firebase.js`
+6. Paste your config in `firebase.js`
+
+```bash
+# After setup
+npm install firebase
+npm run dev
+```
+
+### Security Note
+The `firebase.js` file is in `.gitignore` to protect your API keys. Never commit real keys to version control.
+
+---
+
+## 📊 Excel Export Tool
+
+Export quiz results from Firestore to Excel for record-keeping.
+
+### Setup
+
+1. Go to Firebase Console > Project Settings > Service Accounts
+2. Click "Generate new private key"
+3. Save the JSON file as `serviceAccountKey.json`
+
+### Installation & Usage
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Get service account key from Firebase Console
+# (Project Settings > Service Accounts > Generate new private key)
+
+# Run the exporter
+python fetch_firestore_data.py
+```
+
+### Features
+- Automatically fetches all quiz results from Firestore
+- Exports to formatted Excel file with headers
+- Color-coded grades (A+=green, F=red)
+- Summary statistics (average, highest, lowest scores)
+- Grade distribution breakdown
+- Files saved to `exports/` folder
+
+### Output Files
+- Timestamped Excel files (e.g., `quiz_results_20250415_143052.xlsx`)
+- Styled headers with purple gradient
+- Frozen header row
+- Centered columns
+- Grade highlighting
+
+---
+
 ## 🔧 Key Utilities
 
 ### `shuffle.js`
