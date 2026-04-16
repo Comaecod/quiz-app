@@ -3,14 +3,6 @@
  * Handles all quiz scoring logic including negative marking
  */
 
-import { getMarksForQuestion } from '../data/constants';
-
-/**
- * Normalize selected answer to array format
- * @param {number|number[]} selected - Selected answer index or indices
- * @param {string} type - Question type ('single' or 'multiple')
- * @returns {number[]} Array of selected indices
- */
 export const normalizeSelectedAnswer = (selected, type) => {
   if (selected === undefined || selected === null) return [];
   
@@ -21,12 +13,6 @@ export const normalizeSelectedAnswer = (selected, type) => {
   return [selected];
 };
 
-/**
- * Compare two arrays regardless of order
- * @param {number[]} arr1 - First array
- * @param {number[]} arr2 - Second array
- * @returns {boolean} True if arrays contain same elements
- */
 export const arraysEqual = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
   
@@ -36,25 +22,15 @@ export const arraysEqual = (arr1, arr2) => {
   return sorted1.every((val, idx) => val === sorted2[idx]);
 };
 
-/**
- * Calculate score for a single question
- * @param {Object} question - Question object
- * @param {*} selectedAnswer - Student's selected answer
- * @param {number} penaltyFraction - Negative marking fraction
- * @returns {Object} Question result with marks earned
- */
 export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction) => {
-  const marks = getMarksForQuestion(question.originalId);
+  const marks = question.marks || 1;
   
-  // Normalize correct answers to array
   const correctAnswers = Array.isArray(question.isCorrect) 
     ? question.isCorrect 
     : [question.isCorrect];
   
-  // Normalize student's answer to array
   const studentAnswers = normalizeSelectedAnswer(selectedAnswer, question.type);
   
-  // Check if answer is correct
   const isCorrect = arraysEqual(correctAnswers, studentAnswers);
   const isSkipped = studentAnswers.length === 0;
 
@@ -80,13 +56,6 @@ export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction
   };
 };
 
-/**
- * Calculate total score for all questions
- * @param {Object[]} questions - Array of questions
- * @param {Object} answers - Object mapping question IDs to answers
- * @param {number} penaltyFraction - Negative marking fraction
- * @returns {Object} Complete scoring results
- */
 export const calculateTotalScore = (questions, answers, penaltyFraction) => {
   let totalMarks = 0;
   let totalEarned = 0;
@@ -127,11 +96,6 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
   };
 };
 
-/**
- * Get letter grade from percentage
- * @param {number} percentage - Score percentage
- * @returns {string} Letter grade
- */
 export const getGrade = (percentage) => {
   const pct = parseFloat(percentage);
   
@@ -145,11 +109,6 @@ export const getGrade = (percentage) => {
   return 'E';
 };
 
-/**
- * Get performance message and emoji
- * @param {number} percentage - Score percentage
- * @returns {{message: string, emoji: string}} Performance feedback
- */
 export const getPerformanceMessage = (percentage) => {
   const pct = parseFloat(percentage);
   

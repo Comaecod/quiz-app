@@ -1,6 +1,3 @@
-import { useMemo } from 'react';
-import { getMarksForQuestion } from '../data/constants';
-
 const QuestionCard = ({ 
   question, 
   selectedAnswer, 
@@ -9,15 +6,14 @@ const QuestionCard = ({
 }) => {
   const {
     questionNumber,
-    originalId,
     text,
     image,
     type,
     options,
-    explanation
+    explanation,
+    marks = 1
   } = question;
 
-  const marks = getMarksForQuestion(originalId);
   const isMultiple = type === 'multiple';
 
   const isAnswered = selectedAnswer !== undefined && 

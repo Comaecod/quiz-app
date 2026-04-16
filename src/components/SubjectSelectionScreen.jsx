@@ -1,0 +1,39 @@
+const SubjectSelectionScreen = ({ examType, classNum, subjects, onSelect, onBack }) => {
+  return (
+    <div className="glass-card w-full max-w-2xl animate-slideUp">
+      <div className="text-center mb-8">
+        <div className="text-5xl mb-4">📚</div>
+        <h2 className="text-2xl font-bold text-white mb-2">{examType}</h2>
+        <p className="text-gray-400">Class {classNum} - Select Subject</p>
+      </div>
+
+      <div className="space-y-3 mb-8">
+        {subjects.map((subject) => (
+          <button
+            key={subject}
+            onClick={() => onSelect(subject)}
+            className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all text-left flex items-center gap-4 group"
+          >
+            <span className="text-3xl">📖</span>
+            <div className="flex-1">
+              <div className="font-semibold text-white group-hover:text-primary transition-colors">{subject}</div>
+              <div className="text-sm text-gray-400">Click to start assessment</div>
+            </div>
+            <span className="text-gray-500 group-hover:text-primary transition-colors">→</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="text-center">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all"
+        >
+          ← Back to Class Selection
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default SubjectSelectionScreen;

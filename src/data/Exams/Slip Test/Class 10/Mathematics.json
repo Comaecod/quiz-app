@@ -5,7 +5,9 @@
     "subject": "Mathematics",
     "teacher": "Mrs. Kameshwari",
     "invigilator": "Mrs. Kameshwari",
+    "preassessmentsecretkey": "MathKey2024",
     "secretKey": "secret",
+    "teacherSecretKey": "TeacherKey123",
     "wrongAnswerPenaltyFraction": 0,
     "timeLimitMinutes": 40,
     "enabled": true
@@ -34,8 +36,7 @@
         { "text": "49" },
         { "text": "52" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 2,
@@ -48,8 +49,7 @@
         { "text": "630" },
         { "text": "640" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 3,
@@ -62,8 +62,7 @@
         { "text": "15" },
         { "text": "20" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 4,
@@ -76,8 +75,7 @@
         { "text": "26" },
         { "text": "27" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 5,
@@ -90,8 +88,7 @@
         { "text": "315" },
         { "text": "325" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 6,
@@ -104,8 +101,7 @@
         { "text": "61" },
         { "text": "64" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 7,
@@ -118,8 +114,7 @@
         { "text": "48" },
         { "text": "51" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 8,
@@ -132,8 +127,7 @@
         { "text": "26th" },
         { "text": "27th" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 9,
@@ -146,8 +140,7 @@
         { "text": "540" },
         { "text": "570" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 10,
@@ -160,8 +153,7 @@
         { "text": "12" },
         { "text": "9" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 11,
@@ -174,8 +166,7 @@
         { "text": "20" },
         { "text": "21" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 12,
@@ -188,12 +179,11 @@
         { "text": "7" },
         { "text": "8" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 13,
-      "text": "If Sn = 2n^2 + 3n, find the nth term.",
+      "text": "If Sn = 2n² + 3n, find the nth term.",
       "image": null,
       "type": "single",
       "options": [
@@ -202,8 +192,7 @@
         { "text": "4n − 1" },
         { "text": "4n + 5" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 14,
@@ -216,8 +205,7 @@
         { "text": "4" },
         { "text": "5" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 15,
@@ -230,8 +218,7 @@
         { "text": "m+n" },
         { "text": "mn" }
       ],
-      "isCorrect": 0,
-      "explanation": null
+      "isCorrect": 0
     },
     {
       "id": 16,
@@ -244,8 +231,7 @@
         { "text": "13725" },
         { "text": "13950" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 17,
@@ -258,12 +244,11 @@
         { "text": "6, 8, 10" },
         { "text": "7, 8, 9" }
       ],
-      "isCorrect": 1,
-      "explanation": null
+      "isCorrect": 1
     },
     {
       "id": 18,
-      "text": "If the sum of n terms equals n^2, find the common difference.",
+      "text": "If the sum of n terms equals n², find the common difference.",
       "image": null,
       "type": "single",
       "options": [
@@ -272,8 +257,7 @@
         { "text": "0" },
         { "text": "-1" }
       ],
-      "isCorrect": 2,
-      "explanation": null
+      "isCorrect": 2
     },
     {
       "id": 19,
@@ -286,8 +270,7 @@
         { "text": "48" },
         { "text": "51" }
       ],
-      "isCorrect": 3,
-      "explanation": null
+      "isCorrect": 3
     },
     {
       "id": 20,
@@ -300,8 +283,7 @@
         { "text": "d = 0" },
         { "text": "n = 1" }
       ],
-      "isCorrect": 0,
-      "explanation": null
+      "isCorrect": 0
     }
   ]
 }
