@@ -6,9 +6,6 @@ dist/
 dist-ssr/
 *.local
 
-# Firebase config (contains sensitive API keys)
-src/firebase.js
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -66,6 +63,6 @@ coverage/
 *.pid.lock
 *.etag
 serviceAccountKey.json
-src/services/firebaseService.js
 exports/
 README.pdf
+__pycache__/fetch_firestore_data.cpython-314.pyc

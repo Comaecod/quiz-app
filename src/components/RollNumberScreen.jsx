@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 /**
  * RollNumberScreen Component
- * Captures student information before starting the quiz
+ * Collects student details before starting quiz
  */
 const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
   const [formData, setFormData] = useState({
@@ -12,22 +12,18 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
   });
   const [errors, setErrors] = useState({});
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
+    // Clear error when user types
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
+  // Validate form fields
   const validateForm = () => {
     const newErrors = {};
     
@@ -42,13 +38,14 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
     if (!formData.rollNumber.trim()) {
       newErrors.rollNumber = 'Roll number is required';
     } else if (!/^\d+$/.test(formData.rollNumber.trim())) {
-      newErrors.rollNumber = 'Roll number must be numeric';
+      newErrors.rollNumber = 'Must be numeric';
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Submit form
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -65,12 +62,10 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
     <div className="glass-card" style={{ animation: 'slideUp 0.6s ease-out' }}>
       {/* Header */}
       <div className="text-center mb-xl">
-        <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>
-          ✍️
-        </div>
+        <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>✍️</div>
         <h2 className="heading">Student Details</h2>
         <p className="subheading" style={{ fontSize: '1rem', opacity: 0.8 }}>
-          Please fill in your details to begin
+          Fill in your details to begin
         </p>
       </div>
 
@@ -78,9 +73,7 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
       <form onSubmit={handleSubmit}>
         {/* First Name */}
         <div className="form-group">
-          <label className="form-label" htmlFor="firstName">
-            First Name 👤
-          </label>
+          <label className="form-label" htmlFor="firstName">First Name 👤</label>
           <input
             type="text"
             id="firstName"
@@ -92,17 +85,13 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
             autoComplete="given-name"
           />
           {errors.firstName && (
-            <div className="error-message">
-              <span>⚠️</span> {errors.firstName}
-            </div>
+            <div className="error-message"><span>⚠️</span> {errors.firstName}</div>
           )}
         </div>
 
         {/* Last Name */}
         <div className="form-group">
-          <label className="form-label" htmlFor="lastName">
-            Last Name 👤
-          </label>
+          <label className="form-label" htmlFor="lastName">Last Name 👤</label>
           <input
             type="text"
             id="lastName"
@@ -114,17 +103,13 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
             autoComplete="family-name"
           />
           {errors.lastName && (
-            <div className="error-message">
-              <span>⚠️</span> {errors.lastName}
-            </div>
+            <div className="error-message"><span>⚠️</span> {errors.lastName}</div>
           )}
         </div>
 
         {/* Roll Number */}
         <div className="form-group">
-          <label className="form-label" htmlFor="rollNumber">
-            Roll Number 🔢
-          </label>
+          <label className="form-label" htmlFor="rollNumber">Roll Number 🔢</label>
           <input
             type="text"
             id="rollNumber"
@@ -136,13 +121,11 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
             autoComplete="off"
           />
           {errors.rollNumber && (
-            <div className="error-message">
-              <span>⚠️</span> {errors.rollNumber}
-            </div>
+            <div className="error-message"><span>⚠️</span> {errors.rollNumber}</div>
           )}
         </div>
 
-        {/* Info Badge */}
+        {/* Info badge */}
         <div className="text-center mt-lg mb-lg">
           <div className="info-badge" style={{ background: 'rgba(102, 126, 234, 0.3)' }}>
             <span>📝</span>
@@ -150,14 +133,9 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
           </div>
         </div>
 
-        {/* Submit Button */}
-        <button 
-          type="submit" 
-          className="btn btn-success btn-lg btn-block"
-          style={{ marginTop: 'var(--space-lg)' }}
-        >
-          Begin Quiz 
-          <span style={{ fontSize: '1.25rem' }}>🏁</span>
+        {/* Submit */}
+        <button type="submit" className="btn btn-success btn-lg btn-block">
+          Begin Quiz <span>🏁</span>
         </button>
       </form>
     </div>

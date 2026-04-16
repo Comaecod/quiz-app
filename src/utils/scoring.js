@@ -1,15 +1,15 @@
 /**
- * Scoring utility functions
- * Handles all scoring logic including negative marking
+ * Scoring Utilities
+ * Handles all quiz scoring logic including negative marking
  */
 
 import { getMarksForQuestion } from '../data/constants';
 
 /**
- * Normalize the selected answer to a consistent array format
- * @param {*} selected - The selected answer (can be number or array)
+ * Normalize selected answer to array format
+ * @param {number|number[]} selected - Selected answer index or indices
  * @param {string} type - Question type ('single' or 'multiple')
- * @returns {Array} - Array of selected indices
+ * @returns {number[]} Array of selected indices
  */
 export const normalizeSelectedAnswer = (selected, type) => {
   if (selected === undefined || selected === null) return [];
@@ -22,10 +22,10 @@ export const normalizeSelectedAnswer = (selected, type) => {
 };
 
 /**
- * Check if two arrays contain the same elements (order independent)
- * @param {Array} arr1 - First array
- * @param {Array} arr2 - Second array
- * @returns {boolean} - True if arrays have same elements
+ * Compare two arrays regardless of order
+ * @param {number[]} arr1 - First array
+ * @param {number[]} arr2 - Second array
+ * @returns {boolean} True if arrays contain same elements
  */
 export const arraysEqual = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
@@ -33,28 +33,32 @@ export const arraysEqual = (arr1, arr2) => {
   const sorted1 = [...arr1].sort((a, b) => a - b);
   const sorted2 = [...arr2].sort((a, b) => a - b);
   
-  return sorted1.every((val, index) => val === sorted2[index]);
+  return sorted1.every((val, idx) => val === sorted2[idx]);
 };
 
 /**
  * Calculate score for a single question
- * @param {Object} question - The question object
- * @param {*} selectedAnswer - The student's answer
- * @param {number} penaltyFraction - Fraction of marks to deduct for wrong answer
- * @returns {Object} - Score object with marks earned and details
+ * @param {Object} question - Question object
+ * @param {*} selectedAnswer - Student's selected answer
+ * @param {number} penaltyFraction - Negative marking fraction
+ * @returns {Object} Question result with marks earned
  */
 export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction) => {
   const marks = getMarksForQuestion(question.questionNumber);
-  const normalizedCorrect = Array.isArray(question.isCorrect) 
+  
+  // Normalize correct answers to array
+  const correctAnswers = Array.isArray(question.isCorrect) 
     ? question.isCorrect 
     : [question.isCorrect];
   
-  const normalizedSelected = normalizeSelectedAnswer(selectedAnswer, question.type);
+  // Normalize student's answer to array
+  const studentAnswers = normalizeSelectedAnswer(selectedAnswer, question.type);
   
-  const isCorrect = arraysEqual(normalizedCorrect, normalizedSelected);
-  
+  // Check if answer is correct
+  const isCorrect = arraysEqual(correctAnswers, studentAnswers);
+  const isSkipped = studentAnswers.length === 0;
+
   let marksEarned = 0;
-  let isSkipped = normalizedSelected.length === 0;
   
   if (isSkipped) {
     marksEarned = 0;
@@ -63,7 +67,7 @@ export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction
   } else {
     marksEarned = -marks * penaltyFraction;
   }
-  
+
   return {
     questionId: question.id,
     questionNumber: question.questionNumber,
@@ -71,17 +75,17 @@ export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction
     marksEarned,
     isCorrect,
     isSkipped,
-    correctAnswer: normalizedCorrect,
-    studentAnswer: normalizedSelected,
+    correctAnswer: correctAnswers,
+    studentAnswer: studentAnswers,
   };
 };
 
 /**
  * Calculate total score for all questions
- * @param {Array} questions - Array of question objects
- * @param {Object} answers - Object mapping question IDs to selected answers
- * @param {number} penaltyFraction - Fraction of marks to deduct for wrong answer
- * @returns {Object} - Complete scoring results
+ * @param {Object[]} questions - Array of questions
+ * @param {Object} answers - Object mapping question IDs to answers
+ * @param {number} penaltyFraction - Negative marking fraction
+ * @returns {Object} Complete scoring results
  */
 export const calculateTotalScore = (questions, answers, penaltyFraction) => {
   let totalMarks = 0;
@@ -89,17 +93,13 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
   let correctCount = 0;
   let wrongCount = 0;
   let skippedCount = 0;
-  
+
   const questionResults = questions.map(question => {
-    const result = calculateQuestionScore(
-      question,
-      answers[question.id],
-      penaltyFraction
-    );
+    const result = calculateQuestionScore(question, answers[question.id], penaltyFraction);
     
     totalMarks += result.marks;
     totalEarned += result.marksEarned;
-    
+
     if (result.isSkipped) {
       skippedCount++;
     } else if (result.isCorrect) {
@@ -107,21 +107,19 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
     } else {
       wrongCount++;
     }
-    
+
     return result;
   });
-  
+
   const percentage = totalMarks > 0 
     ? ((totalEarned / totalMarks) * 100).toFixed(2) 
     : 0;
-  
-  const grade = getGrade(percentage);
-  
+
   return {
     totalMarks,
     totalEarned: Math.round(totalEarned * 100) / 100,
     percentage,
-    grade,
+    grade: getGrade(percentage),
     correctCount,
     wrongCount,
     skippedCount,
@@ -130,9 +128,9 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
 };
 
 /**
- * Determine grade based on percentage
+ * Get letter grade from percentage
  * @param {number} percentage - Score percentage
- * @returns {string} - Grade letter
+ * @returns {string} Letter grade
  */
 export const getGrade = (percentage) => {
   const pct = parseFloat(percentage);
@@ -148,43 +146,18 @@ export const getGrade = (percentage) => {
 };
 
 /**
- * Get performance message based on score
+ * Get performance message and emoji
  * @param {number} percentage - Score percentage
- * @returns {Object} - Message and emoji
+ * @returns {{message: string, emoji: string}} Performance feedback
  */
 export const getPerformanceMessage = (percentage) => {
   const pct = parseFloat(percentage);
   
-  if (pct >= 90) {
-    return { message: 'Outstanding! You\'re a star!', emoji: '🌟' };
-  }
-  if (pct >= 80) {
-    return { message: 'Excellent work! Keep it up!', emoji: '👏' };
-  }
-  if (pct >= 70) {
-    return { message: 'Good job! Room for improvement!', emoji: '💪' };
-  }
-  if (pct >= 60) {
-    return { message: 'Nice effort! Keep practicing!', emoji: '📚' };
-  }
-  if (pct >= 50) {
-    return { message: 'You passed! Study more!', emoji: '📖' };
-  }
-  if (pct >= 40) {
-    return { message: 'Just passed! Focus more!', emoji: '🎯' };
-  }
+  if (pct >= 90) return { message: "Outstanding! You're a star!", emoji: '🌟' };
+  if (pct >= 80) return { message: 'Excellent work! Keep it up!', emoji: '👏' };
+  if (pct >= 70) return { message: 'Good job! Room for improvement!', emoji: '💪' };
+  if (pct >= 60) return { message: 'Nice effort! Keep practicing!', emoji: '📚' };
+  if (pct >= 50) return { message: 'You passed! Study more!', emoji: '📖' };
+  if (pct >= 40) return { message: 'Just passed! Focus more!', emoji: '🎯' };
   return { message: 'Keep trying! You can do better!', emoji: '💯' };
-};
-
-/**
- * Format the student's answers for display
- * @param {Array} options - Array of option objects
- * @param {Array} indices - Array of selected option indices
- * @returns {Array} - Array of selected option texts
- */
-export const formatSelectedAnswers = (options, indices) => {
-  return indices.map(index => {
-    const option = options.find((opt, i) => i === index);
-    return option ? option.text : '';
-  }).filter(Boolean);
 };

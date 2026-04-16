@@ -1,13 +1,13 @@
 /**
- * Shuffle utility functions
- * Provides randomization for questions and options
+ * Shuffle Utilities
+ * Randomization for questions and options
  */
 
 /**
  * Fisher-Yates shuffle algorithm
- * Creates a new shuffled array without mutating the original
- * @param {Array} array - The array to shuffle
- * @returns {Array} - A new shuffled array
+ * Creates new shuffled array without mutating original
+ * @param {T[]} array - Array to shuffle
+ * @returns {T[]} New shuffled array
  */
 export const shuffleArray = (array) => {
   const shuffled = [...array];
@@ -21,10 +21,10 @@ export const shuffleArray = (array) => {
 };
 
 /**
- * Select random questions from the question bank
- * @param {Array} questions - Array of all questions
- * @param {number} count - Number of questions to select
- * @returns {Array} - Array of randomly selected questions
+ * Select random subset of questions
+ * @param {Object[]} questions - All available questions
+ * @param {number} count - Number to select
+ * @returns {Object[]} Randomly selected questions
  */
 export const selectRandomQuestions = (questions, count) => {
   if (questions.length === 0) return [];
@@ -34,61 +34,60 @@ export const selectRandomQuestions = (questions, count) => {
 };
 
 /**
- * Prepare questions for the quiz
- * - Assigns IDs if not present
- * - Shuffles options within each question
- * - Normalizes the isCorrect field to a consistent format
- * @param {Array} questions - Array of questions to prepare
- * @returns {Array} - Prepared questions with shuffled options
+ * Prepare questions for quiz:
+ * - Assign sequential IDs if missing
+ * - Shuffle options within each question
+ * - Track correct answer indices after shuffle
+ * @param {Object[]} questions - Questions to prepare
+ * @returns {Object[]} Prepared questions
  */
 export const prepareQuestions = (questions) => {
   return questions.map((question, index) => {
-    // Assign ID if not present
+    // Assign ID if missing
     const id = question.id || index + 1;
     
-    // Shuffle options and track original indices
+    // Add original index to each option for tracking
     const optionsWithIndices = question.options.map((option, optIndex) => ({
       ...option,
       originalIndex: optIndex,
     }));
     
+    // Shuffle options
     const shuffledOptions = shuffleArray(optionsWithIndices);
     
-    // Normalize isCorrect field based on question type
-    let normalizedCorrect;
+    // Map correct answer index to new shuffled position
+    let correctIndex;
     if (question.type === 'multiple') {
-      // For multiple correct, map old indices to new shuffled indices
+      // Multiple correct: map all indices
       const correctIndices = Array.isArray(question.isCorrect) 
         ? question.isCorrect 
         : [question.isCorrect];
       
-      normalizedCorrect = correctIndices.map(oldIndex => {
-        const found = optionsWithIndices.find(opt => opt.originalIndex === oldIndex);
-        return shuffledOptions.indexOf(found);
+      correctIndex = correctIndices.map(oldIdx => {
+        const option = optionsWithIndices.find(opt => opt.originalIndex === oldIdx);
+        return shuffledOptions.indexOf(option);
       });
     } else {
-      // For single correct, map old index to new shuffled index
-      const found = optionsWithIndices.find(
-        opt => opt.originalIndex === question.isCorrect
-      );
-      normalizedCorrect = shuffledOptions.indexOf(found);
+      // Single correct: map single index
+      const option = optionsWithIndices.find(opt => opt.originalIndex === question.isCorrect);
+      correctIndex = shuffledOptions.indexOf(option);
     }
-    
+
     return {
       ...question,
       id,
       questionNumber: index + 1,
       options: shuffledOptions,
-      isCorrect: normalizedCorrect,
+      isCorrect: correctIndex,
     };
   });
 };
 
 /**
- * Get a random subset of questions with prepared state
- * @param {Array} questions - All available questions
+ * Main function: get random questions with shuffled options
+ * @param {Object[]} questions - All available questions
  * @param {number} count - Number of questions to select
- * @returns {Array} - Shuffled questions with shuffled options
+ * @returns {Object[]} Prepared quiz questions
  */
 export const getQuizQuestions = (questions, count) => {
   const selected = selectRandomQuestions(questions, count);

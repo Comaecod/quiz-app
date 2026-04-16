@@ -2,61 +2,53 @@ import { calculateTotalMarks } from '../data/constants';
 
 /**
  * IntroScreen Component
- * Displays the welcome screen with exam details and start button
+ * Welcome screen with exam details and start button
  */
 const IntroScreen = ({ config, onStart }) => {
-  const { examTitle, className, schoolName, timeLimitMinutes } = config;
+  const { 
+    examTitle, 
+    className, 
+    schoolName, 
+    timeLimitMinutes, 
+    teacher, 
+    invigilator, 
+    subject,
+    questionsPerPaper
+  } = config;
+
+  const totalMarks = calculateTotalMarks(questionsPerPaper);
 
   return (
-    <div
-      className='glass-card'
-      style={{ animation: 'slideUp 0.6s ease-out' }}>
-      {/* School Logo/Icon */}
+    <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
+      {/* School header */}
       <div className='text-center mb-xl'>
-        <div
-          style={{
-            fontSize: '4rem',
-            marginBottom: 'var(--space-md)',
-          }}>
-          🎓
+        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-md)' }}>🎓</div>
+        <h1 className='heading' style={{ fontSize: '1.75rem' }}>{schoolName}</h1>
+      </div>
+
+      {/* Exam title */}
+      <div className='text-center mb-xl'>
+        <h2 className='subheading exam-title'>{examTitle}</h2>
+        <p className='exam-subtitle'>Class {className} | {subject}</p>
+      </div>
+
+      {/* Teacher & Invigilator */}
+      <div className='header-info mb-lg'>
+        <div className='info-badge'>
+          <span>👩‍🏫</span>
+          <span>Teacher: {teacher || 'N/A'}</span>
         </div>
-        <h1
-          className='heading'
-          style={{ fontSize: '1.75rem' }}>
-          {schoolName}
-        </h1>
+        <div className='info-badge'>
+          <span>👨‍💼</span>
+          <span>Invigilator: {invigilator || 'N/A'}</span>
+        </div>
       </div>
 
-      {/* Exam Title */}
-      <div className='text-center mb-xl'>
-        <h2
-          className='subheading'
-          style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            background: 'var(--primary-gradient)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-          }}>
-          {examTitle}
-        </h2>
-        <p
-          className='text-muted'
-          style={{
-            color: 'var(--text-primary)',
-            fontSize: '1.25rem',
-            fontWeight: 800,
-            marginTop: 'var(--space-sm)',
-          }}>
-          Class {className} Assessment
-        </p>
-      </div>
-
-      {/* Exam Info Badges */}
+      {/* Exam info badges */}
       <div className='header-info'>
         <div className='info-badge'>
           <span>📚</span>
-          <span>{config.questionsPerPaper} Questions</span>
+          <span>{questionsPerPaper} Questions</span>
         </div>
         <div className='info-badge'>
           <span>⏱️</span>
@@ -64,15 +56,13 @@ const IntroScreen = ({ config, onStart }) => {
         </div>
         <div className='info-badge'>
           <span>📊</span>
-          <span>{calculateTotalMarks(config.questionsPerPaper)} Marks</span>
+          <span>{totalMarks} Marks</span>
         </div>
       </div>
 
       {/* Instructions */}
       <div className='instructions'>
-        <h3 className='instructions-title'>
-          <span>📋</span> Instructions
-        </h3>
+        <h3 className='instructions-title'><span>📋</span> Instructions</h3>
         <ul className='instructions-list'>
           <li>Answer all questions to the best of your ability</li>
           <li>No back navigation - answer each question once</li>
@@ -82,17 +72,10 @@ const IntroScreen = ({ config, onStart }) => {
         </ul>
       </div>
 
-      {/* Start Button */}
+      {/* Start button */}
       <div className='text-center mt-xl'>
-        <button
-          className='btn btn-primary btn-lg'
-          onClick={onStart}
-          style={{
-            fontSize: '1.125rem',
-            padding: 'var(--space-lg) var(--space-2xl)',
-          }}>
-          Start Test
-          <span style={{ fontSize: '1.25rem' }}>👉</span>
+        <button className='btn btn-primary btn-lg' onClick={onStart}>
+          Start Test <span>👉</span>
         </button>
       </div>
     </div>

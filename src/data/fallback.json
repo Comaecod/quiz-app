@@ -1,0 +1,16 @@
+{
+  "exam": {
+    "title": "No Exam Available",
+    "class": 0,
+    "subject": "General",
+    "teacher": "",
+    "invigilator": "",
+    "secretKey": "",
+    "marksPerQuestion": [],
+    "wrongAnswerPenaltyFraction": 0.25,
+    "timeLimitMinutes": 0,
+    "questionsPerPaper": 0,
+    "enabled": false
+  },
+  "questions": []
+}

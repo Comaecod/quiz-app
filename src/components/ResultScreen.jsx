@@ -1,13 +1,10 @@
-import { useMemo, useEffect, useRef } from 'react';
-import { 
-  calculateTotalScore, 
-  getPerformanceMessage,
-} from '../utils/scoring';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { calculateTotalScore, getPerformanceMessage } from '../utils/scoring';
 import { saveQuizResult } from '../services/firebaseService';
 
 /**
  * ResultScreen Component
- * Displays the final quiz results with detailed analysis
+ * Shows final quiz results with detailed analysis (locked by secret key)
  */
 const ResultScreen = ({ 
   questions, 
@@ -16,25 +13,46 @@ const ResultScreen = ({
   config,
   onRestart 
 }) => {
-  const { examTitle, wrongAnswerPenaltyFraction } = config;
+  const [secretKey, setSecretKey] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [keyError, setKeyError] = useState(false);
   const hasSaved = useRef(false);
 
+  // Check if answers should be hidden (if secret key is configured)
+  const hasSecretKey = config.secretKey && config.secretKey.length > 0;
+
+  // Calculate scores
   const results = useMemo(() => {
-    return calculateTotalScore(
-      questions, 
-      answers, 
-      wrongAnswerPenaltyFraction
-    );
-  }, [questions, answers, wrongAnswerPenaltyFraction]);
+    return calculateTotalScore(questions, answers, config.wrongAnswerPenaltyFraction);
+  }, [questions, answers, config.wrongAnswerPenaltyFraction]);
 
   const performance = getPerformanceMessage(results.percentage);
 
+  // Save to Firebase (once)
   useEffect(() => {
     if (!hasSaved.current) {
       hasSaved.current = true;
       saveQuizResult(studentInfo, config, results).catch(console.error);
     }
   }, []);
+
+  // Handle secret key submission
+  const handleKeySubmit = (e) => {
+    e.preventDefault();
+    
+    if (secretKey.trim() === config.secretKey) {
+      setIsUnlocked(true);
+      setKeyError(false);
+    } else {
+      setKeyError(true);
+    }
+  };
+
+  // Handle key input change
+  const handleKeyChange = (e) => {
+    setSecretKey(e.target.value);
+    if (keyError) setKeyError(false);
+  };
 
   return (
     <div style={{ 
@@ -46,70 +64,38 @@ const ResultScreen = ({
         {/* Header */}
         <div className="result-header">
           <h2 className="heading" style={{ fontSize: '1.5rem' }}>
-            {performance.emoji} {examTitle} is now over! {performance.emoji}
+            {performance.emoji} {config.examTitle} Complete {performance.emoji}
           </h2>
-          <p className="subheading" style={{ fontSize: '1rem', marginTop: 'var(--space-sm)' }}>
-            Please remain seated where you are 🪑
-          </p>
-          <p className="subheading" style={{ fontSize: '0.875rem', opacity: 0.7 }}>
-            Call the invigilator to check your score
-          </p>
-          <p className="subheading" style={{ fontSize: '0.875rem', opacity: 0.7 }}>
-            Do not look around 👀
+          <p className="subheading result-subtitle">
+            Please remain seated. Do not look around. 👀
           </p>
         </div>
 
-        {/* Student Info */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          padding: 'var(--space-lg)',
-          marginBottom: 'var(--space-xl)'
-        }}>
-          <h3 style={{ 
-            color: 'var(--text-light)', 
-            fontSize: '1.25rem',
-            marginBottom: 'var(--space-sm)'
-          }}>
+        {/* Student info card */}
+        <div className="student-card">
+          <h3 className="student-name">
             {studentInfo.firstName} {studentInfo.lastName}
           </h3>
-          <p style={{ color: 'var(--text-light)', opacity: 0.8 }}>
-            Roll Number: {studentInfo.rollNumber}
-          </p>
+          <p>Roll Number: {studentInfo.rollNumber}</p>
         </div>
 
-        {/* Score Display */}
+        {/* Score display */}
         <div className="result-score">
           {results.totalEarned.toFixed(1)}
-          <span style={{ 
-            fontSize: '1.5rem', 
-            opacity: 0.8,
-            fontWeight: '500'
-          }}>
-            /{results.totalMarks}
-          </span>
+          <span className="score-total">/{results.totalMarks}</span>
         </div>
 
         <div className="result-percentage">
           {results.percentage}% {performance.emoji}
         </div>
 
-        <div className="result-grade" style={{
-          animation: 'bounce 1s ease-out'
-        }}>
+        <div className="result-grade" style={{ animation: 'bounce 1s ease-out' }}>
           {results.grade}
         </div>
 
-        <p style={{ 
-          color: 'var(--text-light)',
-          fontSize: '1.125rem',
-          fontWeight: '600',
-          marginTop: 'var(--space-md)'
-        }}>
-          {performance.message}
-        </p>
+        <p className="performance-message">{performance.message}</p>
 
-        {/* Stats Grid */}
+        {/* Stats grid */}
         <div className="result-stats">
           <div className="stat-card correct">
             <div className="stat-value">{results.correctCount}</div>
@@ -125,108 +111,93 @@ const ResultScreen = ({
           </div>
         </div>
 
-        {/* Detailed Results Table */}
-        <div className="result-table-container">
-          <h3 className="result-table-title">
-            📊 Detailed Question Analysis
-          </h3>
-          <div style={{ 
-            overflowX: 'auto',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(255, 255, 255, 0.1)'
-          }}>
-            <table className="result-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '50px' }}>#</th>
-                  <th>Question</th>
-                  <th style={{ width: '150px' }}>Correct Answer</th>
-                  <th style={{ width: '150px' }}>Your Answer</th>
-                  <th style={{ width: '60px' }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {questions.map((question, index) => {
-                  const result = results.questionResults[index];
-                  const correctAnswers = Array.isArray(question.isCorrect)
-                    ? question.isCorrect
-                    : [question.isCorrect];
-                  
-                  const correctText = correctAnswers
-                    .map(i => question.options[i]?.text)
-                    .filter(Boolean)
-                    .join(', ') || '-';
-                  
-                  const studentAnswerIndices = answers[question.id];
-                  let studentText = '-';
-                  let statusClass = 'skipped-answer';
-                  let statusIcon = '⏭️';
-                  
-                  if (studentAnswerIndices !== undefined) {
-                    const indices = Array.isArray(studentAnswerIndices)
-                      ? studentAnswerIndices
-                      : [studentAnswerIndices];
+        {/* Secret Key Unlock or Answers Table */}
+        {hasSecretKey && !isUnlocked ? (
+          /* Secret Key Form */
+          <div className="unlock-section">
+            <div className="unlock-icon">🔒</div>
+            <h3 className="unlock-title">Answers Hidden</h3>
+            <p className="unlock-description">
+              Enter the secret key to view question analysis
+            </p>
+            
+            <form onSubmit={handleKeySubmit} className="unlock-form">
+              <input
+                type="password"
+                className={`form-input unlock-input ${keyError ? 'error' : ''}`}
+                placeholder="Enter secret key"
+                value={secretKey}
+                onChange={handleKeyChange}
+                autoFocus
+              />
+              {keyError && (
+                <p className="error-message unlock-error">
+                  ⚠️ Incorrect secret key
+                </p>
+              )}
+              <button type="submit" className="btn btn-primary">
+                Unlock Answers 🔓
+              </button>
+            </form>
+          </div>
+        ) : (
+          /* Detailed question analysis table */
+          <div className="result-table-container">
+            <h3 className="result-table-title">📊 Question Analysis</h3>
+            <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', background: 'rgba(255, 255, 255, 0.1)' }}>
+              <table className="result-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '50px' }}>#</th>
+                    <th>Question</th>
+                    <th style={{ width: '150px' }}>Correct</th>
+                    <th style={{ width: '150px' }}>Your Answer</th>
+                    <th style={{ width: '60px' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {questions.map((question, index) => {
+                    const result = results.questionResults[index];
+                    const correctIdx = Array.isArray(question.isCorrect) ? question.isCorrect : [question.isCorrect];
+                    const correctText = correctIdx.map(i => question.options[i]?.text).filter(Boolean).join(', ') || '-';
                     
-                    if (indices.length > 0) {
-                      studentText = indices
-                        .map(i => question.options[i]?.text)
-                        .filter(Boolean)
-                        .join(', ') || '-';
-                      
-                      if (result.isCorrect) {
-                        statusClass = 'correct-answer';
-                        statusIcon = '✅';
-                      } else {
-                        statusClass = 'wrong-answer';
-                        statusIcon = '❌';
+                    const studentIdx = answers[question.id];
+                    let studentText = '-';
+                    let statusClass = 'skipped-answer';
+                    let statusIcon = '⏭️';
+                    
+                    if (studentIdx !== undefined) {
+                      const idx = Array.isArray(studentIdx) ? studentIdx : [studentIdx];
+                      if (idx.length > 0) {
+                        studentText = idx.map(i => question.options[i]?.text).filter(Boolean).join(', ') || '-';
+                        statusClass = result.isCorrect ? 'correct-answer' : 'wrong-answer';
+                        statusIcon = result.isCorrect ? '✅' : '❌';
                       }
                     }
-                  }
-                  
-                  const truncatedQuestion = question.text.length > 50
-                    ? question.text.substring(0, 50) + '...'
-                    : question.text;
-                  
-                  return (
-                    <tr key={question.id}>
-                      <td>Q{question.questionNumber}</td>
-                      <td title={question.text}>{truncatedQuestion}</td>
-                      <td className="correct-answer">{correctText}</td>
-                      <td className={statusClass}>{studentText}</td>
-                      <td>{statusIcon}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+
+                    const truncated = question.text.length > 50 
+                      ? question.text.substring(0, 50) + '...' 
+                      : question.text;
+
+                    return (
+                      <tr key={question.id}>
+                        <td>Q{question.questionNumber}</td>
+                        <td title={question.text}>{truncated}</td>
+                        <td className="correct-answer">{correctText}</td>
+                        <td className={statusClass}>{studentText}</td>
+                        <td>{statusIcon}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Restart Button */}
-        {/* <div className="text-center mt-xl">
-          <button
-            className="btn btn-primary btn-lg"
-            onClick={onRestart}
-          >
-            🔄 Take Quiz Again
-          </button>
-        </div> */}
-
-        {/* Footer Message */}
-        <div style={{
-          marginTop: 'var(--space-xl)',
-          padding: 'var(--space-md)',
-          background: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 'var(--radius-md)'
-        }}>
-          <p style={{ 
-            color: 'var(--text-light)', 
-            fontSize: '0.875rem',
-            opacity: 0.8
-          }}>
-            💡 Tip: Review your answers above to understand the correct solutions.
-            Practice makes perfect!
-          </p>
+        {/* Footer tip */}
+        <div className="tip-box">
+          <p>💡 Review answers above to understand correct solutions. Practice makes perfect!</p>
         </div>
       </div>
     </div>

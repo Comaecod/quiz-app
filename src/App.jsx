@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { QUIZ_CONFIG, questions } from './data/constants';
+import { QUIZ_CONFIG, questions, isExamAvailable } from './data/constants';
 import { getQuizQuestions } from './utils/shuffle';
 import IntroScreen from './components/IntroScreen';
 import RollNumberScreen from './components/RollNumberScreen';
@@ -9,8 +9,7 @@ import EmptyState from './components/EmptyState';
 import './styles/global.css';
 
 /**
- * SCREENS ENUM
- * Defines all possible screens in the application
+ * Screen navigation constants
  */
 const SCREENS = {
   INTRO: 'intro',
@@ -20,52 +19,48 @@ const SCREENS = {
 };
 
 /**
- * App Component
- * Main application component that manages screen navigation and quiz state
+ * Main App Component
+ * Manages quiz flow: Intro -> Student Details -> Quiz -> Results
  */
 function App() {
+  // Navigation state
   const [currentScreen, setCurrentScreen] = useState(SCREENS.INTRO);
+  
+  // Quiz state
   const [studentInfo, setStudentInfo] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
 
-  // Check if question bank has questions
-  const hasQuestions = useMemo(() => {
-    return questions && questions.length > 0;
-  }, []);
+  // Check if questions are available
+  const hasQuestions = useMemo(() => questions?.length > 0, []);
 
-  // Number of questions to display
+  // Calculate questions to display
   const questionsCount = useMemo(() => {
     if (!hasQuestions) return 0;
     return Math.min(QUIZ_CONFIG.questionsPerPaper, questions.length);
   }, [hasQuestions]);
 
-  // Handle starting the quiz from intro screen
+  // Navigate to student details form
   const handleStartQuiz = useCallback(() => {
     setCurrentScreen(SCREENS.ROLL_NUMBER);
   }, []);
 
-  // Handle student info submission
+  // Start quiz with student info - prepare & shuffle questions
   const handleStartWithStudentInfo = useCallback((info) => {
-    // Prepare quiz questions
-    const preparedQuestions = getQuizQuestions(
-      questions,
-      QUIZ_CONFIG.questionsPerPaper
-    );
-    
+    const preparedQuestions = getQuizQuestions(questions, QUIZ_CONFIG.questionsPerPaper);
     setStudentInfo(info);
     setQuizQuestions(preparedQuestions);
     setAnswers({});
     setCurrentScreen(SCREENS.QUIZ);
   }, []);
 
-  // Handle quiz completion
+  // Complete quiz - save answers & show results
   const handleQuizComplete = useCallback((finalAnswers) => {
     setAnswers(finalAnswers);
     setCurrentScreen(SCREENS.RESULT);
   }, []);
 
-  // Handle quiz restart
+  // Restart quiz - reset all state
   const handleRestart = useCallback(() => {
     setStudentInfo(null);
     setQuizQuestions([]);
@@ -73,38 +68,28 @@ function App() {
     setCurrentScreen(SCREENS.INTRO);
   }, []);
 
-  // Render current screen
+  // Render current screen based on state
   const renderScreen = () => {
-    // Handle empty question bank
+    // Show no exam available screen if exam is fallback/disabled
+    if (!isExamAvailable && currentScreen !== SCREENS.RESULT) {
+      return <EmptyState />;
+    }
+
+    // Show empty state if no questions (but exam exists)
     if (!hasQuestions && currentScreen !== SCREENS.RESULT) {
-      return (
-        <EmptyState 
-          message="Question bank is empty. Please add questions."
-          icon="📭"
-        />
-      );
+      return <EmptyState />;
     }
 
     switch (currentScreen) {
       case SCREENS.INTRO:
-        return (
-          <IntroScreen 
-            config={QUIZ_CONFIG}
-            onStart={handleStartQuiz}
-          />
-        );
+        return <IntroScreen config={QUIZ_CONFIG} onStart={handleStartQuiz} />;
 
       case SCREENS.ROLL_NUMBER:
-        return (
-          <RollNumberScreen 
-            onStartQuiz={handleStartWithStudentInfo}
-            questionsCount={questionsCount}
-          />
-        );
+        return <RollNumberScreen onStartQuiz={handleStartWithStudentInfo} questionsCount={questionsCount} />;
 
       case SCREENS.QUIZ:
         return (
-          <QuizScreen 
+          <QuizScreen
             questions={quizQuestions}
             studentInfo={studentInfo}
             timeLimitMinutes={QUIZ_CONFIG.timeLimitMinutes}
@@ -114,7 +99,7 @@ function App() {
 
       case SCREENS.RESULT:
         return (
-          <ResultScreen 
+          <ResultScreen
             questions={quizQuestions}
             answers={answers}
             studentInfo={studentInfo}
@@ -130,14 +115,14 @@ function App() {
 
   return (
     <>
-      {/* Animated Background */}
+      {/* Animated background shapes */}
       <div className="background-animation">
         <div className="bg-shape" />
         <div className="bg-shape" />
         <div className="bg-shape" />
       </div>
 
-      {/* Main App Container */}
+      {/* Main app container */}
       <div className="app-container">
         {renderScreen()}
       </div>

@@ -78,7 +78,10 @@ def export_to_excel(data, filename=None):
         'rollNumber',
         'fullName',
         'class',
+        'subject',
         'examName',
+        'teacher',
+        'invigilator',
         'totalMarks',
         'score',
         'percentage',
@@ -100,7 +103,10 @@ def export_to_excel(data, filename=None):
         'rollNumber': 'Roll No.',
         'fullName': 'Student Name',
         'class': 'Class',
+        'subject': 'Subject',
         'examName': 'Exam',
+        'teacher': 'Teacher',
+        'invigilator': 'Invigilator',
         'totalMarks': 'Total Marks',
         'score': 'Score',
         'percentage': 'Percentage',
@@ -143,8 +149,9 @@ def export_to_excel(data, filename=None):
         
         column_widths = {
             'A': 15, 'B': 20, 'C': 12, 'D': 20, 'E': 10,
-            'F': 25, 'G': 12, 'H': 10, 'I': 12, 'J': 8,
-            'K': 10, 'L': 10, 'M': 10, 'N': 15, 'O': 15
+            'F': 15, 'G': 25, 'H': 18, 'I': 18, 'J': 12,
+            'K': 10, 'L': 10, 'M': 12, 'N': 8,
+            'O': 10, 'P': 10, 'Q': 15, 'R': 15
         }
         
         for col, width in column_widths.items():
@@ -160,24 +167,35 @@ def export_to_excel(data, filename=None):
         
         from openpyxl.formatting.rule import FormulaRule
         
-        high_fill = PatternFill(start_color='D4EDDA', end_color='D4EDDA', fill_type='solid')
-        medium_fill = PatternFill(start_color='FFF3CD', end_color='FFF3CD', fill_type='solid')
-        low_fill = PatternFill(start_color='F8D7DA', end_color='F8D7DA', fill_type='solid')
-        
+        # Grade color mapping (green=best, red=worst)
         grade_colors = {
-            'A1': 'D4EDDA', 'A2': 'D4EDDA', 
-            'B1': 'CCE5FF', 'B2': 'FFF3CD', 
-            'C1': 'FFF3CD', 'C2': 'F8D7DA', 
-            'D': 'F8D7DA', 'E': 'EE192D'
+            'A1': 'D4EDDA',  # Excellent - green
+            'A2': 'D4EDDA',  # Excellent - green
+            'B1': 'B8E6B8',  # Very Good - light green
+            'B2': 'FFF8DC',  # Good - cream
+            'C1': 'FFE4B5',  # Average - moccasin
+            'C2': 'FFDAB9',  # Below Average - peach
+            'D': 'FFB6C1',  # Poor - light pink
+            'E': 'FF6B6B',  # Fail - red
         }
         
-        for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=10, max_col=10):
+        # Find grade column index dynamically
+        grade_col_idx = None
+        for idx, col_name in enumerate(column_order, start=1):
+            if col_name == 'grade':
+                grade_col_idx = idx
+                break
+        
+        if grade_col_idx is None:
+            grade_col_idx = 13  # Fallback
+        
+        # Apply grade colors
+        for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=grade_col_idx, max_col=grade_col_idx):
             for cell in row:
-                grade = str(cell.value) if cell.value else ''
-                for g, color in grade_colors.items():
-                    if grade.startswith(g):
-                        cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
-                        break
+                grade = str(cell.value).strip() if cell.value else ''
+                if grade in grade_colors:
+                    cell.fill = PatternFill(start_color=grade_colors[grade], end_color=grade_colors[grade], fill_type='solid')
+                    cell.font = Font(bold=True)
         
         worksheet.freeze_panes = 'A2'
     

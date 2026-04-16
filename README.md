@@ -62,31 +62,38 @@
 ```
 quiz-app/
 ├── index.html                 # Entry HTML file
-├── package.json                # Dependencies & scripts
-├── vite.config.js              # Vite configuration
+├── package.json               # Dependencies & scripts
+├── vite.config.js             # Vite configuration
+├── .env                       # Firebase config (not committed)
+├── .env.example               # Environment template
 │
 └── src/
-    ├── main.jsx                # React entry point
+    ├── main.jsx               # React entry point
     ├── App.jsx                 # Root component & state management
     │
     ├── components/             # UI Components
-    │   ├── IntroScreen.jsx     # Welcome & exam info screen
+    │   ├── IntroScreen.jsx    # Welcome screen with exam details
     │   ├── RollNumberScreen.jsx # Student details form
-    │   ├── QuizScreen.jsx      # Main quiz interface
+    │   ├── QuizScreen.jsx     # Main quiz interface
     │   ├── QuestionCard.jsx    # Question display & options
-    │   ├── Timer.jsx           # Countdown timer
-    │   ├── ResultScreen.jsx    # Results & analysis
-    │   └── EmptyState.jsx      # Empty question bank state
+    │   ├── Timer.jsx          # Countdown timer
+    │   ├── ResultScreen.jsx   # Results & analysis
+    │   └── EmptyState.jsx    # "No exam available" screen
     │
     ├── data/
-    │   └── constants.js        # Configuration & question bank
+    │   ├── constants.js       # Configuration loader
+    │   ├── exam.json          # Active exam (edit this!)
+    │   └── fallback.json     # Fallback when no exam
+    │
+    ├── services/
+    │   └── firebaseService.js # Firestore integration
     │
     ├── utils/
-    │   ├── scoring.js           # Score calculation logic
-    │   └── shuffle.js          # Randomization utilities
+    │   ├── scoring.js          # Score calculation
+    │   └── shuffle.js          # Question randomization
     │
     └── styles/
-        └── global.css          # All styles & CSS variables
+        └── global.css         # All styles & CSS variables
 ```
 
 ---
@@ -290,6 +297,16 @@ cd quiz-app
 npm install
 ```
 
+### Firebase Setup (Required for saving results)
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your Firebase credentials
+# Get values from: Firebase Console > Project Settings > Your Apps > Web App
+```
+
 ### Development
 
 ```bash
@@ -313,43 +330,40 @@ npm run preview
 
 ## 🎨 Customization
 
-### 1. Change Exam Details
-Edit `src/data/constants.js`:
-```javascript
-examTitle: 'Your Exam Title',
-schoolName: 'Your School Name',
-className: 10,
-```
-
-### 2. Add Questions
-Add to the `questions` array in `constants.js`:
-```javascript
+### 1. Configure Exam
+Edit `src/data/exam.json`:
+```json
 {
-  id: 51,
-  text: "Your new question?",
-  type: "single",
-  options: [...],
-  isCorrect: 2,
-  explanation: "Explanation here."
+  "exam": {
+    "title": "Your Exam Title",
+    "class": 7,
+    "subject": "Subject Name",
+    "teacher": "Teacher Name",
+    "invigilator": "Invigilator Name",
+    "secretKey": "UnlockKey",
+    "marksPerQuestion": [[1, 50, 1]],
+    "wrongAnswerPenaltyFraction": 0.25,
+    "timeLimitMinutes": 15,
+    "questionsPerPaper": 20,
+    "enabled": true
+  },
+  "questions": [
+    {
+      "id": 1,
+      "text": "Your question here?",
+      "type": "single",
+      "options": [{"text": "A"}, {"text": "B"}],
+      "isCorrect": 0
+    }
+  ]
 }
 ```
 
-### 3. Configure Timing
-```javascript
-timeLimitMinutes: 30,          // Increase/decrease time
-wrongAnswerPenaltyFraction: 0.33,  // Adjust negative marking
-```
+### 2. Disable Exam
+To show "No Exam Available":
+- Set `"enabled": false` in exam.json
 
-### 4. Modify Marks Structure
-```javascript
-marksPerQuestion: [
-  [1, 10, 1],   // Easy questions: 1 mark
-  [11, 20, 2],  // Medium: 2 marks
-  [21, 30, 3],  // Hard: 3 marks
-],
-```
-
-### 5. Update Styling
+### 3. Update Styling
 Edit CSS variables in `src/styles/global.css`:
 ```css
 :root {
@@ -418,18 +432,28 @@ Results are automatically saved to Firebase Firestore when a quiz is completed.
 1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Enable **Firestore Database** (test mode for dev)
 3. Go to **Project Settings** → **Your apps** → Add Web app
-4. Copy your `firebaseConfig` object
-5. Rename `src/firebase.example.js` to `src/firebase.js`
-6. Paste your config in `firebase.js`
+4. Copy your config values
 
 ```bash
-# After setup
-npm install firebase
+# Create .env file from example
+cp .env.example .env
+
+# Edit .env and paste your Firebase values:
+# VITE_FIREBASE_API_KEY=...
+# VITE_FIREBASE_AUTH_DOMAIN=...
+# VITE_FIREBASE_PROJECT_ID=...
+# VITE_FIREBASE_STORAGE_BUCKET=...
+# VITE_FIREBASE_MESSAGING_SENDER_ID=...
+# VITE_FIREBASE_APP_ID=...
+
+# Run development server
 npm run dev
 ```
 
 ### Security Note
-The `firebase.js` file is in `.gitignore` to protect your API keys. Never commit real keys to version control.
+- Never commit `.env` file (it's in `.gitignore`)
+- Use `.env.example` as a template for others
+- API keys are prefixed with `VITE_` to be exposed to client code
 
 ---
 
