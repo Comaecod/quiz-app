@@ -1,0 +1,17 @@
+{
+  "name": "Quiz Application",
+  "short_name": "Quiz",
+  "description": "Interactive Quiz Application for Students",
+  "start_url": "/quiz-app/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const Timer = ({ minutes, onTimeUp }) => {
   const [timeLeft, setTimeLeft] = useState(minutes * 60);
@@ -53,16 +53,27 @@ const Timer = ({ minutes, onTimeUp }) => {
     return 'bg-white/10 border-white/20';
   };
 
-  const getEmoji = () => {
-    if (isCritical) return '🔴';
-    if (isWarning) return '🟡';
-    return '⏱️';
+  const getAriaLabel = () => {
+    if (isCritical) return `Time remaining: ${mins} minutes and ${secs} seconds, critical`;
+    if (isWarning) return `Time remaining: ${mins} minutes and ${secs} seconds, warning`;
+    return `Time remaining: ${mins} minutes and ${secs} seconds`;
   };
 
+  const timerId = 'quiz-timer';
+  const liveRegionId = 'timer-live-region';
+
   return (
-    <div className={`px-4 py-2 rounded-xl border ${getBgColor()} ${getColor()} font-mono font-bold text-lg flex items-center gap-2 ${isCritical ? 'animate-pulse' : ''}`}>
-      <span>{getEmoji()}</span>
-      <span>{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</span>
+    <div 
+      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border ${getBgColor()} ${getColor()} font-mono font-bold text-base sm:text-lg flex items-center gap-2 ${isCritical ? 'animate-pulse' : ''}`}
+      role="timer"
+      aria-live="polite"
+      aria-atomic="true"
+      aria-label={getAriaLabel()}
+      id={timerId}
+    >
+      <span aria-hidden="true">{isCritical ? '🔴' : isWarning ? '🟡' : '⏱️'}</span>
+      <span aria-hidden="true">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</span>
+      <span id={liveRegionId} className="sr-only">{getAriaLabel()}</span>
     </div>
   );
 };

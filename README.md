@@ -1,36 +1,38 @@
 # 🎓 Quiz Web Application
 
-> A modern, feature-rich online examination system built with React and Vite. Supports single/multiple choice questions, negative marking, timed assessments, and detailed result analysis.
+> A modern, responsive online examination system with real-time assessments, teacher reports, and Firebase integration. Built with React, Vite, and Tailwind CSS.
 
 ![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-5.0.0-646CFF?logo=vite&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.4.21-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?logo=tailwind&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-10.x-FFCA28?logo=firebase&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Platform](https://img.shields.io/badge/Platform-Web-brightgreen)
 
 ---
 
 ## ✨ Features
 
-### Core Functionality
-- 📝 **Dynamic Question Bank** - Auto-calculates total questions from array
-- ⏱️ **Countdown Timer** - Visual warnings at 3min and 1min
+### For Students
+- 📝 **Timed Assessments** - Countdown timer with visual warnings
 - ✅ **Single & Multiple Choice** - Radio buttons and checkboxes
-- 🎯 **Negative Marking** - Configurable penalty fraction
-- 🔀 **Randomized Selection** - Random questions & shuffled options
-- 📊 **Detailed Analytics** - Question-wise analysis, grades, statistics
+- 🔀 **Randomized Questions** - Questions and options shuffled per student
+- 🎯 **Negative Marking** - Configurable penalty (set to 0 to disable)
+- ⏭️ **Skip Questions** - Navigate freely, no penalty for skipping
+- 📊 **Instant Results** - Detailed score analysis with grades
 
-### User Experience
-- 🎨 **Glass Morphism UI** - Modern, responsive design
-- 📱 **Fully Responsive** - Works on all screen sizes
-- ⚡ **Smooth Animations** - CSS transitions and keyframes
-- 🔒 **No Back Navigation** - One-way question flow
-- ⏭️ **Skip Questions** - Optional answering with warning
+### For Teachers
+- 🔐 **Reports Dashboard** - View all student submissions
+- 📋 **Sortable Tables** - Sort by name, marks, percentage, etc.
+- 🔄 **Real-time Data** - Refresh to see latest submissions
+- 🔒 **Secure Access** - Protected by teacher secret key
+- 📱 **Responsive** - Works on desktop and mobile
 
-### Scoring System
-- Automatic score calculation
-- Support for negative marking (e.g., -0.25 per wrong answer)
-- Skip = 0 marks (no penalty)
-- Percentage and letter grade calculation
+### Technical
+- ⚡ **Lightning Fast** - Built with Vite for optimal performance
+- 🎨 **Modern UI** - Glass morphism design with Tailwind CSS
+- 📱 **Fully Responsive** - Mobile-first, works on all devices
+- ♿ **Accessible** - ARIA labels, keyboard navigation, screen reader support
+- 🔥 **Firebase Integration** - Real-time data storage
 
 ---
 
@@ -39,21 +41,9 @@
 | Technology | Purpose | Version |
 |------------|---------|---------|
 | **React** | UI Library | 18.2.0 |
-| **Vite** | Build Tool | 5.0.0 |
-| **CSS Variables** | Styling | Native |
-| **Fisher-Yates** | Shuffle Algorithm | Custom |
-
-### Dependencies
-```json
-"react": "^18.2.0",
-"react-dom": "^18.2.0"
-```
-
-### Dev Dependencies
-```json
-"@vitejs/plugin-react": "^4.2.0",
-"vite": "^5.0.0"
-```
+| **Vite** | Build Tool | 5.4.21 |
+| **Tailwind CSS** | Styling | 3.x |
+| **Firebase** | Backend Database | 10.x |
 
 ---
 
@@ -61,230 +51,58 @@
 
 ```
 quiz-app/
-├── index.html                 # Entry HTML file
-├── package.json               # Dependencies & scripts
-├── vite.config.js             # Vite configuration
-├── .env                       # Firebase config (not committed)
-├── .env.example               # Environment template
+├── index.html                 # Entry HTML with meta tags & PWA config
+├── package.json              # Dependencies & scripts
+├── vite.config.js            # Build configuration
+├── tailwind.config.js        # Tailwind theme customization
+├── postcss.config.js         # PostCSS configuration
+├── .env                      # Firebase config (create from .env.example)
+├── .env.example              # Environment template
+├── .gitignore                # Git ignore patterns
+│
+├── public/
+│   ├── favicon.svg           # App favicon
+│   └── manifest.json         # PWA manifest
 │
 └── src/
-    ├── main.jsx               # React entry point
-    ├── App.jsx                 # Root component & state management
+    ├── main.jsx              # React entry point with lazy loading
+    ├── App.jsx               # Root component & screen routing
+    ├── index.css             # Tailwind directives & custom styles
+    ├── firebase.js           # Firebase initialization
     │
-    ├── components/             # UI Components
-    │   ├── IntroScreen.jsx    # Welcome screen with exam details
+    ├── components/           # UI Components
+    │   ├── IntroScreen.jsx   # Welcome screen with Assessments/Reports
     │   ├── RollNumberScreen.jsx # Student details form
-    │   ├── QuizScreen.jsx     # Main quiz interface
-    │   ├── QuestionCard.jsx    # Question display & options
-    │   ├── Timer.jsx          # Countdown timer
-    │   ├── ResultScreen.jsx   # Results & analysis
-    │   └── EmptyState.jsx    # "No exam available" screen
+    │   ├── QuizScreen.jsx    # Main quiz with timer & navigator
+    │   ├── QuestionCard.jsx   # Question display with smart grid
+    │   ├── Timer.jsx         # Countdown with warnings
+    │   ├── ResultScreen.jsx  # Results with secret key unlock
+    │   ├── ReportsScreen.jsx # Teacher reports dashboard
+    │   ├── EmptyState.jsx    # "No exam available" screen
+    │   └── Footer.jsx        # App footer
     │
     ├── data/
-    │   ├── constants.js       # Configuration loader
-    │   ├── exam.json          # Active exam (edit this!)
-    │   └── fallback.json     # Fallback when no exam
+    │   ├── constants.js       # Configuration loader & exports
+    │   ├── exam.json         # Active exam configuration
+    │   └── fallback.json     # Fallback when no exam enabled
     │
     ├── services/
-    │   └── firebaseService.js # Firestore integration
+    │   └── firebaseService.js # Firestore save operations
     │
-    ├── utils/
-    │   ├── scoring.js          # Score calculation
-    │   └── shuffle.js          # Question randomization
-    │
-    └── styles/
-        └── global.css         # All styles & CSS variables
+    └── utils/
+        ├── format.js         # Name formatting utilities
+        ├── scoring.js        # Score calculation logic
+        └── shuffle.js        # Question randomization
 ```
 
 ---
 
-## 🔄 Application Flow
-
-```
-┌─────────────────┐
-│   IntroScreen   │  ← Welcome screen with exam details
-│   (SCREENS.INTRO)
-└────────┬────────┘
-         │ onStart
-         ▼
-┌─────────────────┐
-│ RollNumberScreen │  ← Collect student info (name, roll no.)
-│(SCREENS.ROLL_NUMBER)
-└────────┬────────┘
-         │ onStartQuiz
-         ▼
-┌─────────────────┐
-│    QuizScreen    │  ← Main quiz with timer & navigation
-│    (SCREENS.QUIZ)
-│                   │  • Timer counts down
-│                   │  • One question at a time
-│                   │  • Next/Submit buttons
-└────────┬────────┘
-         │ onQuizComplete
-         ▼
-┌─────────────────┐
-│  ResultScreen   │  ← Detailed results & analysis
-│  (SCREENS.RESULT)
-│                   │  • Score, grade, percentage
-│                   │  • Question-wise breakdown
-│                   │  • Correct/Wrong/Skipped stats
-└─────────────────┘
-```
-
----
-
-## 🧩 Component Architecture
-
-### 1. `App.jsx` - Root Component
-**State Management:**
-```javascript
-const [currentScreen, setCurrentScreen] = useState(SCREENS.INTRO);
-const [studentInfo, setStudentInfo] = useState(null);
-const [quizQuestions, setQuizQuestions] = useState([]);
-const [answers, setAnswers] = useState({});
-```
-
-**Key Functions:**
-- `handleStartQuiz()` - Navigate to roll number screen
-- `handleStartWithStudentInfo(info)` - Prepare & start quiz
-- `handleQuizComplete(answers)` - Calculate results
-- `handleRestart()` - Reset all state
-
-### 2. `IntroScreen.jsx`
-Displays:
-- School name & exam title
-- Question count, time limit, total marks
-- Instructions for students
-- Start button
-
-### 3. `RollNumberScreen.jsx`
-Features:
-- Form validation (name, roll number required)
-- Numeric roll number check
-- Shows random question selection info
-
-### 4. `QuizScreen.jsx`
-State:
-```javascript
-const [currentIndex, setCurrentIndex] = useState(0);
-const [answers, setAnswers] = useState({});
-const [isTimeUp, setIsTimeUp] = useState(false);
-```
-
-Features:
-- Real-time answer tracking
-- Progress bar
-- Question navigator dots
-- Timer integration
-- Skip question warning
-
-### 5. `QuestionCard.jsx`
-Renders:
-- Question number & marks
-- Question text (supports HTML)
-- Optional image
-- Radio/Checkbox options
-- Multiple-answer hint
-
-### 6. `Timer.jsx`
-- Uses `useRef` for stable callback reference
-- Visual states: normal → warning (3min) → danger (1min)
-- Auto-submits when time reaches 0
-
-### 7. `ResultScreen.jsx`
-Displays:
-- Total score with grade
-- Percentage & performance message
-- Stats: Correct, Wrong, Skipped
-- Detailed question analysis table
-
----
-
-## ⚙️ Configuration (constants.js)
-
-### QUIZ_CONFIG
-```javascript
-export const QUIZ_CONFIG = {
-  examTitle: 'Bridge Course - AI & Python',
-  className: 7,
-  schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
-  
-  questionsPerPaper: 20,      // Questions per exam
-  
-  marksPerQuestion: [
-    [1, 20, 1],               // Questions 1-20: 1 mark each
-    // [21, 30, 2],            // Add more ranges as needed
-  ],
-  
-  wrongAnswerPenaltyFraction: 0.25,  // 25% negative marking
-  
-  timeLimitMinutes: 15,       // Exam duration
-};
-```
-
-### Question Structure
-```javascript
-{
-  id: 1,
-  text: "Your question here?",
-  image: null,                 // or "https://example.com/image.jpg"
-  type: "single",              // or "multiple"
-  options: [
-    { text: "Option A" },
-    { text: "Option B" },
-    { text: "Option C" },
-    { text: "Option D" },
-  ],
-  isCorrect: 0,                // Index of correct answer
-  explanation: "Why this is correct."
-}
-```
-
-### Multiple Choice Questions
-```javascript
-{
-  id: 2,
-  text: "Which are true? (Select all that apply)",
-  type: "multiple",
-  isCorrect: [0, 2],           // Array of correct indices
-}
-```
-
----
-
-## 🔢 Scoring System
-
-### Formula
-```
-Score = (Correct × 1) - (Wrong × 0.25)
-```
-
-### Example
-| Scenario | Calculation | Result |
-|----------|-------------|--------|
-| 7 correct, 13 wrong | (7×1) - (13×0.25) | 3.75 |
-| 10 correct, 10 skipped | (10×1) - 0 | 10.0 |
-| 5 correct, 5 wrong | (5×1) - (5×0.25) | 3.75 |
-
-### Grade Thresholds
-| Percentage | Grade |
-|------------|-------|
-| ≥ 90% | A1 |
-| ≥ 80% | A2 |
-| ≥ 70% | B1 |
-| ≥ 60% | B2 |
-| ≥ 50% | C1 |
-| ≥ 40% | C2 |
-| ≥ 33% | D  |
-| < 33% | E  |
-
----
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 16+ installed
 - npm or yarn package manager
+- Firebase project (optional, for saving results)
 
 ### Installation
 
@@ -297,23 +115,13 @@ cd quiz-app
 npm install
 ```
 
-### Firebase Setup (Required for saving results)
-
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your Firebase credentials
-# Get values from: Firebase Console > Project Settings > Your Apps > Web App
-```
-
 ### Development
 
 ```bash
 # Start development server
 npm run dev
 
-# Server runs at http://localhost:3000
+# Server runs at http://localhost:3000/quiz-app/
 ```
 
 ### Build for Production
@@ -328,10 +136,10 @@ npm run preview
 
 ---
 
-## 🎨 Customization
+## ⚙️ Configuration
 
-### 1. Configure Exam
-Edit `src/data/exam.json`:
+### 1. Exam Setup (`src/data/exam.json`)
+
 ```json
 {
   "exam": {
@@ -340,39 +148,214 @@ Edit `src/data/exam.json`:
     "subject": "Subject Name",
     "teacher": "Teacher Name",
     "invigilator": "Invigilator Name",
-    "secretKey": "UnlockKey",
-    "marksPerQuestion": [[1, 50, 1]],
+    "secretKey": "studentUnlockKey",
+    "teacherSecretKey": "teacherReportsKey",
     "wrongAnswerPenaltyFraction": 0.25,
     "timeLimitMinutes": 15,
-    "questionsPerPaper": 20,
     "enabled": true
   },
+  "sections": [
+    { "range": [1, 50], "marks": 1, "count": 20 }
+  ],
   "questions": [
     {
       "id": 1,
       "text": "Your question here?",
+      "image": null,
       "type": "single",
-      "options": [{"text": "A"}, {"text": "B"}],
+      "options": [
+        { "text": "Option A" },
+        { "text": "Option B" },
+        { "text": "Option C" },
+        { "text": "Option D" }
+      ],
       "isCorrect": 0
     }
   ]
 }
 ```
 
-### 2. Disable Exam
-To show "No Exam Available":
-- Set `"enabled": false` in exam.json
+### Configuration Fields
 
-### 3. Update Styling
-Edit CSS variables in `src/styles/global.css`:
-```css
-:root {
-  --primary-color: #667eea;    /* Main accent color */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --success-color: #10b981;    /* Correct answer color */
-  --error-color: #ef4444;      /* Wrong answer color */
-  --font-primary: 'Poppins';   /* Main font */
+| Field | Description | Example |
+|-------|-------------|---------|
+| `title` | Exam title displayed to students | "Unit Test 1" |
+| `class` | Class/grade number | 7 |
+| `subject` | Subject name | "Mathematics" |
+| `teacher` | Teacher's name | "Mr. Smith" |
+| `secretKey` | Key to unlock answer reveal | "secret123" |
+| `teacherSecretKey` | Key to access reports | "teacherPass" |
+| `wrongAnswerPenaltyFraction` | Negative marking (0 = disabled) | 0.25 |
+| `timeLimitMinutes` | Exam duration | 15 |
+| `enabled` | Show exam or fallback | true/false |
+
+### Section Configuration
+
+Sections define which questions to select and their marks:
+
+```json
+"sections": [
+  { "range": [1, 12], "marks": 2, "count": 6 },
+  { "range": [13, 20], "marks": 4, "count": 4 }
+]
+```
+
+This selects 6 questions from Q1-12 (2 marks each) and 4 questions from Q13-20 (4 marks each) = 10 questions, 28 marks total.
+
+### Question Structure
+
+**Single Choice:**
+```json
+{
+  "id": 1,
+  "text": "What is 2+2?",
+  "image": null,
+  "type": "single",
+  "options": [
+    { "text": "3" },
+    { "text": "4" },
+    { "text": "5" }
+  ],
+  "isCorrect": 1
 }
+```
+
+**Multiple Choice:**
+```json
+{
+  "id": 2,
+  "text": "Select all prime numbers:",
+  "type": "multiple",
+  "options": [
+    { "text": "2" },
+    { "text": "4" },
+    { "text": "5" }
+  ],
+  "isCorrect": [0, 2]
+}
+```
+
+**With Image:**
+```json
+{
+  "id": 3,
+  "text": "What is shown in the image?",
+  "image": "/images/question1.png",
+  "type": "single",
+  "options": [...],
+  "isCorrect": 0
+}
+```
+
+### Disable Exam
+
+To show "No Exam Available":
+```json
+"enabled": false
+```
+
+---
+
+## 🔥 Firebase Setup
+
+### Create Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Add a Web app to get configuration
+4. Enable Firestore Database (start in test mode)
+
+### Environment Setup
+
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your Firebase values:
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
+```
+
+### Firestore Rules (for testing)
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+### For Production
+
+1. Enable authentication
+2. Add proper security rules
+3. Restrict access by domain
+
+---
+
+## 📊 Scoring System
+
+### Grade Thresholds
+
+| Percentage | Grade |
+|------------|-------|
+| ≥ 90% | A1 |
+| ≥ 80% | A2 |
+| ≥ 70% | B1 |
+| ≥ 60% | B2 |
+| ≥ 50% | C1 |
+| ≥ 40% | C2 |
+| ≥ 33% | D |
+| < 33% | E |
+
+### Negative Marking
+
+When `wrongAnswerPenaltyFraction` is set:
+- **Correct answer**: Full marks
+- **Wrong answer**: Negative marks (marks × penalty)
+- **Skipped**: 0 marks (no penalty)
+
+Example: 0.25 penalty on a 1-mark question:
+- Correct: +1.0
+- Wrong: -0.25
+- Skipped: 0
+
+Set to `0` to disable negative marking.
+
+---
+
+## 🎨 Customization
+
+### Colors (`tailwind.config.js`)
+
+```javascript
+theme: {
+  extend: {
+    colors: {
+      primary: '#667eea',
+      secondary: '#764ba2',
+    },
+  },
+}
+```
+
+### Add More Exams
+
+Create multiple exam JSON files and load them conditionally:
+
+```javascript
+// src/data/constants.js
+import examData from './exam1.json';
+// or
+import examData from './exam2.json';
 ```
 
 ---
@@ -380,186 +363,144 @@ Edit CSS variables in `src/styles/global.css`:
 ## 🌐 Deployment
 
 ### GitHub Pages
+
 ```bash
 # Install gh-pages
 npm install --save-dev gh-pages
-
-# Add to package.json scripts
-"deploy": "npm run build && gh-pages -d dist"
 
 # Deploy
 npm run deploy
 ```
 
 ### Netlify / Vercel
+
 1. Connect your GitHub repository
 2. Set build command: `npm run build`
 3. Set output directory: `dist`
 4. Deploy!
 
-### Docker
-```dockerfile
-FROM nginx:alpine
-COPY dist/ /usr/share/nginx/html/
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
----
-
-## 🔥 Firebase Integration
-
-Results are automatically saved to Firebase Firestore when a quiz is completed.
-
-### Data Stored
-| Field | Description |
-|-------|-------------|
-| `timestamp` | Server timestamp of submission |
-| `rollNumber` | Student's roll number |
-| `fullName` | Student's full name |
-| `class` | Class/Grade |
-| `examName` | Examination title |
-| `totalMarks` | Total possible marks |
-| `percentage` | Score percentage |
-| `score` | Actual score earned |
-| `grade` | Letter grade |
-| `correctCount` | Correct answers |
-| `wrongCount` | Wrong answers |
-| `skippedCount` | Skipped questions |
-
-### Setup Steps
-
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable **Firestore Database** (test mode for dev)
-3. Go to **Project Settings** → **Your apps** → Add Web app
-4. Copy your config values
+### Self-Hosting
 
 ```bash
-# Create .env file from example
-cp .env.example .env
+# Build
+npm run build
 
-# Edit .env and paste your Firebase values:
-# VITE_FIREBASE_API_KEY=...
-# VITE_FIREBASE_AUTH_DOMAIN=...
-# VITE_FIREBASE_PROJECT_ID=...
-# VITE_FIREBASE_STORAGE_BUCKET=...
-# VITE_FIREBASE_MESSAGING_SENDER_ID=...
-# VITE_FIREBASE_APP_ID=...
-
-# Run development server
-npm run dev
+# Serve with any static server
+npx serve dist
 ```
-
-### Security Note
-- Never commit `.env` file (it's in `.gitignore`)
-- Use `.env.example` as a template for others
-- API keys are prefixed with `VITE_` to be exposed to client code
 
 ---
 
-## 📊 Excel Export Tool
+## 🧩 Application Flow
 
-Export quiz results from Firestore to Excel for record-keeping.
-
-### Setup
-
-1. Go to Firebase Console > Project Settings > Service Accounts
-2. Click "Generate new private key"
-3. Save the JSON file as `serviceAccountKey.json`
-
-### Installation & Usage
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Get service account key from Firebase Console
-# (Project Settings > Service Accounts > Generate new private key)
-
-# Run the exporter
-python fetch_firestore_data.py
 ```
-
-### Features
-- Automatically fetches all quiz results from Firestore
-- Exports to formatted Excel file with headers
-- Color-coded grades (A1=green, E=red)
-- Summary statistics (average, highest, lowest scores)
-- Grade distribution breakdown
-- Files saved to `exports/` folder
-
-### Output Files
-- Timestamped Excel files (e.g., `quiz_results_20250415_143052.xlsx`)
-- Styled headers with purple gradient
-- Frozen header row
-- Centered columns
-- Grade highlighting
+┌─────────────────┐
+│   IntroScreen   │  ← Assessments | Reports
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌────────┐ ┌────────┐
+│Assess- │ │Reports │
+│ments   │ │(Login) │
+└───┬────┘ └───┬────┘
+    ▼          ▼
+┌────────┐ ┌────────┐
+│ Roll # │ │ Table  │
+│ Screen │ │ View   │
+└───┬────┘ └────────┘
+    ▼
+┌────────┐
+│  Quiz  │
+│ Screen │
+└───┬────┘
+    ▼
+┌────────┐
+│Result  │
+│Screen  │
+└────────┘
+```
 
 ---
 
-## 🔧 Key Utilities
+## 🔧 Utility Functions
 
 ### `shuffle.js`
-| Function | Purpose |
-|----------|---------|
-| `shuffleArray(array)` | Fisher-Yates shuffle |
-| `selectRandomQuestions(questions, count)` | Random selection |
-| `prepareQuestions(questions)` | Shuffle options, normalize answers |
-| `getQuizQuestions(questions, count)` | Full preparation pipeline |
+- `shuffleArray(array)` - Fisher-Yates shuffle
+- `selectQuestionsBySections(questions, sections)` - Section-based selection
+- `prepareQuestions(questions)` - Shuffle options, track correct answers
+- `getQuizQuestions(questions)` - Full preparation pipeline
 
 ### `scoring.js`
-| Function | Purpose |
-|----------|---------|
-| `normalizeSelectedAnswer(selected, type)` | Convert to array format |
-| `arraysEqual(arr1, arr2)` | Compare arrays (order-independent) |
-| `calculateQuestionScore(question, answer, penalty)` | Single question scoring |
-| `calculateTotalScore(questions, answers, penalty)` | Full quiz scoring |
-| `getGrade(percentage)` | Letter grade |
-| `getPerformanceMessage(percentage)` | Encouraging message |
+- `calculateQuestionScore(question, answer, penalty)` - Single question
+- `calculateTotalScore(questions, answers, penalty)` - Full quiz
+- `getGrade(percentage)` - Letter grade
+- `getPerformanceMessage(percentage)` - Encouraging message
+
+### `format.js`
+- `formatName(name)` - Capitalize first letter, lowercase rest
 
 ---
 
-## 📋 Important Variables
+## 📱 Accessibility
 
-| Variable | Location | Purpose |
-|----------|----------|---------|
-| `QUIZ_CONFIG` | constants.js | Global exam settings |
-| `questions` | constants.js | Question bank array |
-| `SCREENS` | App.jsx | Screen navigation enum |
-| `currentScreen` | App.jsx | Active screen state |
-| `quizQuestions` | App.jsx | Selected & prepared questions |
-| `answers` | App.jsx/QuizScreen | Student answers object |
-| `currentIndex` | QuizScreen | Current question index |
+- Keyboard navigation support
+- ARIA labels throughout
+- Screen reader friendly
+- High contrast colors
+- Responsive design for all devices
+- Reduced motion support
+
+---
+
+## 🛠️ Development
+
+### Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run linter (if configured)
+```
+
+### Code Style
+
+- Use functional components with hooks
+- Use Tailwind utility classes
+- Keep components small and focused
+- Use named exports for utilities
 
 ---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - feel free to use this for your school or organization.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **React** - For the amazing UI library
-- **Vite** - For lightning-fast development
-- **Google Fonts** - For Poppins & Nunito typography
-- **Wikimedia Commons** - For question images
+- **React** - Amazing UI library
+- **Vite** - Lightning-fast build tool
+- **Tailwind CSS** - Utility-first CSS framework
+- **Firebase** - Real-time database
+- **Google Fonts** - Inter font family
 
 ---
 
 <div align="center">
-  <strong>Built with ❤️ using React + Vite</strong>
+  <strong>Built with ❤️ by <a href="https://github.com/Vishnukv">Vishnu</a></strong>
   <br>
   <sub>Perfect for schools, online courses, and assessments</sub>
 </div>

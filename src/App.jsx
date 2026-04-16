@@ -110,19 +110,19 @@ function App() {
   };
 
   return (
-    <>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="min-h-screen flex flex-col">
+      <div aria-hidden="true" className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
         <div className="absolute w-80 h-80 rounded-full bg-blue-500 opacity-20 top-1/2 -right-40 animate-float" style={{ animationDelay: '-5s' }} />
         <div className="absolute w-64 h-64 rounded-full bg-pink-500 opacity-20 bottom-0 left-1/3 animate-float" style={{ animationDelay: '-10s' }} />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 pb-12">
+      <main id="main-content" className="relative z-10 flex-1 flex items-center justify-center p-4 pb-16 sm:pb-12" role="main">
         {renderScreen()}
-      </div>
+      </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
 
