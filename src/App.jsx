@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { QUIZ_CONFIG, questions, isExamAvailable } from './data/constants';
+import { QUIZ_CONFIG, questions, isExamAvailable, getTotalQuestions, getTotalMarks } from './data/constants';
 import { getQuizQuestions } from './utils/shuffle';
 import IntroScreen from './components/IntroScreen';
 import RollNumberScreen from './components/RollNumberScreen';
@@ -34,10 +34,10 @@ function App() {
   // Check if questions are available
   const hasQuestions = useMemo(() => questions?.length > 0, []);
 
-  // Calculate questions to display
+  // Calculate questions to display (from sections)
   const questionsCount = useMemo(() => {
     if (!hasQuestions) return 0;
-    return Math.min(QUIZ_CONFIG.questionsPerPaper, questions.length);
+    return getTotalQuestions();
   }, [hasQuestions]);
 
   // Navigate to student details form
@@ -47,7 +47,7 @@ function App() {
 
   // Start quiz with student info - prepare & shuffle questions
   const handleStartWithStudentInfo = useCallback((info) => {
-    const preparedQuestions = getQuizQuestions(questions, QUIZ_CONFIG.questionsPerPaper);
+    const preparedQuestions = getQuizQuestions(questions);
     setStudentInfo(info);
     setQuizQuestions(preparedQuestions);
     setAnswers({});
@@ -93,6 +93,7 @@ function App() {
             questions={quizQuestions}
             studentInfo={studentInfo}
             timeLimitMinutes={QUIZ_CONFIG.timeLimitMinutes}
+            wrongAnswerPenaltyFraction={QUIZ_CONFIG.wrongAnswerPenaltyFraction}
             onQuizComplete={handleQuizComplete}
           />
         );

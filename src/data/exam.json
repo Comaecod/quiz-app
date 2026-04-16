@@ -6,14 +6,17 @@
     "teacher": "Mr. Venkata Vishnu",
     "invigilator": "Mr. Venkata Vishnu",
     "secretKey": "Hellfire",
-    "marksPerQuestion": [
-      [1, 50, 1]
-    ],
     "wrongAnswerPenaltyFraction": 0.25,
     "timeLimitMinutes": 15,
-    "questionsPerPaper": 20,
     "enabled": true
   },
+  "sections": [
+    {
+      "range": [1, 50],
+      "marks": 1,
+      "count": 20
+    }
+  ],
   "questions": [
     {
       "id": 1,
@@ -49,7 +52,9 @@
       "image": null,
       "type": "single",
       "options": [
-        { "text": "Ability of machines to think, learn, and make decisions like humans" },
+        {
+          "text": "Ability of machines to think, learn, and make decisions like humans"
+        },
         { "text": "Physical strength of robots" },
         { "text": "Programming smartphones only" },
         { "text": "A type of power source" }
@@ -637,7 +642,9 @@
       "image": null,
       "type": "single",
       "options": [
-        { "text": "AI improves its performance as it is trained with more examples" },
+        {
+          "text": "AI improves its performance as it is trained with more examples"
+        },
         { "text": "AI performance gets worse with more data" },
         { "text": "AI learning does not depend on the amount of data" },
         { "text": "AI forgets patterns when trained more" }

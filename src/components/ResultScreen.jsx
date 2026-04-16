@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { calculateTotalScore, getPerformanceMessage } from '../utils/scoring';
+import { formatName } from '../utils/format';
 import { saveQuizResult } from '../services/firebaseService';
 
 /**
@@ -74,7 +75,7 @@ const ResultScreen = ({
         {/* Student info card */}
         <div className="student-card">
           <h3 className="student-name">
-            {studentInfo.firstName} {studentInfo.lastName}
+            {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
           </h3>
           <p>Roll Number: {studentInfo.rollNumber}</p>
         </div>

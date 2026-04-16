@@ -26,6 +26,25 @@ export const getExamConfig = () => {
     return getFallbackConfig();
   }
 
+  // Calculate total questions and marks from sections
+  const sections = data.sections || [];
+  let totalQuestions = 0;
+  let totalMarks = 0;
+  
+  sections.forEach(section => {
+    totalQuestions += section.count;
+    totalMarks += section.count * section.marks;
+  });
+
+  // Build marks per question map for scoring
+  const marksPerQuestion = [];
+  sections.forEach(section => {
+    marksPerQuestion.push({
+      range: section.range,
+      marks: section.marks
+    });
+  });
+
   return {
     // Exam metadata
     examTitle: data.exam.title,
@@ -37,9 +56,11 @@ export const getExamConfig = () => {
     schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
     
     // Quiz settings
-    questionsPerPaper: data.exam.questionsPerPaper || 0,
-    marksPerQuestion: data.exam.marksPerQuestion || [],
-    wrongAnswerPenaltyFraction: data.exam.wrongAnswerPenaltyFraction || 0.25,
+    sections: sections,
+    totalQuestions,
+    totalMarks,
+    marksPerQuestion,
+    wrongAnswerPenaltyFraction: data.exam.wrongAnswerPenaltyFraction ?? 0.25,
     timeLimitMinutes: data.exam.timeLimitMinutes || 0,
     
     // Questions array
@@ -62,7 +83,9 @@ const getFallbackConfig = () => ({
   invigilator: '',
   secretKey: '',
   schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
-  questionsPerPaper: 0,
+  sections: [],
+  totalQuestions: 0,
+  totalMarks: 0,
   marksPerQuestion: [],
   wrongAnswerPenaltyFraction: 0.25,
   timeLimitMinutes: 0,
@@ -86,24 +109,16 @@ export const questions = QUIZ_CONFIG.questions || [];
 export const isExamAvailable = QUIZ_CONFIG.isEnabled && questions.length > 0;
 
 /**
- * Calculate total marks for given number of questions
- * @param {number} numQuestions - Number of questions to calculate marks for
- * @returns {number} Total marks possible
+ * Get total marks for display
+ * @returns {number} Total marks for the paper
  */
-export const calculateTotalMarks = (numQuestions) => {
-  let total = 0;
-  
-  for (let i = 1; i <= numQuestions; i++) {
-    const markConfig = QUIZ_CONFIG.marksPerQuestion.find(
-      ([start, end]) => i >= start && i <= end
-    );
-    if (markConfig) {
-      total += markConfig[2];
-    }
-  }
-  
-  return total;
-};
+export const getTotalMarks = () => QUIZ_CONFIG.totalMarks;
+
+/**
+ * Get total questions for display
+ * @returns {number} Total questions in the paper
+ */
+export const getTotalQuestions = () => QUIZ_CONFIG.totalQuestions;
 
 /**
  * Get marks for a specific question number
@@ -111,8 +126,13 @@ export const calculateTotalMarks = (numQuestions) => {
  * @returns {number} Marks for that question
  */
 export const getMarksForQuestion = (questionNumber) => {
-  const markConfig = QUIZ_CONFIG.marksPerQuestion.find(
-    ([start, end]) => questionNumber >= start && questionNumber <= end
-  );
-  return markConfig ? markConfig[2] : 1;
+  const { marksPerQuestion } = QUIZ_CONFIG;
+  
+  for (const config of marksPerQuestion) {
+    if (questionNumber >= config.range[0] && questionNumber <= config.range[1]) {
+      return config.marks;
+    }
+  }
+  
+  return 1;
 };

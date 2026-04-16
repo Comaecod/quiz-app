@@ -12,6 +12,7 @@ const QuestionCard = ({
 }) => {
   const {
     questionNumber,
+    originalId,
     text,
     image,
     type,
@@ -19,7 +20,7 @@ const QuestionCard = ({
     explanation
   } = question;
 
-  const marks = getMarksForQuestion(questionNumber);
+  const marks = getMarksForQuestion(originalId);
   const isMultiple = type === 'multiple';
 
   // Check if answer is selected

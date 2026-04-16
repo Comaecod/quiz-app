@@ -1276,6 +1276,17 @@ body {
 .mb-lg { margin-bottom: var(--space-lg); }
 .mb-xl { margin-bottom: var(--space-xl); }
 
+.section-badge {
+  background: linear-gradient(135deg, var(--glass-bg) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  gap: var(--space-xs);
+}
+
+.section-badge span:first-child {
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }

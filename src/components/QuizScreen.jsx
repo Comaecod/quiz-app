@@ -10,6 +10,7 @@ const QuizScreen = ({
   questions, 
   studentInfo, 
   timeLimitMinutes,
+  wrongAnswerPenaltyFraction,
   onQuizComplete 
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -137,7 +138,11 @@ const QuizScreen = ({
         <div className="flex justify-between mt-xl">
           <div className="skip-warning">
             {!hasAnswered ? (
-              <span>📝 Unattempted (wrong answers get negative marking)</span>
+              wrongAnswerPenaltyFraction > 0 ? (
+                <span>📝 Unattempted (wrong answers have -{wrongAnswerPenaltyFraction * 100}% penalty)</span>
+              ) : (
+                <span>📝 Unattempted question</span>
+              )
             ) : (
               <span>✅ You can change your answer or leave it unanswered</span>
             )}

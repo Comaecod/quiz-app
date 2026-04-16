@@ -1,5 +1,3 @@
-import { calculateTotalMarks } from '../data/constants';
-
 /**
  * IntroScreen Component
  * Welcome screen with exam details and start button
@@ -13,10 +11,9 @@ const IntroScreen = ({ config, onStart }) => {
     teacher, 
     invigilator, 
     subject,
-    questionsPerPaper
+    totalMarks,
+    wrongAnswerPenaltyFraction
   } = config;
-
-  const totalMarks = calculateTotalMarks(questionsPerPaper);
 
   return (
     <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
@@ -47,10 +44,6 @@ const IntroScreen = ({ config, onStart }) => {
       {/* Exam info badges */}
       <div className='header-info'>
         <div className='info-badge'>
-          <span>📚</span>
-          <span>{questionsPerPaper} Questions</span>
-        </div>
-        <div className='info-badge'>
           <span>⏱️</span>
           <span>{timeLimitMinutes} Minutes</span>
         </div>
@@ -68,7 +61,9 @@ const IntroScreen = ({ config, onStart }) => {
           <li>No back navigation - answer each question once</li>
           <li>Timer starts when you begin the quiz</li>
           <li>Quiz auto-submits when time runs out</li>
-          <li>Wrong answers have negative marking</li>
+          {wrongAnswerPenaltyFraction > 0 && (
+            <li>Wrong answers have -{wrongAnswerPenaltyFraction * 100}% negative marking</li>
+          )}
         </ul>
       </div>
 

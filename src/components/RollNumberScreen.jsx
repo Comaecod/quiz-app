@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatName } from '../utils/format';
 
 /**
  * RollNumberScreen Component
@@ -51,8 +52,8 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
     
     if (validateForm()) {
       onStartQuiz({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
+        firstName: formatName(formData.firstName),
+        lastName: formatName(formData.lastName),
         rollNumber: formData.rollNumber.trim()
       });
     }

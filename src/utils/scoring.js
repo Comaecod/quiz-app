@@ -44,7 +44,7 @@ export const arraysEqual = (arr1, arr2) => {
  * @returns {Object} Question result with marks earned
  */
 export const calculateQuestionScore = (question, selectedAnswer, penaltyFraction) => {
-  const marks = getMarksForQuestion(question.questionNumber);
+  const marks = getMarksForQuestion(question.originalId);
   
   // Normalize correct answers to array
   const correctAnswers = Array.isArray(question.isCorrect) 
