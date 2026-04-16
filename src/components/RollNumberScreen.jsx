@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { formatName } from '../utils/format';
 
-/**
- * RollNumberScreen Component
- * Collects student details before starting quiz
- */
 const RollNumberScreen = ({ onStartQuiz, questionsCount, onBack }) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -13,18 +9,15 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount, onBack }) => {
   });
   const [errors, setErrors] = useState({});
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  // Validate form fields
   const validateForm = () => {
     const newErrors = {};
     
@@ -46,7 +39,6 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount, onBack }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit form
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -60,88 +52,94 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount, onBack }) => {
   };
 
   return (
-    <div className="glass-card" style={{ animation: 'slideUp 0.6s ease-out' }}>
-      {/* Header */}
-      <div className="text-center mb-xl">
-        <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>✍️</div>
-        <h2 className="heading">Student Details</h2>
-        <p className="subheading" style={{ fontSize: '1rem', opacity: 0.8 }}>
+    <div className="glass-card w-full max-w-md animate-slideUp">
+      <div className="text-center mb-8">
+        <div className="text-5xl mb-4">✍️</div>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          Student Details
+        </h2>
+        <p className="text-gray-400 text-lg mt-2">
           Fill in your details to begin
         </p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit}>
-        {/* First Name */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="firstName">First Name 👤</label>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">
+            First Name 👤
+          </label>
           <input
             type="text"
             id="firstName"
             name="firstName"
-            className={`form-input ${errors.firstName ? 'error' : ''}`}
+            className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none transition-all ${errors.firstName ? 'border-red-500' : 'border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20'}`}
             placeholder="Enter your first name"
             value={formData.firstName}
             onChange={handleChange}
             autoComplete="given-name"
           />
           {errors.firstName && (
-            <div className="error-message"><span>⚠️</span> {errors.firstName}</div>
+            <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+              <span>⚠️</span> {errors.firstName}
+            </p>
           )}
         </div>
 
-        {/* Last Name */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="lastName">Last Name 👤</label>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="lastName">
+            Last Name 👤
+          </label>
           <input
             type="text"
             id="lastName"
             name="lastName"
-            className={`form-input ${errors.lastName ? 'error' : ''}`}
+            className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none transition-all ${errors.lastName ? 'border-red-500' : 'border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20'}`}
             placeholder="Enter your last name"
             value={formData.lastName}
             onChange={handleChange}
             autoComplete="family-name"
           />
           {errors.lastName && (
-            <div className="error-message"><span>⚠️</span> {errors.lastName}</div>
+            <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+              <span>⚠️</span> {errors.lastName}
+            </p>
           )}
         </div>
 
-        {/* Roll Number */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="rollNumber">Roll Number 🔢</label>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="rollNumber">
+            Roll Number 🔢
+          </label>
           <input
             type="text"
             id="rollNumber"
             name="rollNumber"
-            className={`form-input ${errors.rollNumber ? 'error' : ''}`}
+            className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none transition-all ${errors.rollNumber ? 'border-red-500' : 'border-white/10 focus:border-primary/50 focus:ring-2 focus:ring-primary/20'}`}
             placeholder="Enter your roll number"
             value={formData.rollNumber}
             onChange={handleChange}
             autoComplete="off"
           />
           {errors.rollNumber && (
-            <div className="error-message"><span>⚠️</span> {errors.rollNumber}</div>
+            <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+              <span>⚠️</span> {errors.rollNumber}
+            </p>
           )}
         </div>
 
-        {/* Info badge */}
-        <div className="text-center mt-lg mb-lg">
-          <div className="info-badge" style={{ background: 'rgba(102, 126, 234, 0.3)' }}>
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-sm">
             <span>📝</span>
             <span>{questionsCount} questions will be selected randomly</span>
           </div>
         </div>
 
-        {/* Submit */}
-        <button type="submit" className="btn btn-success btn-lg btn-block">
+        <button type="submit" className="w-full px-8 py-4 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all text-lg mb-3">
           Begin Quiz <span>🏁</span>
         </button>
         
-        {/* Back button */}
-        <div className="text-center mt-md">
-          <button type="button" className="btn btn-secondary" onClick={onBack}>
+        <div className="text-center">
+          <button type="button" className="px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all" onClick={onBack}>
             ← Back
           </button>
         </div>

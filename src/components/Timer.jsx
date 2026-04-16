@@ -1,21 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 
-/**
- * Timer Component
- * Countdown timer with visual warnings at 3min and 1min
- */
 const Timer = ({ minutes, onTimeUp }) => {
   const [timeLeft, setTimeLeft] = useState(minutes * 60);
   
-  // Keep callback reference stable
   const onTimeUpRef = useRef(onTimeUp);
   useEffect(() => {
     onTimeUpRef.current = onTimeUp;
   }, [onTimeUp]);
 
-  // Countdown interval
+  const hasTriggered = useRef(false);
+
   useEffect(() => {
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0 && !hasTriggered.current) {
+      hasTriggered.current = true;
       onTimeUpRef.current();
       return;
     }
@@ -24,7 +21,10 @@ const Timer = ({ minutes, onTimeUp }) => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
-          onTimeUpRef.current();
+          if (!hasTriggered.current) {
+            hasTriggered.current = true;
+            onTimeUpRef.current();
+          }
           return 0;
         }
         return prev - 1;
@@ -34,31 +34,35 @@ const Timer = ({ minutes, onTimeUp }) => {
     return () => clearInterval(interval);
   }, [timeLeft]);
 
-  // Format seconds as MM:SS
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  if (minutes <= 0) return null;
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const isWarning = timeLeft <= 180;
+  const isCritical = timeLeft <= 60;
+
+  const getColor = () => {
+    if (isCritical) return 'text-red-400';
+    if (isWarning) return 'text-yellow-400';
+    return 'text-white';
   };
 
-  // Get timer class based on time remaining
-  const getTimerClass = () => {
-    if (timeLeft <= 60) return 'danger';   // Red: < 1 min
-    if (timeLeft <= 180) return 'warning'; // Yellow: < 3 min
-    return '';
+  const getBgColor = () => {
+    if (isCritical) return 'bg-red-500/20 border-red-500/50';
+    if (isWarning) return 'bg-yellow-500/20 border-yellow-500/50';
+    return 'bg-white/10 border-white/20';
   };
 
-  // Get emoji indicator
-  const getTimerEmoji = () => {
-    if (timeLeft <= 60) return '🔴';
-    if (timeLeft <= 180) return '🟡';
+  const getEmoji = () => {
+    if (isCritical) return '🔴';
+    if (isWarning) return '🟡';
     return '⏱️';
   };
 
   return (
-    <div className={`timer ${getTimerClass()}`}>
-      <span style={{ fontSize: '1rem' }}>{getTimerEmoji()}</span>
-      <span>{formatTime(timeLeft)}</span>
+    <div className={`px-4 py-2 rounded-xl border ${getBgColor()} ${getColor()} font-mono font-bold text-lg flex items-center gap-2 ${isCritical ? 'animate-pulse' : ''}`}>
+      <span>{getEmoji()}</span>
+      <span>{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</span>
     </div>
   );
 };

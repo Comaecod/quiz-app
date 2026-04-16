@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { QUIZ_CONFIG, questions, isExamAvailable, getTotalQuestions, getTotalMarks } from './data/constants';
+import { useState, useCallback, useMemo } from 'react';
+import { QUIZ_CONFIG, questions, isExamAvailable, getTotalQuestions } from './data/constants';
 import { getQuizQuestions } from './utils/shuffle';
 import IntroScreen from './components/IntroScreen';
 import RollNumberScreen from './components/RollNumberScreen';
@@ -7,7 +7,8 @@ import QuizScreen from './components/QuizScreen';
 import ResultScreen from './components/ResultScreen';
 import ReportsScreen from './components/ReportsScreen';
 import EmptyState from './components/EmptyState';
-import './styles/global.css';
+import Footer from './components/Footer';
+import './index.css';
 
 const SCREENS = {
   INTRO: 'intro',
@@ -110,15 +111,17 @@ function App() {
 
   return (
     <>
-      <div className="background-animation">
-        <div className="bg-shape" />
-        <div className="bg-shape" />
-        <div className="bg-shape" />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
+        <div className="absolute w-80 h-80 rounded-full bg-blue-500 opacity-20 top-1/2 -right-40 animate-float" style={{ animationDelay: '-5s' }} />
+        <div className="absolute w-64 h-64 rounded-full bg-pink-500 opacity-20 bottom-0 left-1/3 animate-float" style={{ animationDelay: '-10s' }} />
       </div>
 
-      <div className="app-container">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 pb-12">
         {renderScreen()}
       </div>
+
+      <Footer />
     </>
   );
 }

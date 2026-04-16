@@ -1,11 +1,8 @@
 import { useState, useCallback } from 'react';
 import Timer from './Timer';
 import QuestionCard from './QuestionCard';
+import Footer from './Footer';
 
-/**
- * QuizScreen Component
- * Main quiz interface - questions on left, navigator on right
- */
 const QuizScreen = ({ 
   questions, 
   studentInfo, 
@@ -19,13 +16,11 @@ const QuizScreen = ({
 
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
-  const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
   const currentAnswer = answers[currentQuestion.id];
   const hasAnswered = currentAnswer !== undefined && 
     (Array.isArray(currentAnswer) ? currentAnswer.length > 0 : true);
 
-  // Update answer for current question
   const handleAnswerChange = useCallback((answer) => {
     setAnswers(prev => ({
       ...prev,
@@ -33,13 +28,11 @@ const QuizScreen = ({
     }));
   }, [currentQuestion.id]);
 
-  // Navigate to specific question
   const handleQuestionClick = (index) => {
     setCurrentIndex(index);
     setVisitedQuestions(prev => new Set([...prev, index]));
   };
 
-  // Go to next question
   const handleNext = useCallback(() => {
     if (currentIndex < totalQuestions - 1) {
       const nextIndex = currentIndex + 1;
@@ -48,19 +41,24 @@ const QuizScreen = ({
     }
   }, [currentIndex, totalQuestions]);
 
-  // Timer ran out - auto submit
   const handleTimeUp = useCallback(() => {
     onQuizComplete(answers);
   }, [answers, onQuizComplete]);
 
-  // Manual submit
   const handleSubmit = useCallback(() => {
     onQuizComplete(answers);
   }, [answers, onQuizComplete]);
 
+  const handleClearAnswer = () => {
+    setAnswers(prev => {
+      const newAnswers = { ...prev };
+      delete newAnswers[currentQuestion.id];
+      return newAnswers;
+    });
+  };
+
   const isLastQuestion = currentIndex === totalQuestions - 1;
 
-  // Get status for a question
   const getQuestionStatus = (question, index) => {
     if (index === currentIndex) return 'current';
     
@@ -73,7 +71,6 @@ const QuizScreen = ({
     return 'skipped';
   };
 
-  // Stats calculations
   const answeredCount = questions.filter(q => {
     const a = answers[q.id];
     return a !== undefined && (Array.isArray(a) ? a.length > 0 : true);
@@ -83,78 +80,36 @@ const QuizScreen = ({
   const remainingCount = totalQuestions - visitedQuestions.size;
 
   return (
-    <div style={{ 
-      width: '100%', 
-      maxWidth: '1200px',
-      display: 'flex',
-      gap: 'var(--space-lg)',
-      animation: 'fadeIn 0.3s ease-out'
-    }}>
-      {/* Left Side - Question Area (2/3) */}
-      <div style={{ flex: 2 }}>
-        {/* Header: Student info + Timer */}
-        <div className="header-bar">
-          <div className="student-info">
-            <span className="student-name">
-              {studentInfo.firstName} {studentInfo.lastName}
-            </span>
-            <span className="student-roll">
-              | Roll: {studentInfo.rollNumber}
-            </span>
-          </div>
-
-          <Timer 
-            minutes={timeLimitMinutes} 
-            onTimeUp={handleTimeUp}
-          />
-        </div>
-
-        {/* Progress bar */}
-        <div className="progress-container" style={{ marginBottom: 'var(--space-lg)' }}>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }} />
-          </div>
-          <div className="progress-text">
-            Question {currentIndex + 1} of {totalQuestions}
-          </div>
-        </div>
-
-        {/* Question card */}
+    <div className="w-full max-w-6xl flex gap-6 animate-fadeIn h-[calc(100vh-120px)]">
+      <div className="flex-1 flex flex-col min-w-0">
         <QuestionCard
           key={currentQuestion.id}
           question={currentQuestion}
           selectedAnswer={currentAnswer}
           onAnswerChange={handleAnswerChange}
-          onClearAnswer={() => {
-            setAnswers(prev => {
-              const newAnswers = { ...prev };
-              delete newAnswers[currentQuestion.id];
-              return newAnswers;
-            });
-          }}
+          onClearAnswer={handleClearAnswer}
         />
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between mt-xl">
-          <div className="skip-warning">
+        <div className="flex justify-between items-center mt-4 flex-shrink-0">
+          <div className="text-sm">
             {!hasAnswered ? (
               wrongAnswerPenaltyFraction > 0 ? (
-                <span>📝 Unattempted (wrong answers have -{wrongAnswerPenaltyFraction * 100}% penalty)</span>
+                <span className="text-yellow-400">📝 Unattempted (wrong answers have -{wrongAnswerPenaltyFraction * 100}% penalty)</span>
               ) : (
-                <span>📝 Unattempted question</span>
+                <span className="text-gray-400">📝 Unattempted question</span>
               )
             ) : (
-              <span>✅ You can change your answer or leave it unanswered</span>
+              <span className="text-green-400">✅ You can change your answer or leave it unanswered</span>
             )}
           </div>
           
-          <div className="flex gap-md">
+          <div className="flex gap-4">
             {!isLastQuestion ? (
-              <button className="btn btn-primary" onClick={handleNext}>
+              <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all" onClick={handleNext}>
                 Next <span>👉</span>
               </button>
             ) : (
-              <button className="btn btn-success" onClick={handleSubmit}>
+              <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all" onClick={handleSubmit}>
                 Submit Quiz <span>✅</span>
               </button>
             )}
@@ -162,43 +117,49 @@ const QuizScreen = ({
         </div>
       </div>
 
-      {/* Right Side - Question Navigator (1/3) */}
-      <div className="question-navigator">
-        {/* Centered content wrapper */}
-        <div className="navigator-content">
-          <h3 className="navigator-title">Questions</h3>
-          
-          {/* Legend */}
-          <div className="navigator-legend">
-            <div className="legend-item">
-              <span className="legend-dot current"></span>
+      <div className="w-80 flex-shrink-0 flex flex-col gap-4">
+        <div className="sticky top-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-base font-semibold text-white">{studentInfo.firstName} {studentInfo.lastName}</div>
+              <div className="text-gray-400 text-sm">Roll: {studentInfo.rollNumber}</div>
+            </div>
+            <Timer minutes={timeLimitMinutes} onTimeUp={handleTimeUp} />
+          </div>
+        </div>
+
+        <div className="sticky top-36 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="flex gap-3 mb-4 flex-wrap justify-center text-xs">
+            <div className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-primary"></span>
               <span>Current</span>
             </div>
-            <div className="legend-item">
-              <span className="legend-dot answered"></span>
+            <div className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-green-500"></span>
               <span>Answered</span>
             </div>
-            <div className="legend-item">
-              <span className="legend-dot skipped"></span>
+            <div className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-yellow-500"></span>
               <span>Skipped</span>
             </div>
-            <div className="legend-item">
-              <span className="legend-dot unvisited"></span>
+            <div className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-gray-600"></span>
               <span>Unvisited</span>
             </div>
           </div>
 
-          {/* Question grid */}
-          <div className="navigator-grid">
+          <div className="grid grid-cols-5 gap-2 mb-4">
             {questions.map((q, idx) => {
               const status = getQuestionStatus(q, idx);
+              const bgColor = status === 'current' ? 'bg-primary' : 
+                             status === 'answered' ? 'bg-green-500' : 
+                             status === 'skipped' ? 'bg-yellow-500' : 'bg-gray-600';
               
               return (
                 <button
                   key={q.id}
-                  className={`nav-btn ${status}`}
+                  className={`w-10 h-10 rounded-lg font-medium text-sm ${bgColor} hover:opacity-80 transition-all`}
                   onClick={() => handleQuestionClick(idx)}
-                  title={`Question ${idx + 1}${status === 'answered' ? ' ✓' : status === 'skipped' ? ' (Skipped)' : ''}`}
                 >
                   {idx + 1}
                 </button>
@@ -206,19 +167,18 @@ const QuizScreen = ({
             })}
           </div>
 
-          {/* Stats summary */}
-          <div className="navigator-stats">
-            <div className="stat-row">
-              <span className="stat-label">Answered:</span>
-              <span className="stat-value answered-color">{answeredCount}</span>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Answered:</span>
+              <span className="text-green-400 font-medium">{answeredCount}</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Skipped:</span>
-              <span className="stat-value skipped-color">{skippedCount}</span>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Skipped:</span>
+              <span className="text-yellow-400 font-medium">{skippedCount}</span>
             </div>
-            <div className="stat-row">
-              <span className="stat-label">Unvisited:</span>
-              <span className="stat-value unvisited-color">{remainingCount}</span>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Unvisited:</span>
+              <span className="text-gray-400 font-medium">{remainingCount}</span>
             </div>
           </div>
         </div>

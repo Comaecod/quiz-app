@@ -89,22 +89,20 @@ const ReportsScreen = ({ onBack }) => {
   };
 
   const SortIcon = ({ columnKey }) => {
-    if (sortConfig.key !== columnKey) return <span style={{ opacity: 0.3 }}>↕</span>;
+    if (sortConfig.key !== columnKey) return <span className="opacity-30">↕</span>;
     return <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>;
   };
 
   if (!hasSecretKey) {
     return (
-      <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
-        <div className="text-center mb-xl">
-          <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>📊</div>
-          <h2 className="heading">Reports</h2>
-          <p className="subheading" style={{ fontSize: '1rem', opacity: 0.8 }}>
-            Teacher secret key not configured
-          </p>
+      <div className="glass-card w-full max-w-md animate-slideUp">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-4">📊</div>
+          <h2 className="text-2xl font-bold mb-2">Reports</h2>
+          <p className="text-gray-400">Teacher secret key not configured</p>
         </div>
-        <div className="text-center mt-xl">
-          <button className='btn btn-primary' onClick={onBack}>
+        <div className="text-center">
+          <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
             ← Back
           </button>
         </div>
@@ -114,33 +112,29 @@ const ReportsScreen = ({ onBack }) => {
 
   if (!isUnlocked) {
     return (
-      <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
-        <div className="text-center mb-xl">
-          <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>📊</div>
-          <h2 className="heading">Teacher Reports</h2>
-          <p className="subheading" style={{ fontSize: '1rem', opacity: 0.8 }}>
-            Enter teacher secret key to view reports
-          </p>
+      <div className="glass-card w-full max-w-md animate-slideUp">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-4">📊</div>
+          <h2 className="text-2xl font-bold mb-2">Teacher Reports</h2>
+          <p className="text-gray-400">Enter teacher secret key to view reports</p>
         </div>
 
-        <form onSubmit={handleKeySubmit} className="unlock-form">
+        <form onSubmit={handleKeySubmit} className="space-y-4">
           <input
             type="password"
-            className={`form-input unlock-input ${keyError ? 'error' : ''}`}
+            className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none ${keyError ? 'border-red-500' : 'border-white/10 focus:border-primary/50'}`}
             placeholder="Enter teacher secret key"
             value={secretKey}
             onChange={handleKeyChange}
             autoFocus
           />
           {keyError && (
-            <p className="error-message unlock-error">
-              ⚠️ Incorrect secret key
-            </p>
+            <p className="text-red-400 text-sm">⚠️ Incorrect secret key</p>
           )}
-          <button type="submit" className="btn btn-primary btn-block">
+          <button type="submit" className="w-full px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90">
             View Reports 🔓
           </button>
-          <button type="button" className="btn btn-secondary btn-block mt-md" onClick={onBack}>
+          <button type="button" className="w-full px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20" onClick={onBack}>
             ← Back
           </button>
         </form>
@@ -149,86 +143,81 @@ const ReportsScreen = ({ onBack }) => {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: '1000px' }}>
-      <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
-        <div className="text-center mb-xl">
-          <div style={{ fontSize: '3rem', marginBottom: 'var(--space-md)' }}>📊</div>
-          <h2 className="heading">Class {QUIZ_CONFIG.className} - {QUIZ_CONFIG.examTitle}</h2>
-          <p className="subheading" style={{ fontSize: '1rem', opacity: 0.8 }}>
-            {QUIZ_CONFIG.subject} | {QUIZ_CONFIG.teacher}
-          </p>
+    <div className="w-full max-w-4xl">
+      <div className="glass-card animate-slideUp">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-4">📊</div>
+          <h2 className="text-2xl font-bold mb-2">Class {QUIZ_CONFIG.className} - {QUIZ_CONFIG.examTitle}</h2>
+          <p className="text-gray-400">{QUIZ_CONFIG.subject} | {QUIZ_CONFIG.teacher}</p>
         </div>
 
         {loading ? (
-          <div className="text-center" style={{ padding: 'var(--space-xl)' }}>
-            <p>Loading reports...</p>
+          <div className="text-center py-12">
+            <p className="text-gray-400">Loading reports...</p>
           </div>
         ) : sortedData.length === 0 ? (
-          <div className="text-center" style={{ padding: 'var(--space-xl)' }}>
-            <p>No reports found for this assessment.</p>
+          <div className="text-center py-12">
+            <p className="text-gray-400">No reports found for this assessment.</p>
           </div>
         ) : (
           <>
-            <div className="flex justify-between items-center mb-lg" style={{ flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-              <div className='info-badge' style={{ 
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+              <div className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium" style={{ 
                 background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.2))',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                padding: 'var(--space-md) var(--space-lg)',
-                fontSize: '1rem'
+                border: '1px solid rgba(16, 185, 129, 0.4)'
               }}>
                 <span>👥</span>
-                <span style={{ fontWeight: 600 }}>Total Students Submitted: {sortedData.length}</span>
+                <span>Total Students Submitted: {sortedData.length}</span>
               </div>
               <button 
-                className='btn btn-secondary' 
+                className="px-4 py-2 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center gap-2" 
                 onClick={fetchReportData}
-                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}
               >
                 <span>🔄</span> Refresh
               </button>
             </div>
 
-            <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-md)', background: 'rgba(255, 255, 255, 0.1)' }}>
-              <table className="result-table">
+            <div className="overflow-x-auto rounded-xl bg-black/20">
+              <table className="w-full">
                 <thead>
-                  <tr>
-                    <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                  <tr className="border-b border-white/10">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white" onClick={() => handleSort('name')}>
                       Name <SortIcon columnKey="name" />
                     </th>
-                    <th onClick={() => handleSort('rollNumber')} style={{ cursor: 'pointer', width: '100px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-24" onClick={() => handleSort('rollNumber')}>
                       Roll No <SortIcon columnKey="rollNumber" />
                     </th>
-                    <th onClick={() => handleSort('correct')} style={{ cursor: 'pointer', width: '80px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('correct')}>
                       Correct <SortIcon columnKey="correct" />
                     </th>
-                    <th onClick={() => handleSort('wrong')} style={{ cursor: 'pointer', width: '80px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('wrong')}>
                       Wrong <SortIcon columnKey="wrong" />
                     </th>
-                    <th onClick={() => handleSort('skipped')} style={{ cursor: 'pointer', width: '80px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('skipped')}>
                       Skipped <SortIcon columnKey="skipped" />
                     </th>
-                    <th onClick={() => handleSort('marks')} style={{ cursor: 'pointer', width: '80px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('marks')}>
                       Marks <SortIcon columnKey="marks" />
                     </th>
-                    <th onClick={() => handleSort('percentage')} style={{ cursor: 'pointer', width: '100px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('percentage')}>
                       % <SortIcon columnKey="percentage" />
                     </th>
-                    <th onClick={() => handleSort('grade')} style={{ cursor: 'pointer', width: '80px' }}>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('grade')}>
                       Grade <SortIcon columnKey="grade" />
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedData.map((row) => (
-                    <tr key={row.id}>
-                      <td>{row.name}</td>
-                      <td>{row.rollNumber}</td>
-                      <td>{row.correct}</td>
-                      <td>{row.wrong}</td>
-                      <td>{row.skipped}</td>
-                      <td>{row.marks}</td>
-                      <td>{row.percentage}%</td>
-                      <td>{row.grade}</td>
+                    <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm">{row.name}</td>
+                      <td className="px-4 py-3 text-sm">{row.rollNumber}</td>
+                      <td className="px-4 py-3 text-sm text-green-400">{row.correct}</td>
+                      <td className="px-4 py-3 text-sm text-red-400">{row.wrong}</td>
+                      <td className="px-4 py-3 text-sm text-yellow-400">{row.skipped}</td>
+                      <td className="px-4 py-3 text-sm">{row.marks}</td>
+                      <td className="px-4 py-3 text-sm">{row.percentage}%</td>
+                      <td className="px-4 py-3 text-sm font-medium">{row.grade}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -237,8 +226,8 @@ const ReportsScreen = ({ onBack }) => {
           </>
         )}
 
-        <div className="text-center mt-xl">
-          <button className='btn btn-primary' onClick={onBack}>
+        <div className="text-center mt-8">
+          <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
             ← Back
           </button>
         </div>

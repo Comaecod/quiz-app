@@ -1,7 +1,3 @@
-/**
- * IntroScreen Component
- * Welcome screen with exam details and two entry points: Assessments and Reports
- */
 const IntroScreen = ({ config, onStart, onReports }) => {
   const { 
     examTitle, 
@@ -16,47 +12,54 @@ const IntroScreen = ({ config, onStart, onReports }) => {
   } = config;
 
   return (
-    <div className='glass-card' style={{ animation: 'slideUp 0.6s ease-out' }}>
-      {/* School header */}
-      <div className='text-center mb-xl'>
-        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-md)' }}>🎓</div>
-        <h1 className='heading' style={{ fontSize: '1.75rem' }}>{schoolName}</h1>
+    <div className="glass-card w-full max-w-lg animate-slideUp">
+      <div className="text-center mb-8">
+        <div className="text-6xl mb-4">🎓</div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          {schoolName}
+        </h1>
       </div>
 
-      {/* Exam title */}
-      <div className='text-center mb-xl'>
-        <h2 className='subheading exam-title'>{examTitle}</h2>
-        <p className='exam-subtitle'>Class {className} | {subject}</p>
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-2">{examTitle}</h2>
+        <p className="text-gray-400">Class {className} | {subject}</p>
       </div>
 
-      {/* Teacher & Invigilator */}
-      <div className='header-info mb-lg'>
-        <div className='info-badge'>
+      <div className="flex justify-center gap-4 mb-6 flex-wrap">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-sm">
           <span>👩‍🏫</span>
           <span>Teacher: {teacher || 'N/A'}</span>
         </div>
-        <div className='info-badge'>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-sm">
           <span>👨‍💼</span>
           <span>Invigilator: {invigilator || 'N/A'}</span>
         </div>
       </div>
 
-      {/* Entry point buttons */}
-      <div className='flex justify-center gap-lg mt-xl' style={{ flexWrap: 'wrap' }}>
+      <div className="flex justify-center gap-4 mb-8 flex-wrap">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-sm">
+          <span>⏱️</span>
+          <span>{timeLimitMinutes} Minutes</span>
+        </div>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-sm">
+          <span>📊</span>
+          <span>{totalMarks} Marks</span>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-6 mt-8 flex-wrap">
         <button 
-          className='btn btn-primary btn-lg flex items-center gap-sm' 
-          style={{ minWidth: '200px' }}
+          className="px-8 py-4 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all hover:scale-105 min-w-[200px] flex items-center justify-center gap-2 text-lg" 
           onClick={onStart}
         >
-          <span style={{ fontSize: '1.5rem' }}>📝</span>
+          <span className="text-2xl">📝</span>
           <span>Assessments</span>
         </button>
         <button 
-          className='btn btn-secondary btn-lg flex items-center gap-sm' 
-          style={{ minWidth: '200px' }}
+          className="px-8 py-4 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all min-w-[200px] flex items-center justify-center gap-2 text-lg" 
           onClick={onReports}
         >
-          <span style={{ fontSize: '1.5rem' }}>📊</span>
+          <span className="text-2xl">📊</span>
           <span>Reports</span>
         </button>
       </div>

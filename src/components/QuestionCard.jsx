@@ -1,9 +1,5 @@
 import { getMarksForQuestion } from '../data/constants';
 
-/**
- * QuestionCard Component
- * Displays a single question with options
- */
 const QuestionCard = ({ 
   question, 
   selectedAnswer, 
@@ -23,11 +19,9 @@ const QuestionCard = ({
   const marks = getMarksForQuestion(originalId);
   const isMultiple = type === 'multiple';
 
-  // Check if answer is selected
   const isAnswered = selectedAnswer !== undefined && 
     (Array.isArray(selectedAnswer) ? selectedAnswer.length > 0 : true);
 
-  // Handle option selection
   const handleOptionClick = (index) => {
     if (isMultiple) {
       const current = selectedAnswer || [];
@@ -36,7 +30,6 @@ const QuestionCard = ({
         : [...current, index];
       onAnswerChange(updated);
     } else {
-      // Single: if already selected, deselect; otherwise select
       if (selectedAnswer === index) {
         onClearAnswer();
       } else {
@@ -45,7 +38,6 @@ const QuestionCard = ({
     }
   };
 
-  // Check if option is selected
   const isOptionSelected = (index) => {
     if (isMultiple) {
       return (selectedAnswer || []).includes(index);
@@ -53,25 +45,26 @@ const QuestionCard = ({
     return selectedAnswer === index;
   };
 
+  const shouldUseGrid = image && options.every(opt => opt.text.length <= 40);
+  const isGridLayout = shouldUseGrid && !isMultiple;
+
   return (
-    <div className="question-card" style={{ animation: 'scaleIn 0.3s ease-out' }}>
-      {/* Question header */}
-      <div className="question-header">
-        <div>
-          <span className="question-number">Q{questionNumber}</span>
+    <div className="glass-card animate-scaleIn h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1 rounded-lg bg-primary/20 text-primary font-semibold">Q{questionNumber}</span>
           {isMultiple && (
-            <span className="question-type-badge">Multiple Answers</span>
+            <span className="px-2 py-1 rounded bg-purple-500/20 text-purple-400 text-xs font-medium">Multiple Answers</span>
           )}
         </div>
-        <div className="header-right">
-          <span className="question-marks">
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1 rounded-lg bg-white/10 text-sm">
             +{marks} {marks === 1 ? 'mark' : 'marks'}
           </span>
           {isAnswered && (
             <button 
-              className="clear-btn"
+              className="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30 transition-colors"
               onClick={onClearAnswer}
-              title="Clear your answer"
             >
               Clear Answer
             </button>
@@ -79,25 +72,28 @@ const QuestionCard = ({
         </div>
       </div>
 
-      {/* Question text */}
-      <p className="question-text">{text}</p>
+      <p className="text-lg mb-4 flex-shrink-0">{text}</p>
 
-      {/* Optional image */}
       {image && (
-        <img 
-          src={image} 
-          alt="Question illustration" 
-          className="question-image"
-          onError={(e) => { e.target.style.display = 'none'; }}
-        />
+        <div className="flex-shrink-0 mb-4 flex justify-center">
+          <img 
+            src={image} 
+            alt="Question illustration" 
+            className="max-h-80 max-w-full object-contain rounded-xl"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        </div>
       )}
 
-      {/* Options */}
-      <div className="options-container">
+      <div className={`flex-1 overflow-y-auto min-h-0 ${isGridLayout ? 'grid grid-cols-2 gap-3' : 'space-y-3'}`}>
         {options.map((option, index) => (
           <div
             key={index}
-            className={`option-item ${isOptionSelected(index) ? 'selected' : ''}`}
+            className={`p-4 rounded-xl border cursor-pointer transition-all flex-shrink-0 ${
+              isOptionSelected(index) 
+                ? 'border-primary bg-primary/10' 
+                : 'border-white/10 bg-white/5 hover:bg-white/10'
+            }`}
             onClick={() => handleOptionClick(index)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -108,33 +104,33 @@ const QuestionCard = ({
             role="button"
             tabIndex={0}
           >
-            {/* Radio or checkbox indicator */}
-            <div className={`option-indicator ${isOptionSelected(index) ? 'selected' : ''}`}>
-              {isOptionSelected(index) && (
-                isMultiple ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
+            <div className="flex items-center gap-3">
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                isOptionSelected(index) ? 'border-primary bg-primary' : 'border-gray-500'
+              }`}>
+                {isOptionSelected(index) && !isMultiple && (
+                  <div className="w-2 h-2 rounded-full bg-white" />
+                )}
+                {isOptionSelected(index) && isMultiple && (
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
-                ) : (
-                  <div className="radio-dot" />
-                )
-              )}
+                )}
+              </div>
+              <span className="text-sm">{option.text}</span>
             </div>
-            <span className="option-text">{option.text}</span>
           </div>
         ))}
       </div>
 
-      {/* Multiple answer hint */}
       {isMultiple && (
-        <p className="multiple-hint">Select all answers that apply</p>
+        <p className="text-sm text-gray-400 mt-4 flex-shrink-0">Select all answers that apply</p>
       )}
 
-      {/* Explanation (for results screen - extend this component if needed) */}
       {explanation && (
-        <div className="explanation-box">
-          <strong>💡 Explanation:</strong>
-          <p>{explanation}</p>
+        <div className="mt-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex-shrink-0">
+          <strong className="text-sm">💡 Explanation:</strong>
+          <p className="mt-1 text-xs text-gray-300">{explanation}</p>
         </div>
       )}
     </div>
