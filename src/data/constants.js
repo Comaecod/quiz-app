@@ -53,6 +53,7 @@ export const getExamConfig = () => {
     teacher: data.exam.teacher || '',
     invigilator: data.exam.invigilator || '',
     secretKey: data.exam.secretKey || '',
+    teacherSecretKey: data.exam.teacherSecretKey || '',
     schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
     
     // Quiz settings
@@ -82,6 +83,7 @@ const getFallbackConfig = () => ({
   teacher: '',
   invigilator: '',
   secretKey: '',
+  teacherSecretKey: '',
   schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
   sections: [],
   totalQuestions: 0,

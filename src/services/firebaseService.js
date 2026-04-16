@@ -15,32 +15,31 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
  */
 export const saveQuizResult = async (studentInfo, config, results) => {
   try {
-    const docRef = await addDoc(collection(db, 'quiz_results'), {
-      // Timestamp
+    const docRef = await addDoc(collection(db, 'quizResults'), {
       timestamp: serverTimestamp(),
       
-      // Student info
-      rollNumber: studentInfo.rollNumber,
-      fullName: `${studentInfo.firstName} ${studentInfo.lastName}`,
+      studentInfo: {
+        firstName: studentInfo.firstName,
+        lastName: studentInfo.lastName,
+        rollNumber: Number(studentInfo.rollNumber) || studentInfo.rollNumber
+      },
       
-      // Exam info
-      class: config.className,
+      className: config.className,
       subject: config.subject,
-      examName: config.examTitle,
+      examTitle: config.examTitle,
       teacher: config.teacher || '',
       invigilator: config.invigilator || '',
       
-      // Scores
-      totalMarks: results.totalMarks,
-      score: results.totalEarned,
-      percentage: parseFloat(results.percentage),
-      grade: results.grade,
+      results: {
+        totalMarks: results.totalMarks,
+        totalEarned: results.totalEarned,
+        percentage: parseFloat(results.percentage),
+        grade: results.grade,
+        correctCount: results.correctCount,
+        wrongCount: results.wrongCount,
+        skippedCount: results.skippedCount
+      },
       
-      // Breakdown
-      correctCount: results.correctCount,
-      wrongCount: results.wrongCount,
-      skippedCount: results.skippedCount,
-      totalQuestions: results.questionResults.length,
       timeLimit: config.timeLimitMinutes,
     });
     

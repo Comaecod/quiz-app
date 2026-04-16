@@ -5,7 +5,7 @@ import { formatName } from '../utils/format';
  * RollNumberScreen Component
  * Collects student details before starting quiz
  */
-const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
+const RollNumberScreen = ({ onStartQuiz, questionsCount, onBack }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -54,7 +54,7 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
       onStartQuiz({
         firstName: formatName(formData.firstName),
         lastName: formatName(formData.lastName),
-        rollNumber: formData.rollNumber.trim()
+        rollNumber: Number(formData.rollNumber.trim()) || formData.rollNumber.trim()
       });
     }
   };
@@ -138,6 +138,13 @@ const RollNumberScreen = ({ onStartQuiz, questionsCount }) => {
         <button type="submit" className="btn btn-success btn-lg btn-block">
           Begin Quiz <span>🏁</span>
         </button>
+        
+        {/* Back button */}
+        <div className="text-center mt-md">
+          <button type="button" className="btn btn-secondary" onClick={onBack}>
+            ← Back
+          </button>
+        </div>
       </form>
     </div>
   );

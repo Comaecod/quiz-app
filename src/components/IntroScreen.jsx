@@ -1,8 +1,8 @@
 /**
  * IntroScreen Component
- * Welcome screen with exam details and start button
+ * Welcome screen with exam details and two entry points: Assessments and Reports
  */
-const IntroScreen = ({ config, onStart }) => {
+const IntroScreen = ({ config, onStart, onReports }) => {
   const { 
     examTitle, 
     className, 
@@ -41,36 +41,23 @@ const IntroScreen = ({ config, onStart }) => {
         </div>
       </div>
 
-      {/* Exam info badges */}
-      <div className='header-info'>
-        <div className='info-badge'>
-          <span>⏱️</span>
-          <span>{timeLimitMinutes} Minutes</span>
-        </div>
-        <div className='info-badge'>
-          <span>📊</span>
-          <span>{totalMarks} Marks</span>
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <div className='instructions'>
-        <h3 className='instructions-title'><span>📋</span> Instructions</h3>
-        <ul className='instructions-list'>
-          <li>Answer all questions to the best of your ability</li>
-          <li>No back navigation - answer each question once</li>
-          <li>Timer starts when you begin the quiz</li>
-          <li>Quiz auto-submits when time runs out</li>
-          {wrongAnswerPenaltyFraction > 0 && (
-            <li>Wrong answers have -{wrongAnswerPenaltyFraction * 100}% negative marking</li>
-          )}
-        </ul>
-      </div>
-
-      {/* Start button */}
-      <div className='text-center mt-xl'>
-        <button className='btn btn-primary btn-lg' onClick={onStart}>
-          Start Test <span>👉</span>
+      {/* Entry point buttons */}
+      <div className='flex justify-center gap-lg mt-xl' style={{ flexWrap: 'wrap' }}>
+        <button 
+          className='btn btn-primary btn-lg flex items-center gap-sm' 
+          style={{ minWidth: '200px' }}
+          onClick={onStart}
+        >
+          <span style={{ fontSize: '1.5rem' }}>📝</span>
+          <span>Assessments</span>
+        </button>
+        <button 
+          className='btn btn-secondary btn-lg flex items-center gap-sm' 
+          style={{ minWidth: '200px' }}
+          onClick={onReports}
+        >
+          <span style={{ fontSize: '1.5rem' }}>📊</span>
+          <span>Reports</span>
         </button>
       </div>
     </div>

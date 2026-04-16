@@ -6,6 +6,7 @@
     "teacher": "Mr. Venkata Vishnu",
     "invigilator": "Mr. Venkata Vishnu",
     "secretKey": "Hellfire",
+    "teacherSecretKey": "nobodyknows",
     "wrongAnswerPenaltyFraction": 0.25,
     "timeLimitMinutes": 15,
     "enabled": true
