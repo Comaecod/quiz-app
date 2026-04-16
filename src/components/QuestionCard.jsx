@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 const QuestionCard = ({ 
   question, 
   selectedAnswer, 

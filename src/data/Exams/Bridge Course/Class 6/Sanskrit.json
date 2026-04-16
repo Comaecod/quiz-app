@@ -1,0 +1,154 @@
+{
+  "exam": {
+    "title": "संस्कृत वर्णमाला परीक्षा",
+    "class": 6,
+    "subject": "Sanskrit",
+    "teacher": "Arjun Padhan",
+    "invigilator": "Arjun Padhan",
+    "preassessmentsecretkey": "VarnaStart",
+    "secretKey": "Akshara123",
+    "teacherSecretKey": "GuruKey",
+    "wrongAnswerPenaltyFraction": 0,
+    "timeLimitMinutes": 30,
+    "enabled": true
+  },
+  "sections": [
+    {
+      "range": [1, 10],
+      "marks": 1,
+      "count": 10
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "कः वर्णः स्वरः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "क" },
+        { "text": "त" },
+        { "text": "अ" },
+        { "text": "प" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 2,
+      "text": "कः वर्णः व्यञ्जनम् अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "आ" },
+        { "text": "इ" },
+        { "text": "उ" },
+        { "text": "ग" }
+      ],
+      "isCorrect": 3
+    },
+    {
+      "id": 3,
+      "text": "कति स्वराः सन्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "१०" },
+        { "text": "१३" },
+        { "text": "१५" },
+        { "text": "१२" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 4,
+      "text": "कति व्यञ्जनानि सन्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "३३" },
+        { "text": "३४" },
+        { "text": "३५" },
+        { "text": "३६" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 5,
+      "text": "कः वर्णः अन्तःस्थः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "क" },
+        { "text": "य" },
+        { "text": "श" },
+        { "text": "म" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 6,
+      "text": "कः वर्णः ऊष्मः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "प" },
+        { "text": "ब" },
+        { "text": "श" },
+        { "text": "ल" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 7,
+      "text": "कः वर्णः कण्ठ्यः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "क" },
+        { "text": "च" },
+        { "text": "ट" },
+        { "text": "त" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 8,
+      "text": "कः वर्णः तालव्यः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "क" },
+        { "text": "च" },
+        { "text": "ट" },
+        { "text": "प" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 9,
+      "text": "कः वर्णः ओष्ठ्यः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "त" },
+        { "text": "प" },
+        { "text": "क" },
+        { "text": "ग" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 10,
+      "text": "कः वर्णः दन्त्यः अस्ति?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "त" },
+        { "text": "क" },
+        { "text": "च" },
+        { "text": "प" }
+      ],
+      "isCorrect": 0
+    }
+  ]
+}
