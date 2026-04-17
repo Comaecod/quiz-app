@@ -1,0 +1,674 @@
+{
+  "exam": {
+    "title": "AI Bridge Course",
+    "class": 8,
+    "subject": "Computers",
+    "teacher": "Venkata Vishnu",
+    "invigilator": "Venkata Vishnu",
+    "preassessmentsecretkey": "AIStart2024",
+    "secretKey": "LearnAI",
+    "teacherSecretKey": "VishnuAI",
+    "wrongAnswerPenaltyFraction": 0.25,
+    "timeLimitMinutes": 15,
+    "enabled": true
+  },
+  "sections": [
+    {
+      "range": [1, 20],
+      "marks": 1,
+      "count": 20
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "What does 'AI' stand for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Automated Intelligence" },
+        { "text": "Artificial Intelligence" },
+        { "text": "Advanced Intelligence" },
+        { "text": "Artificial Information" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 2,
+      "text": "'Artificial' in AI means something:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Made by nature" },
+        { "text": "Made by humans" },
+        { "text": "Very old" },
+        { "text": "Made by animals" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 3,
+      "text": "'Intelligence' means the ability to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Walk and run" },
+        { "text": "Think, learn, understand, and solve problems" },
+        { "text": "Eat and sleep" },
+        { "text": "See and hear" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 4,
+      "text": "AI is a part of which field?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Mathematics" },
+        { "text": "Computer Science" },
+        { "text": "History" },
+        { "text": "Geography" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 5,
+      "text": "AI helps machines to perform tasks that require:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Human intelligence" },
+        { "text": "Animal strength" },
+        { "text": "Robot power" },
+        { "text": "Internet only" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 6,
+      "text": "Why do we need Artificial Intelligence?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To make human work easier and save time" },
+        { "text": "To replace all workers" },
+        { "text": "To make computers expensive" },
+        { "text": "To stop using internet" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 7,
+      "text": "AI can handle:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Small amounts of information only" },
+        { "text": "Large amounts of information quickly" },
+        { "text": "Only text data" },
+        { "text": "Only handwritten data" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 8,
+      "text": "A computer can process thousands of calculations in:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Days" },
+        { "text": "Weeks" },
+        { "text": "Seconds" },
+        { "text": "Months" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 9,
+      "text": "What is the first step in how AI works?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Making decisions" },
+        { "text": "Collecting Data" },
+        { "text": "Learning patterns" },
+        { "text": "Printing results" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 10,
+      "text": "AI learns from:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Books only" },
+        { "text": "Data" },
+        { "text": "Television" },
+        { "text": "Radio" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 11,
+      "text": "The learning process in AI is called:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Data Printing" },
+        { "text": "Machine Learning" },
+        { "text": "Internet Browsing" },
+        { "text": "Book Reading" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 12,
+      "text": "When AI studies patterns in data, it is called:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Learning from Data" },
+        { "text": "Printing Data" },
+        { "text": "Deleting Data" },
+        { "text": "Sharing Data" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 13,
+      "text": "If a computer is trained with pictures of fruits, it can identify whether a fruit is an apple or banana. This is an example of:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "AI Learning" },
+        { "text": "Face Recognition" },
+        { "text": "Voice Assistant" },
+        { "text": "Navigation" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 14,
+      "text": "Which of these is a Voice Assistant?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Google Maps" },
+        { "text": "Google Assistant" },
+        { "text": "YouTube" },
+        { "text": "WhatsApp" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 15,
+      "text": "Siri is an example of:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Video platform" },
+        { "text": "Voice Assistant" },
+        { "text": "Navigation app" },
+        { "text": "Photo editor" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 16,
+      "text": "Voice assistants can:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only play games" },
+        { "text": "Understand speech, answer questions and perform tasks" },
+        { "text": "Only show videos" },
+        { "text": "Only print documents" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 17,
+      "text": "Which platform uses AI to suggest videos based on your interests?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "WhatsApp" },
+        { "text": "YouTube" },
+        { "text": "Calculator" },
+        { "text": "Clock" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 18,
+      "text": "AI studies your watching habits to give:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Homework" },
+        { "text": "Recommendations" },
+        { "text": "Bills" },
+        { "text": "Emails" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 19,
+      "text": "Navigation apps help in finding:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Recipes" },
+        { "text": "Shortest route and avoiding traffic" },
+        { "text": "Songs" },
+        { "text": "Movies" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 20,
+      "text": "Face Recognition on phones works by:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Asking for password" },
+        { "text": "Identifying facial features to confirm identity" },
+        { "text": "Scanning fingerprints" },
+        { "text": "Reading voice" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 21,
+      "text": "AI in agriculture helps farmers by:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Predicting weather and monitoring crops" },
+        { "text": "Only cooking food" },
+        { "text": "Only building houses" },
+        { "text": "Only driving cars" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 22,
+      "text": "Drones are used in agriculture for:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Crop spraying" },
+        { "text": "Taking photos only" },
+        { "text": "Playing music" },
+        { "text": "Watching movies" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 23,
+      "text": "AI helps in healthcare by:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only booking appointments" },
+        { "text": "Detecting diseases and analyzing medical reports" },
+        { "text": "Only cleaning hospitals" },
+        { "text": "Only serving food" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 24,
+      "text": "Which tool helps students understand topics easily?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Microsoft Word" },
+        { "text": "ChatGPT" },
+        { "text": "Calculator" },
+        { "text": "Paint" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 25,
+      "text": "AI in education helps by providing:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only physical books" },
+        { "text": "Online learning tools and practice exercises" },
+        { "text": "Only classrooms" },
+        { "text": "Only snacks" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 26,
+      "text": "AI is used in transportation for:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Traffic management and navigation" },
+        { "text": "Only washing vehicles" },
+        { "text": "Only selling cars" },
+        { "text": "Only painting cars" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 27,
+      "text": "Which is NOT an advantage of AI?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Works faster than humans" },
+        { "text": "Can process large data" },
+        { "text": "Always makes perfect decisions" },
+        { "text": "Reduces human effort" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 28,
+      "text": "An advantage of AI is that it:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Gets tired quickly" },
+        { "text": "Works continuously without getting tired" },
+        { "text": "Needs constant supervision" },
+        { "text": "Can only work during daytime" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 29,
+      "text": "AI improves:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only handwriting" },
+        { "text": "Accuracy" },
+        { "text": "Only physical strength" },
+        { "text": "Only cooking skills" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 30,
+      "text": "A disadvantage of AI is that it is:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Too cheap" },
+        { "text": "Expensive to develop" },
+        { "text": "Too simple" },
+        { "text": "Available everywhere" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 31,
+      "text": "AI may reduce some:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Books" },
+        { "text": "Jobs" },
+        { "text": "Schools" },
+        { "text": "Hospitals" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 32,
+      "text": "Over-dependence on machines can be:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Very helpful" },
+        { "text": "Risky" },
+        { "text": "Always safe" },
+        { "text": "Very cheap" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 33,
+      "text": "AI cannot think or feel like:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Computers" },
+        { "text": "Humans" },
+        { "text": "Phones" },
+        { "text": "Robots" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 34,
+      "text": "In the future, AI may help in:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only playing games" },
+        { "text": "Smart homes and advanced healthcare" },
+        { "text": "Only watching TV" },
+        { "text": "Only eating food" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 35,
+      "text": "Future AI may include:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Better farming methods and intelligent robots" },
+        { "text": "Less technology" },
+        { "text": "More manual work" },
+        { "text": "No automation" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 36,
+      "text": "AI will play an important role in:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Shaping the future" },
+        { "text": "Destroying the future" },
+        { "text": "Stopping technology" },
+        { "text": "Removing computers" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 37,
+      "text": "AI makes our lives:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Difficult and slow" },
+        { "text": "Easier, faster and more efficient" },
+        { "text": "Expensive only" },
+        { "text": "Complicated only" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 38,
+      "text": "Which of these is NOT a field where AI is used?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Agriculture" },
+        { "text": "Healthcare" },
+        { "text": "Astrology" },
+        { "text": "Transportation" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 39,
+      "text": "AI is widely used in daily life applications, agriculture, healthcare, education and:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Entertainment" },
+        { "text": "Transportation" },
+        { "text": "Construction" },
+        { "text": "Both A and B" }
+      ],
+      "isCorrect": 3
+    },
+    {
+      "id": 40,
+      "text": "Smart irrigation is an application of AI in:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Education" },
+        { "text": "Entertainment" },
+        { "text": "Agriculture" },
+        { "text": "Gaming" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 41,
+      "text": "Which of these is NOT a Voice Assistant?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Siri" },
+        { "text": "Google Assistant" },
+        { "text": "Calculator" },
+        { "text": "Alexa" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 42,
+      "text": "AI helps doctors to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Replace all doctors" },
+        { "text": "Assist in diagnosis" },
+        { "text": "Only clean hospitals" },
+        { "text": "Only drive ambulances" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 43,
+      "text": "Which of these is an example of AI in maps?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Estimating travel time" },
+        { "text": "Writing essays" },
+        { "text": "Cooking food" },
+        { "text": "Playing music" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 44,
+      "text": "AI in traffic management helps to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Control traffic lights and reduce congestion" },
+        { "text": "Only sell cars" },
+        { "text": "Only paint roads" },
+        { "text": "Only build roads" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 45,
+      "text": "Which of these is a disadvantage of AI?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Works faster" },
+        { "text": "Expensive to develop" },
+        { "text": "Improves accuracy" },
+        { "text": "Reduces effort" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 46,
+      "text": "AI can solve complex problems:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Slowly" },
+        { "text": "Quickly" },
+        { "text": "Only on weekends" },
+        { "text": "Never" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 47,
+      "text": "Which of these is used by AI for weather prediction in agriculture?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Drones" },
+        { "text": "Weather prediction tools" },
+        { "text": "Voice assistants" },
+        { "text": "Video games" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 48,
+      "text": "AI systems use the learned information to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Give answers or take actions" },
+        { "text": "Delete all data" },
+        { "text": "Only store information" },
+        { "text": "Print documents" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 49,
+      "text": "Self-driving vehicles are an example of AI research in:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Entertainment" },
+        { "text": "Education" },
+        { "text": "Transportation" },
+        { "text": "Cooking" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 50,
+      "text": "AI that can think like humans in all areas is called:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Narrow AI" },
+        { "text": "General AI" },
+        { "text": "Weak AI" },
+        { "text": "Simple AI" }
+      ],
+      "isCorrect": 1
+    }
+  ]
+}
