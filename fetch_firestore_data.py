@@ -41,9 +41,9 @@ def initialize_firebase():
     return firestore.client()
 
 
-def fetch_quiz_results(db):
-    """Fetch all documents from quiz_results collection"""
-    collection_name = 'quiz_results'
+def fetch_quizResults(db):
+    """Fetch all documents from quizResults collection"""
+    collection_name = 'quizResults'
     
     docs = db.collection(collection_name).stream()
     
@@ -68,7 +68,7 @@ def export_to_excel(data, filename=None):
     
     if filename is None:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f'quiz_results_{timestamp}.xlsx'
+        filename = f'quizResults_{timestamp}.xlsx'
     
     df = pd.DataFrame(data)
     
@@ -247,10 +247,10 @@ def main():
         return
     
     print("📡 Fetching data from Firestore...")
-    data = fetch_quiz_results(db)
+    data = fetch_quizResults(db)
     
     if not data:
-        print("⚠️  No documents found in 'quiz_results' collection")
+        print("⚠️  No documents found in 'quizResults' collection")
         print("   Make sure students have completed quizzes!")
         return
     
