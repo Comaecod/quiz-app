@@ -13,7 +13,6 @@ const QuizScreen = ({
   const [answers, setAnswers] = useState({});
   const [visitedQuestions, setVisitedQuestions] = useState(new Set([0]));
   const mainRef = useRef(null);
-  const questionNavRef = useRef(null);
 
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
@@ -87,6 +86,40 @@ const QuizScreen = ({
   const remainingCount = totalQuestions - visitedQuestions.size;
 
   const handleKeyDown = useCallback((e) => {
+    const target = e.target;
+    const isInputFocused = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    
+    if (isInputFocused) return;
+
+    const key = e.key.toUpperCase();
+    const optionKeys = ['A', 'B', 'C', 'D'];
+    const currentOptions = currentQuestion?.options || [];
+
+    if (optionKeys.includes(key) && currentOptions.length > 0) {
+      e.preventDefault();
+      const optionIndex = optionKeys.indexOf(key);
+      if (optionIndex < currentOptions.length) {
+        if (currentQuestion.type === 'multiple') {
+          const current = answers[currentQuestion.id] || [];
+          const newAnswer = current.includes(optionIndex)
+            ? current.filter(i => i !== optionIndex)
+            : [...current, optionIndex];
+          handleAnswerChange(newAnswer);
+        } else {
+          handleAnswerChange(optionIndex);
+        }
+      }
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isLastQuestion) {
+        handleSubmit();
+      } else {
+        handleNext();
+      }
+    }
+
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       if (currentIndex < totalQuestions - 1) {
         e.preventDefault();
@@ -98,7 +131,23 @@ const QuizScreen = ({
         handleQuestionClick(currentIndex - 1);
       }
     }
-  }, [currentIndex, totalQuestions, handleQuestionClick]);
+
+    if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+      e.preventDefault();
+      const numIndex = parseInt(e.key) - 1;
+      if (numIndex < currentOptions.length) {
+        if (currentQuestion.type === 'multiple') {
+          const current = answers[currentQuestion.id] || [];
+          const newAnswer = current.includes(numIndex)
+            ? current.filter(i => i !== numIndex)
+            : [...current, numIndex];
+          handleAnswerChange(newAnswer);
+        } else {
+          handleAnswerChange(numIndex);
+        }
+      }
+    }
+  }, [currentQuestion, answers, currentIndex, totalQuestions, isLastQuestion, handleAnswerChange, handleNext, handleSubmit, handleQuestionClick]);
 
   return (
     <div 
@@ -127,7 +176,7 @@ const QuizScreen = ({
                 <span className="text-gray-400">📝 Unattempted question</span>
               )
             ) : (
-              <span className="text-green-400">✅ You can change your answer or leave it unanswered</span>
+              <span className="text-green-400">✅ Answered</span>
             )}
           </div>
           
@@ -154,7 +203,6 @@ const QuizScreen = ({
       </div>
 
       <aside 
-        ref={questionNavRef}
         className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 order-1 lg:order-2"
         aria-label="Quiz navigation"
       >
@@ -226,6 +274,10 @@ const QuizScreen = ({
               <span className="text-gray-400 font-medium">{remainingCount}</span>
             </div>
           </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs text-gray-400 text-center">Keyboard: A/B/C/D = Select, 1/2/3/4 = Alt, Enter = Next</p>
         </div>
       </aside>
     </div>

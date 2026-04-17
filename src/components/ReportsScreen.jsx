@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { validateTeacherKey } from '../utils/auth';
+import { downloadReportAsExcel } from '../utils/excelExport';
 
 const ReportsScreen = ({ config, onBack }) => {
   const [secretKey, setSecretKey] = useState('');
@@ -13,7 +15,7 @@ const ReportsScreen = ({ config, onBack }) => {
   const handleKeySubmit = (e) => {
     e.preventDefault();
     
-    if (secretKey.trim() === config.teacherSecretKey) {
+    if (validateTeacherKey(secretKey, config)) {
       setIsUnlocked(true);
       setKeyError(false);
       fetchReportData();
@@ -65,6 +67,11 @@ const ReportsScreen = ({ config, onBack }) => {
     }
     setLoading(false);
   }, [config]);
+
+  const handleExportExcel = () => {
+    if (sortedData.length === 0) return;
+    downloadReportAsExcel(sortedData, config);
+  };
 
   const sortedData = useMemo(() => {
     if (!reportData.length) return [];
@@ -171,12 +178,20 @@ const ReportsScreen = ({ config, onBack }) => {
                 <span>👥</span>
                 <span>Total Students Submitted: {sortedData.length}</span>
               </div>
-              <button 
-                className="px-4 py-2 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center gap-2" 
-                onClick={fetchReportData}
-              >
-                <span>🔄</span> Refresh
-              </button>
+              <div className="flex gap-3">
+                <button 
+                  className="px-4 py-2 rounded-xl font-medium bg-green-600/30 border border-green-600/50 text-green-400 hover:bg-green-600/40 flex items-center gap-2" 
+                  onClick={handleExportExcel}
+                >
+                  <span>📥</span> Export Excel
+                </button>
+                <button 
+                  className="px-4 py-2 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center gap-2" 
+                  onClick={fetchReportData}
+                >
+                  <span>🔄</span> Refresh
+                </button>
+              </div>
             </div>
 
             <div className="overflow-x-auto rounded-xl bg-black/20">

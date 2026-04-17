@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { validatePreassessment } from '../utils/auth';
 
 const PreAssessmentScreen = ({ config, onSuccess, onBack }) => {
   const [secretKey, setSecretKey] = useState('');
@@ -8,7 +9,7 @@ const PreAssessmentScreen = ({ config, onSuccess, onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (secretKey.trim() === config.preassessmentsecretkey) {
+    if (validatePreassessment(secretKey, config)) {
       setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 300));
       setLoading(false);

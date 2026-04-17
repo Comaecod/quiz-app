@@ -2,6 +2,121 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { calculateTotalScore, getPerformanceMessage } from '../utils/scoring';
 import { formatName } from '../utils/format';
 import { saveQuizResult } from '../services/firebaseService';
+import { validateAnswerReveal } from '../utils/auth';
+
+const CertificateCard = ({ studentInfo, config, results }) => {
+  const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  const teacherName = config.teacher || 'Venkata Vishnu';
+  
+  const gradeColors = {
+    'A+': 'from-green-400 to-emerald-500',
+    'A': 'from-green-500 to-teal-500',
+    'A-': 'from-lime-400 to-green-500',
+    'B+': 'from-yellow-400 to-amber-500',
+    'B': 'from-amber-400 to-orange-500',
+    'B-': 'from-orange-400 to-yellow-500',
+    'C': 'from-orange-500 to-red-400',
+    'D': 'from-red-500 to-rose-500',
+    'F': 'from-red-600 to-red-800'
+  };
+  const gradeColor = gradeColors[results.grade] || 'from-gray-400 to-gray-500';
+
+  return (
+    <div className="bg-gradient-to-b from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 sm:p-8 border-4 border-yellow-400 relative overflow-hidden">
+      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-yellow-400"></div>
+      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-yellow-400"></div>
+      <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-yellow-400"></div>
+      <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-yellow-400"></div>
+      
+      <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 opacity-90"></div>
+      
+      <div className="relative">
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/assets/logo.png" 
+            alt="School Logo" 
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-full bg-white p-1"
+            onError={(e) => e.target.style.display = 'none'}
+          />
+        </div>
+        
+        <p className="text-center text-blue-200 text-xs sm:text-sm font-medium mb-1">
+          {config.schoolName || 'Sri Kanchi Kamakoti Sankara Vidyalaya'}
+        </p>
+        
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="h-px w-12 sm:w-20 bg-yellow-400"></div>
+          <span className="text-yellow-400 font-bold text-xs sm:text-sm">CERTIFICATE</span>
+          <div className="h-px w-12 sm:w-20 bg-yellow-400"></div>
+        </div>
+        
+        <p className="text-center text-white/70 text-sm mb-6">This is to certify that</p>
+        
+        <h2 className="text-center text-2xl sm:text-3xl font-bold text-white mb-2">
+          {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
+        </h2>
+        
+        <p className="text-center text-white/60 text-xs sm:text-sm mb-6">
+          Student of Class {config.classNum} | Roll No: {studentInfo.rollNumber}
+        </p>
+        
+        <p className="text-center text-white/70 text-sm mb-4">has successfully completed the</p>
+        
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl py-3 px-4 mb-4 text-center border border-blue-500">
+          <span className="text-white font-bold text-lg sm:text-xl">
+            {config.examTitle}
+          </span>
+        </div>
+        
+        <p className="text-center text-white/70 text-sm mb-4">
+          Subject: {config.subject || 'General'}
+        </p>
+        
+        <div className="text-center mb-4">
+          <span className={`inline-block px-6 py-2 rounded-xl bg-gradient-to-r ${gradeColor} text-white font-bold text-lg`}>
+            Score: {results.totalEarned.toFixed(1)} / {results.totalMarks} ({results.percentage}%)
+          </span>
+        </div>
+        
+        <div className="text-center mb-6">
+          <span className={`inline-block px-4 py-1 rounded-lg bg-gradient-to-r ${gradeColor} text-white font-bold text-xl`}>
+            Grade: {results.grade}
+          </span>
+        </div>
+        
+        <p className="text-center text-white/50 text-xs mb-6">Date: {date}</p>
+        
+        <div className="border-t border-white/20 pt-4 flex justify-between items-start">
+          <div className="text-center flex-1">
+            <img 
+              src="/assets/signatures/vishnu.png" 
+              alt="Teacher Signature" 
+              className="h-10 sm:h-12 mx-auto mb-1 object-contain"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+            <p className="text-white/80 text-xs sm:text-sm font-medium">{teacherName}</p>
+            <p className="text-white/50 text-xs">Class Teacher</p>
+          </div>
+          
+          <div className="text-center flex-1">
+            <img 
+              src="/assets/signatures/principal.png" 
+              alt="Principal Signature" 
+              className="h-10 sm:h-12 mx-auto mb-1 object-contain"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+            <p className="text-white/80 text-xs sm:text-sm font-medium">Padma Gayathri</p>
+            <p className="text-white/50 text-xs">Principal</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ResultScreen = ({ 
   questions, 
@@ -13,6 +128,7 @@ const ResultScreen = ({
   const [secretKey, setSecretKey] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [keyError, setKeyError] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
   const hasSaved = useRef(false);
   const keyInputRef = useRef(null);
 
@@ -34,7 +150,7 @@ const ResultScreen = ({
   const handleKeySubmit = (e) => {
     e.preventDefault();
     
-    if (secretKey.trim() === config.secretKey) {
+    if (validateAnswerReveal(secretKey, config)) {
       setIsUnlocked(true);
       setKeyError(false);
     } else {
@@ -187,6 +303,27 @@ const ResultScreen = ({
             </div>
           </div>
         )}
+
+        <div className="mb-4 sm:mb-6">
+          <button
+            onClick={() => setShowCertificate(!showCertificate)}
+            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium hover:opacity-90 flex items-center justify-center gap-2"
+          >
+            <span>🎓</span>
+            <span>{showCertificate ? 'Hide Certificate' : 'Show Certificate'}</span>
+            <span className={`transition-transform ${showCertificate ? 'rotate-180' : ''}`}>▼</span>
+          </button>
+          
+          {showCertificate && (
+            <div className="mt-4 animate-fadeIn">
+              <CertificateCard 
+                studentInfo={studentInfo} 
+                config={config} 
+                results={results} 
+              />
+            </div>
+          )}
+        </div>
 
         <aside className="text-center p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 mb-4 sm:mb-6" aria-label="Study tip">
           <p className="text-sm text-gray-300"><span aria-hidden="true">💡</span> Review answers above to understand correct solutions. Practice makes perfect!</p>
