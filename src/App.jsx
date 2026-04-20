@@ -1,7 +1,9 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig } from './utils/examLoader';
+import { useState, useCallback, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
+import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig, getLearningTopics } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
+import migrateExams from './utils/migrateExams';
+import migrateToLazyStructure from './utils/migrateLazy';
 import ExamTypeScreen from './components/ExamTypeScreen';
 import ClassSelectionScreen from './components/ClassSelectionScreen';
 import SubjectSelectionScreen from './components/SubjectSelectionScreen';
@@ -23,24 +25,111 @@ function AppContent() {
   const [studentInfo, setStudentInfo] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
+  
+  const [loading, setLoading] = useState(true);
+  const [examTypes, setExamTypes] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [migrating, setMigrating] = useState(false);
+  const [migrationResult, setMigrationResult] = useState(null);
+
+  const showMigration = searchParams.get('migrate') === 'true';
+
+  const handleMigration = async () => {
+    setMigrating(true);
+    try {
+      const result = await migrateExams();
+      setMigrationResult(result);
+    } catch (err) {
+      setMigrationResult({ error: err.message });
+    }
+    setMigrating(false);
+  };
+
+  const handleLazyMigration = async () => {
+    setMigrating(true);
+    try {
+      const result = await migrateToLazyStructure();
+      setMigrationResult(result);
+    } catch (err) {
+      setMigrationResult({ error: err.message });
+    }
+    setMigrating(false);
+  };
 
   const examType = searchParams.get('exam') || null;
   const classNum = searchParams.get('class') || null;
   const subject = searchParams.get('subject') || null;
   const screen = searchParams.get('screen') || 'home';
 
-  const examTypes = useMemo(() => getExamTypes(), []);
-  const classes = useMemo(() => examType ? getClassesForType(examType) : [], [examType]);
-  const subjects = useMemo(() => examType && classNum ? getSubjectsForClass(examType, classNum) : [], [examType, classNum]);
+  // Fetch exam types on mount
+  useEffect(() => {
+    const loadExamTypes = async () => {
+      try {
+        const types = await getExamTypes();
+        setExamTypes(types);
+      } catch (err) {
+        console.error('Error loading exam types:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadExamTypes();
+  }, []);
+
+  // Fetch classes when exam type changes
+  useEffect(() => {
+    const loadClasses = async () => {
+      if (!examType) {
+        setClasses([]);
+        return;
+      }
+      try {
+        const cls = await getClassesForType(examType);
+        setClasses(cls);
+      } catch (err) {
+        console.error('Error loading classes:', err);
+      }
+    };
+    loadClasses();
+  }, [examType]);
+
+  // Fetch subjects when examType and classNum change
+  useEffect(() => {
+    const loadSubjects = async () => {
+      if (!examType || !classNum) {
+        setSubjects([]);
+        return;
+      }
+      try {
+        const subs = await getSubjectsForClass(examType, classNum);
+        setSubjects(subs);
+      } catch (err) {
+        console.error('Error loading subjects:', err);
+      }
+    };
+    loadSubjects();
+  }, [examType, classNum]);
+
+  // Load exam config when any of these change
+  useEffect(() => {
+    const loadConfig = async () => {
+      if (!examType || !subject) {
+        setExamConfig(null);
+        return;
+      }
+      try {
+        // For Learning, classNum is null
+        const config = await getExamConfig(examType, examType === 'Learning' ? null : classNum, subject);
+        setExamConfig(config);
+      } catch (err) {
+        console.error('Error loading config:', err);
+      }
+    };
+    loadConfig();
+  }, [examType, classNum, subject]);
 
   const hasExams = examTypes.length > 0;
-
-  useEffect(() => {
-    if (examType && classNum && subject && !examConfig) {
-      const config = getExamConfig(examType, classNum, subject);
-      setExamConfig(config);
-    }
-  }, [examType, classNum, subject, examConfig]);
 
   const updateParams = useCallback((updates) => {
     setSearchParams(prev => {
@@ -65,7 +154,14 @@ function AppContent() {
   }, [setSearchParams]);
 
   const handleSelectExamType = useCallback((type) => {
-    updateParams({ exam: type, screen: 'class' });
+    if (type === 'Learning') {
+      const topics = getLearningTopics();
+      if (topics.length > 0) {
+        updateParams({ exam: type, subject: topics[0], screen: 'intro' });
+      }
+    } else {
+      updateParams({ exam: type, screen: 'class' });
+    }
   }, [updateParams]);
 
   const handleSelectClass = useCallback((num) => {
@@ -73,10 +169,8 @@ function AppContent() {
   }, [updateParams]);
 
   const handleSelectSubject = useCallback((subj) => {
-    const config = getExamConfig(examType, classNum, subj);
-    setExamConfig(config);
     updateParams({ subject: subj, screen: 'intro' });
-  }, [examType, classNum, updateParams]);
+  }, [updateParams]);
 
   const handleIntroStart = useCallback(() => {
     updateParams({ screen: 'preassessment' });
@@ -91,6 +185,7 @@ function AppContent() {
   }, [updateParams]);
 
   const handleStartWithStudentInfo = useCallback((info) => {
+    if (!examConfig?.questions) return;
     const preparedQuestions = getQuizQuestions(examConfig.questions, examConfig.sections);
     setStudentInfo(info);
     setQuizQuestions(preparedQuestions);
@@ -113,46 +208,46 @@ function AppContent() {
       updateParams({ screen: 'intro' });
       return;
     }
-    
     if (screen === 'result') {
       updateParams({ screen: 'quiz' });
       return;
     }
-    
     if (screen === 'quiz') {
       updateParams({ screen: 'student' });
       return;
     }
-    
     if (screen === 'student') {
       updateParams({ screen: 'preassessment' });
       return;
     }
-    
     if (screen === 'preassessment') {
       updateParams({ screen: 'intro' });
       return;
     }
-    
     if (screen === 'intro') {
       updateParams({ screen: 'subject' });
       return;
     }
-    
     if (screen === 'subject') {
       updateParams({ class: null, subject: null, screen: 'class' });
       return;
     }
-    
     if (screen === 'class') {
       goToHome();
       return;
     }
-    
     goToHome();
   }, [screen, updateParams, goToHome]);
 
   const renderScreen = () => {
+    if (loading) {
+      return (
+        <div className="glass-card p-8 text-center">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      );
+    }
+
     if (!hasExams && screen !== 'result') {
       return <EmptyState />;
     }
@@ -202,13 +297,13 @@ function AppContent() {
         ) : <EmptyState />;
 
       case 'student':
-        return (
+        return examConfig ? (
           <RollNumberScreen
             onStartQuiz={handleStartWithStudentInfo}
-            questionsCount={examConfig?.totalQuestions || 0}
+            questionsCount={examConfig.totalQuestions || 0}
             onBack={goBack}
           />
-        );
+        ) : <EmptyState />;
 
       case 'quiz':
         return (
@@ -242,6 +337,39 @@ function AppContent() {
 
   return (
     <>
+      {showMigration && (
+        <div className="fixed bottom-4 right-4 z-50 glass-card p-4 rounded-xl max-w-sm">
+          <h3 className="font-bold text-yellow-400 mb-2">Migration Tool</h3>
+          {!migrationResult ? (
+            <div className="space-y-2">
+              <button
+                onClick={handleMigration}
+                disabled={migrating}
+                className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium disabled:opacity-50 text-left"
+              >
+                {migrating ? 'Migrating...' : 'Old Migration (all in one)'}
+              </button>
+              <button
+                onClick={handleLazyMigration}
+                disabled={migrating}
+                className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium disabled:opacity-50 text-left"
+              >
+                {migrating ? 'Migrating...' : 'NEW: Lazy Migration (recommended)'}
+              </button>
+            </div>
+          ) : (
+            <div className="text-sm">
+              <p className="text-green-400">examTypes: {migrationResult.examTypesCreated}</p>
+              <p className="text-green-400">examIndex: {migrationResult.examIndexCreated}</p>
+              <p className="text-green-400">examConfigs: {migrationResult.examConfigsCreated}</p>
+              {migrationResult.error && (
+                <p className="text-red-400">Error: {migrationResult.error}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
         <div className="absolute w-80 h-80 rounded-full bg-blue-500 opacity-20 top-1/2 -right-40 animate-float" style={{ animationDelay: '-5s' }} />

@@ -1,122 +1,255 @@
 /**
- * Exam Loader Utility
- * Loads and organizes exams from the Exams folder structure
- * Structure: Exams/{ExamType}/{Class}/{Subject}.json
+ * Exam Loader - Optimized for Lazy Loading
+ * 1. Fetch exam types only (lightweight)
+ * 2. Fetch classes/subjects per type on demand
+ * 3. Fetch questions only when exam is selected
  */
 
-const EXAM_TYPE_ORDER = ['Slip Test', 'Bridge Course', 'Unit Test 1', 'Term 1', 'Unit Test 2', 'Term 2'];
+import { db } from '../firebase';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 
-const examModules = import.meta.glob('../data/Exams/**/*.json', { eager: true });
+// Lightweight cache - exam types only
+const examTypesCache = { data: null, timestamp: 0 };
+const CACHE_TTL = 60 * 1000; // 1 minute
 
-const parseExams = () => {
-  const exams = {};
+// Cache for classes per exam type
+const classCache = new Map();
 
-  Object.entries(examModules).forEach(([path, module]) => {
-    const data = module.default || module;
-    
-    if (!data.exam || !data.exam.enabled) return;
+// Cache for subjects per class
+const subjectCache = new Map();
 
-    const examType = data.exam.examType || path.split('/Exams/')[1]?.split('/')[0] || 'Other';
-    const classNum = String(data.exam.class || 'Unknown');
-    const subject = data.exam.subject || 'Unknown';
-    const fileName = path.split('/').pop().replace('.json', '');
+// Cache for exam config (full with questions)
+const examConfigCache = new Map();
 
-    if (!exams[examType]) {
-      exams[examType] = {};
-    }
-    if (!exams[examType][classNum]) {
-      exams[examType][classNum] = {};
-    }
+// Learning topics cache
+let learningTopicsCache = null;
 
-    exams[examType][classNum][subject] = {
-      fileName,
-      path,
-      ...data.exam,
-      sections: data.sections || [],
-      questions: data.questions || []
-    };
-  });
-
-  const sortedExams = {};
-  EXAM_TYPE_ORDER.forEach(type => {
-    if (exams[type]) {
-      sortedExams[type] = exams[type];
-    }
-  });
+// STAGE 1: Get exam types only (very lightweight)
+export const getExamTypes = async () => {
+  const now = Date.now();
   
-  Object.keys(exams).forEach(type => {
-    if (!sortedExams[type]) {
-      sortedExams[type] = exams[type];
+  if (examTypesCache.data && (now - examTypesCache.timestamp) < CACHE_TTL) {
+    const types = Object.keys(examTypesCache.data);
+    return [...types, 'Learning'].filter(Boolean);
+  }
+  
+  try {
+    const q = query(
+      collection(db, 'examTypes'),
+      where('enabled', '==', true)
+    );
+    
+    const snapshot = await getDocs(q);
+    const types = {};
+    
+    snapshot.forEach(d => {
+      const data = d.data();
+      types[data.examType] = {
+        id: d.id,
+        ...data
+      };
+    });
+    
+    examTypesCache.data = types;
+    examTypesCache.timestamp = now;
+    
+    return Object.keys(types);
+  } catch (error) {
+    console.error('Error fetching exam types:', error.message);
+    return examTypesCache.data ? Object.keys(examTypesCache.data) : [];
+  }
+};
+
+// STAGE 2: Get classes for exam type
+export const getClassesForType = async (examType) => {
+  if (examType === 'Learning') return [];
+  
+  if (classCache.has(examType)) {
+    return classCache.get(examType);
+  }
+  
+  try {
+    const q = query(
+      collection(db, 'examIndex'),
+      where('examType', '==', examType)
+    );
+    
+    const snapshot = await getDocs(q);
+    const classes = [];
+    
+    snapshot.forEach(d => {
+      const data = d.data();
+      if (data.classNum) {
+        classes.push(data.classNum);
+      }
+    });
+    
+    const sorted = classes.sort((a, b) => Number(a) - Number(b));
+    classCache.set(examType, sorted);
+    return sorted;
+  } catch (error) {
+    console.error('Error fetching classes:', error.message);
+    return [];
+  }
+};
+
+// Get learning topics from Firestore
+const getLearningTopicsFromFirestore = async () => {
+  if (learningTopicsCache) return learningTopicsCache;
+  
+  try {
+    const q = query(
+      collection(db, 'examConfigs'),
+      where('examType', '==', 'Learning')
+    );
+    const snapshot = await getDocs(q);
+    const topics = [];
+    snapshot.forEach(d => {
+      const data = d.data();
+      if (data.title) topics.push(data.title);
+    });
+    learningTopicsCache = topics;
+    return topics;
+  } catch (err) {
+    console.error('Error fetching learning topics:', err.message);
+    return [];
+  }
+};
+
+// STAGE 3: Get subjects for class
+export const getSubjectsForClass = async (examType, classNum) => {
+  if (examType === 'Learning') {
+    return getLearningTopicsFromFirestore();
+  }
+  
+  const key = `${examType}_${classNum}`;
+  
+  if (subjectCache.has(key)) {
+    return subjectCache.get(key);
+  }
+  
+  try {
+    const q = query(
+      collection(db, 'examIndex'),
+      where('examType', '==', examType),
+      where('classNum', '==', classNum)
+    );
+    
+    const snapshot = await getDocs(q);
+    const subjects = [];
+    
+    snapshot.forEach(d => {
+      const data = d.data();
+      if (data.subject) {
+        subjects.push(data.subject);
+      }
+    });
+    
+    subjectCache.set(key, subjects);
+    return subjects;
+  } catch (error) {
+    return [];
+  }
+};
+
+// STAGE 4: Get full exam config with questions
+export const getExamConfig = async (examType, classNum, subject) => {
+  if (examType === 'Learning') {
+    // Load from local for learning
+    return getLearningTopicConfig(subject);
+  }
+  
+  const key = `${examType}_${classNum}_${subject}`;
+  
+  // Check cache first
+  if (examConfigCache.has(key)) {
+    return examConfigCache.get(key);
+  }
+  
+  // Fetch from examConfig collection (only when needed)
+  try {
+    const docRef = doc(db, 'examConfigs', key);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      return null;
     }
-  });
-
-  return sortedExams;
-};
-
-export const getAllExams = () => parseExams();
-
-export const getExamTypes = () => {
-  const exams = parseExams();
-  return Object.keys(exams).filter(type => Object.keys(exams[type]).length > 0);
-};
-
-export const getClassesForType = (examType) => {
-  const exams = parseExams();
-  if (!exams[examType]) return [];
-  return Object.keys(exams[examType]).sort((a, b) => Number(a) - Number(b));
-};
-
-export const getSubjectsForClass = (examType, classNum) => {
-  const exams = parseExams();
-  if (!exams[examType] || !exams[examType][classNum]) return [];
-  return Object.keys(exams[examType][classNum]);
-};
-
-export const getExam = (examType, classNum, subject) => {
-  const exams = parseExams();
-  if (!exams[examType] || !exams[examType][classNum] || !exams[examType][classNum][subject]) {
+    
+    const exam = docSnap.data();
+    
+    const config = {
+      examType: exam.examType,
+      className: exam.className,
+      examTitle: exam.title,
+      classNum: exam.classNum,
+      subject: exam.subject,
+      teacher: exam.teacher || '',
+      invigilator: exam.invigilator || '',
+      preassessmentsecretkey: exam.preassessmentsecretkey || '',
+      secretKey: exam.secretKey || '',
+      teacherSecretKey: exam.teacherSecretKey || '',
+      schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
+      sections: exam.sections || [],
+      totalQuestions: exam.totalQuestions,
+      totalMarks: exam.totalMarks,
+      marksPerQuestion: (exam.sections || []).map(s => ({ range: s.range, marks: s.marks })),
+      wrongAnswerPenaltyFraction: exam.wrongAnswerPenaltyFraction ?? 0,
+      timeLimitMinutes: exam.timeLimitMinutes || 0,
+      questions: exam.questions || [],
+      isEnabled: exam.enabled !== false
+    };
+    
+    examConfigCache.set(key, config);
+    return config;
+  } catch (error) {
+    console.error('Error fetching exam config:', error.message);
     return null;
   }
-  return exams[examType][classNum][subject];
 };
 
-export const getExamConfig = (examType, classNum, subject) => {
-  const exam = getExam(examType, classNum, subject);
-  if (!exam) return null;
+export const getLearningTopics = () => getLearningTopicsFromFirestore();
 
-  const sections = exam.sections || [];
-  let totalQuestions = 0;
-  let totalMarks = 0;
-  
-  sections.forEach(section => {
-    totalQuestions += section.count;
-    totalMarks += section.count * section.marks;
-  });
+export const getLearningTopicConfig = async (topicName) => {
+  try {
+    const q = query(
+      collection(db, 'examConfigs'),
+      where('examType', '==', 'Learning'),
+      where('title', '==', topicName)
+    );
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) return null;
+    
+    const data = snapshot.docs[0].data();
+    return {
+      examType: 'Learning',
+      className: data.className,
+      examTitle: data.title,
+      classNum: data.classNum,
+      subject: data.subject,
+      teacher: data.teacher,
+      invigilator: data.invigilator,
+      preassessmentsecretkey: data.preassessmentsecretkey,
+      secretKey: data.secretKey,
+      teacherSecretKey: data.teacherSecretKey,
+      schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
+      sections: data.sections || [{ range: [1, 10], marks: 1, count: 10 }],
+      totalQuestions: data.totalQuestions,
+      totalMarks: data.totalMarks,
+      marksPerQuestion: [{ range: [1, 10], marks: 1 }],
+      wrongAnswerPenaltyFraction: data.wrongAnswerPenaltyFraction ?? 0,
+      timeLimitMinutes: data.timeLimitMinutes || 30,
+      questions: data.questions || [],
+      topics: data.topics || [],
+      isEnabled: true
+    };
+  } catch (err) {
+    console.error('Error loading learning topic:', err.message);
+    return null;
+  }
+};
 
-  const marksPerQuestion = sections.map(section => ({
-    range: section.range,
-    marks: section.marks
-  }));
-
-  return {
-    examType,
-    className: Number(classNum),
-    examTitle: exam.title,
-    classNum,
-    subject,
-    teacher: exam.teacher || '',
-    invigilator: exam.invigilator || '',
-    preassessmentsecretkey: exam.preassessmentsecretkey || '',
-    secretKey: exam.secretKey || '',
-    teacherSecretKey: exam.teacherSecretKey || '',
-    schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
-    sections,
-    totalQuestions,
-    totalMarks,
-    marksPerQuestion,
-    wrongAnswerPenaltyFraction: exam.wrongAnswerPenaltyFraction ?? 0,
-    timeLimitMinutes: exam.timeLimitMinutes || 0,
-    questions: exam.questions || [],
-    isEnabled: exam.enabled !== false
-  };
+export const getAllExams = async () => {
+  // Legacy - not used now
+  return {};
 };
