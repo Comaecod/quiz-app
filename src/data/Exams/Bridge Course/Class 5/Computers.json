@@ -1,0 +1,284 @@
+{
+  "exam": {
+    "title": "Basics of Computers and AI",
+    "class": 5,
+    "subject": "Computers",
+    "teacher": "Venkata Vishnu",
+    "invigilator": "Venkata Vishnu",
+    "preassessmentsecretkey": "Class5Begin",
+    "secretKey": "Computer5",
+    "teacherSecretKey": "Vishnu5",
+    "wrongAnswerPenaltyFraction": 0,
+    "timeLimitMinutes": 15,
+    "enabled": true
+  },
+  "sections": [
+    {
+      "range": [1, 20],
+      "marks": 1,
+      "count": 20
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "What is the brain of the computer called?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "CPU (Central Processing Unit)" },
+        { "text": "Keyboard" },
+        { "text": "Mouse" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 2,
+      "text": "Which device is used to input data into the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "Printer" },
+        { "text": "Keyboard and Mouse" },
+        { "text": "Speaker" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 3,
+      "text": "What is an output device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Device that sends information to computer" },
+        { "text": "Device that gives information from computer" },
+        { "text": "Device that stores information" },
+        { "text": "Device that deletes information" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 4,
+      "text": "Which of these is an output device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "Scanner" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 5,
+      "text": "What does CPU stand for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Central Processing Unit" },
+        { "text": "Computer Personal Unit" },
+        { "text": "Central Print Unit" },
+        { "text": "Computer Processing Unit" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 6,
+      "text": "Which part of the computer stores data permanently?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "RAM" },
+        { "text": "Hard Disk" },
+        { "text": "CPU" },
+        { "text": "Mouse" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 7,
+      "text": "What is RAM?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Read Access Memory" },
+        { "text": "Random Access Memory" },
+        { "text": "Run Access Memory" },
+        { "text": "Ready Access Memory" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 8,
+      "text": "AI means:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Advanced Internet" },
+        { "text": "Artificial Intelligence" },
+        { "text": "Automatic Information" },
+        { "text": "Amazing Input" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 9,
+      "text": "Artificial Intelligence helps computers to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only type" },
+        { "text": "Think and learn like humans" },
+        { "text": "Only print" },
+        { "text": "Only play games" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 10,
+      "text": "Which device is used to click on items on screen?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "Speaker" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 11,
+      "text": "What is a keyboard used for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To draw pictures" },
+        { "text": "To type letters and numbers" },
+        { "text": "To hear sounds" },
+        { "text": "To print papers" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 12,
+      "text": "Which of these is an input device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Speaker" },
+        { "text": "Monitor" },
+        { "text": "Keyboard" },
+        { "text": "Printer" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 13,
+      "text": "A printer is used to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Store data" },
+        { "text": "Print documents on paper" },
+        { "text": "Type letters" },
+        { "text": "Play games" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 14,
+      "text": "What does a scanner do?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Makes copies of documents into the computer" },
+        { "text": "Prints papers" },
+        { "text": "Plays music" },
+        { "text": "Types letters" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 15,
+      "text": "AI can learn from:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only books" },
+        { "text": "Data and examples" },
+        { "text": "Only TV" },
+        { "text": "Only radio" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 16,
+      "text": "Which device shows pictures and text on the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "CPU" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 17,
+      "text": "What is machine learning?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Computer learning on its own" },
+        { "text": "Human learning" },
+        { "text": "Machine cooking" },
+        { "text": "Machine cleaning" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 18,
+      "text": "Which is a storage device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Mouse" },
+        { "text": "Hard Disk" },
+        { "text": "Keyboard" },
+        { "text": "Speaker" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 19,
+      "text": "What can AI help us with in daily life?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Voice assistants and recommendations" },
+        { "text": "Only washing clothes" },
+        { "text": "Only cooking food" },
+        { "text": "Only driving cars" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 20,
+      "text": "Which is an example of AI?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Voice assistants like Alexa" },
+        { "text": "A simple calculator" },
+        { "text": "A paper" },
+        { "text": "A pencil" }
+      ],
+      "isCorrect": 0
+    }
+  ]
+}

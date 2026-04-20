@@ -1,0 +1,284 @@
+{
+  "exam": {
+    "title": "Basics of Computers and AI",
+    "class": 6,
+    "subject": "Computers",
+    "teacher": "Venkata Vishnu",
+    "invigilator": "Venkata Vishnu",
+    "preassessmentsecretkey": "Class6Begin",
+    "secretKey": "Computer6",
+    "teacherSecretKey": "Vishnu6",
+    "wrongAnswerPenaltyFraction": 0,
+    "timeLimitMinutes": 15,
+    "enabled": true
+  },
+  "sections": [
+    {
+      "range": [1, 20],
+      "marks": 1,
+      "count": 20
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "What is the function of the CPU?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To display images" },
+        { "text": "To process data and execute instructions" },
+        { "text": "To store data" },
+        { "text": "To print documents" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 2,
+      "text": "Which component is considered the brain of the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "CPU" },
+        { "text": "Keyboard" },
+        { "text": "Mouse" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 3,
+      "text": "What is the difference between RAM and ROM?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "RAM is permanent, ROM is temporary" },
+        { "text": "RAM is temporary, ROM is permanent" },
+        { "text": "Both are the same" },
+        { "text": "RAM is for input, ROM is for output" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 4,
+      "text": "Which device is used to input text into the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "Speaker" },
+        { "text": "Keyboard" },
+        { "text": "Printer" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 5,
+      "text": "What is an input device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Device that displays output" },
+        { "text": "Device that sends data to the computer" },
+        { "text": "Device that stores data permanently" },
+        { "text": "Device that prints documents" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 6,
+      "text": "What is an output device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Device that sends data to computer" },
+        { "text": "Device that receives data from computer" },
+        { "text": "Device that deletes data" },
+        { "text": "Device that stores data" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 7,
+      "text": "Which of the following is an output device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "Scanner" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 8,
+      "text": "What does AI stand for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Advanced Internet" },
+        { "text": "Artificial Intelligence" },
+        { "text": "Automated Input" },
+        { "text": "Application Interface" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 9,
+      "text": "What is Artificial Intelligence?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "A programming language" },
+        { "text": "Ability of computers to think and learn like humans" },
+        { "text": "A type of computer hardware" },
+        { "text": "A computer game" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 10,
+      "text": "What is Machine Learning?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Machines learning to cook" },
+        { "text": "Computers learning from data to improve performance" },
+        { "text": "Machines playing games" },
+        { "text": "Learning to use machines" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 11,
+      "text": "Which is an example of AI in everyday life?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Voice assistants like Siri" },
+        { "text": "A simple pencil" },
+        { "text": "A paper notebook" },
+        { "text": "A wooden table" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 12,
+      "text": "What is the primary function of the keyboard?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To display information" },
+        { "text": "To input text and commands" },
+        { "text": "To produce sound" },
+        { "text": "To store data" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 13,
+      "text": "Which device is used for pointing and clicking on the screen?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "CPU" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 14,
+      "text": "What is the function of a printer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To input data" },
+        { "text": "To produce hard copies of documents" },
+        { "text": "To store data" },
+        { "text": "To display information" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 15,
+      "text": "Which storage device is commonly used to store data externally?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "RAM" },
+        { "text": "Pendrive" },
+        { "text": "CPU" },
+        { "text": "Monitor" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 16,
+      "text": "What is the function of the monitor?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To store data" },
+        { "text": "To display visual output" },
+        { "text": "To input data" },
+        { "text": "To print documents" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 17,
+      "text": "What is a touchpad used for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To type" },
+        { "text": "To point and navigate like a mouse" },
+        { "text": "To print" },
+        { "text": "To store data" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 18,
+      "text": "Which of these is an example of AI?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "ChatGPT" },
+        { "text": "A simple calculator" },
+        { "text": "A light bulb" },
+        { "text": "A chair" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 19,
+      "text": "How does AI help in learning?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "By replacing teachers" },
+        { "text": "By providing personalized learning experiences" },
+        { "text": "By doing homework for students" },
+        { "text": "By grading exams" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 20,
+      "text": "What is a speaker used for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "To input data" },
+        { "text": "To produce audio output" },
+        { "text": "To store data" },
+        { "text": "To display images" }
+      ],
+      "isCorrect": 1
+    }
+  ]
+}

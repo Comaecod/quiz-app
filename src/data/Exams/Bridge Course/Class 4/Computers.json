@@ -1,0 +1,284 @@
+{
+  "exam": {
+    "title": "Basics of Computers and AI",
+    "class": 4,
+    "subject": "Computers",
+    "teacher": "Venkata Vishnu",
+    "invigilator": "Venkata Vishnu",
+    "preassessmentsecretkey": "Class4Start",
+    "secretKey": "Class4Key",
+    "teacherSecretKey": "Vishnu4",
+    "wrongAnswerPenaltyFraction": 0,
+    "timeLimitMinutes": 15,
+    "enabled": true
+  },
+  "sections": [
+    {
+      "range": [1, 20],
+      "marks": 1,
+      "count": 20
+    }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "What is a computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "A machine that helps us think and work" },
+        { "text": "A TV" },
+        { "text": "A radio" },
+        { "text": "A book" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 2,
+      "text": "What is the main part of the computer called?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "CPU or Brain" },
+        { "text": "Speaker" },
+        { "text": "Mouse" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 3,
+      "text": "Which device is used to type on the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Mouse" },
+        { "text": "Keyboard" },
+        { "text": "Speaker" },
+        { "text": "Monitor" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 4,
+      "text": "What does a mouse do?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Makes sound" },
+        { "text": "Helps us point and click on things" },
+        { "text": "Shows pictures" },
+        { "text": "Types letters" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 5,
+      "text": "Which device shows us pictures on the computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Monitor" },
+        { "text": "CPU" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 6,
+      "text": "What is an input device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "A device that shows pictures" },
+        { "text": "A device we use to give information to computer" },
+        { "text": "A device that makes sound" },
+        { "text": "A device that prints" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 7,
+      "text": "Which of these is an input device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "Keyboard" },
+        { "text": "Speaker" },
+        { "text": "Printer" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 8,
+      "text": "Which of these is an output device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Speaker" },
+        { "text": "Scanner" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 9,
+      "text": "What does AI stand for?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Apple Internet" },
+        { "text": "Artificial Intelligence" },
+        { "text": "Always Inside" },
+        { "text": "Automatic Input" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 10,
+      "text": "What is Artificial Intelligence?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "A robot that can think like humans" },
+        { "text": "A type of computer" },
+        { "text": "A game" },
+        { "text": "A book" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 11,
+      "text": "Which device helps us hear sound from computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "Speaker" },
+        { "text": "CPU" }
+      ],
+      "isCorrect": 2
+    },
+    {
+      "id": 12,
+      "text": "What can a computer do?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Only play games" },
+        { "text": "Think, learn and solve problems" },
+        { "text": "Only watch videos" },
+        { "text": "Nothing" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 13,
+      "text": "Which part of computer is like the brain?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Mouse" },
+        { "text": "CPU" },
+        { "text": "Keyboard" },
+        { "text": "Monitor" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 14,
+      "text": "What do we call the screen of computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Monitor" },
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "CPU" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 15,
+      "text": "AI can help us by:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Talking to us like a friend" },
+        { "text": "Only playing music" },
+        { "text": "Drawing pictures only" },
+        { "text": "Typing only" }
+      ],
+      "isCorrect": 0
+    },
+    {
+      "id": 16,
+      "text": "Which is a pointing device?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Keyboard" },
+        { "text": "Mouse" },
+        { "text": "CPU" },
+        { "text": "Printer" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 17,
+      "text": "A printer is used to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Hear sound" },
+        { "text": "Print paper" },
+        { "text": "Type" },
+        { "text": "Play games" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 18,
+      "text": "Which device is used to write on paper from computer?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Scanner" },
+        { "text": "Printer" },
+        { "text": "Speaker" },
+        { "text": "Mouse" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 19,
+      "text": "What is learning in AI?",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Computer reading books" },
+        { "text": "Computer getting better by practicing" },
+        { "text": "Computer sleeping" },
+        { "text": "Computer turning off" }
+      ],
+      "isCorrect": 1
+    },
+    {
+      "id": 20,
+      "text": "A scanner is used to:",
+      "image": null,
+      "type": "single",
+      "options": [
+        { "text": "Make copies of photos into computer" },
+        { "text": "Print papers" },
+        { "text": "Play games" },
+        { "text": "Hear music" }
+      ],
+      "isCorrect": 0
+    }
+  ]
+}
