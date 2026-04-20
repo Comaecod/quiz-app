@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
 import ExamTypeScreen from './components/ExamTypeScreen';
@@ -14,27 +15,19 @@ import EmptyState from './components/EmptyState';
 import Footer from './components/Footer';
 import './index.css';
 
-const SCREENS = {
-  EXAM_TYPE: 'examType',
-  CLASS_SELECTION: 'classSelection',
-  SUBJECT_SELECTION: 'subjectSelection',
-  INTRO: 'intro',
-  PRE_ASSESSMENT: 'preAssessment',
-  ROLL_NUMBER: 'rollNumber',
-  QUIZ: 'quiz',
-  RESULT: 'result',
-  REPORTS: 'reports'
-};
-
-function App() {
-  const [currentScreen, setCurrentScreen] = useState(SCREENS.EXAM_TYPE);
-  const [examType, setExamType] = useState(null);
-  const [classNum, setClassNum] = useState(null);
-  const [subject, setSubject] = useState(null);
+function AppContent() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   const [examConfig, setExamConfig] = useState(null);
   const [studentInfo, setStudentInfo] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
+
+  const examType = searchParams.get('exam') || null;
+  const classNum = searchParams.get('class') || null;
+  const subject = searchParams.get('subject') || null;
+  const screen = searchParams.get('screen') || 'home';
 
   const examTypes = useMemo(() => getExamTypes(), []);
   const classes = useMemo(() => examType ? getClassesForType(examType) : [], [examType]);
@@ -42,137 +35,159 @@ function App() {
 
   const hasExams = examTypes.length > 0;
 
+  useEffect(() => {
+    if (examType && classNum && subject && !examConfig) {
+      const config = getExamConfig(examType, classNum, subject);
+      setExamConfig(config);
+    }
+  }, [examType, classNum, subject, examConfig]);
+
+  const updateParams = useCallback((updates) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === undefined) {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, value);
+        }
+      });
+      return newParams;
+    });
+  }, [setSearchParams]);
+
+  const clearExamParams = useCallback(() => {
+    setSearchParams({});
+    setExamConfig(null);
+    setStudentInfo(null);
+    setQuizQuestions([]);
+    setAnswers({});
+  }, [setSearchParams]);
+
   const handleSelectExamType = useCallback((type) => {
-    setExamType(type);
-    setCurrentScreen(SCREENS.CLASS_SELECTION);
-  }, []);
+    updateParams({ exam: type, screen: 'class' });
+  }, [updateParams]);
 
   const handleSelectClass = useCallback((num) => {
-    setClassNum(num);
-    setCurrentScreen(SCREENS.SUBJECT_SELECTION);
-  }, []);
+    updateParams({ class: num, screen: 'subject' });
+  }, [updateParams]);
 
   const handleSelectSubject = useCallback((subj) => {
-    setSubject(subj);
     const config = getExamConfig(examType, classNum, subj);
     setExamConfig(config);
-    setCurrentScreen(SCREENS.INTRO);
-  }, [examType, classNum]);
+    updateParams({ subject: subj, screen: 'intro' });
+  }, [examType, classNum, updateParams]);
 
   const handleIntroStart = useCallback(() => {
-    setCurrentScreen(SCREENS.PRE_ASSESSMENT);
-  }, []);
+    updateParams({ screen: 'preassessment' });
+  }, [updateParams]);
 
   const handlePreAssessmentSuccess = useCallback(() => {
-    setCurrentScreen(SCREENS.ROLL_NUMBER);
-  }, []);
+    updateParams({ screen: 'student' });
+  }, [updateParams]);
 
   const handleOpenReports = useCallback(() => {
-    setCurrentScreen(SCREENS.REPORTS);
-  }, []);
+    updateParams({ screen: 'reports' });
+  }, [updateParams]);
 
   const handleStartWithStudentInfo = useCallback((info) => {
     const preparedQuestions = getQuizQuestions(examConfig.questions, examConfig.sections);
     setStudentInfo(info);
     setQuizQuestions(preparedQuestions);
     setAnswers({});
-    setCurrentScreen(SCREENS.QUIZ);
-  }, [examConfig]);
+    updateParams({ screen: 'quiz' });
+  }, [examConfig, updateParams]);
 
   const handleQuizComplete = useCallback((finalAnswers) => {
     setAnswers(finalAnswers);
-    setCurrentScreen(SCREENS.RESULT);
-  }, []);
+    updateParams({ screen: 'result' });
+  }, [updateParams]);
 
-  const handleBackToExamType = useCallback(() => {
-    setExamType(null);
-    setClassNum(null);
-    setSubject(null);
-    setExamConfig(null);
-    setStudentInfo(null);
-    setQuizQuestions([]);
-    setAnswers({});
-    setCurrentScreen(SCREENS.EXAM_TYPE);
-  }, []);
+  const goToHome = useCallback(() => {
+    clearExamParams();
+    navigate('/');
+  }, [clearExamParams, navigate]);
 
-  const handleBackToClass = useCallback(() => {
-    setClassNum(null);
-    setSubject(null);
-    setExamConfig(null);
-    setStudentInfo(null);
-    setQuizQuestions([]);
-    setAnswers({});
-    setCurrentScreen(SCREENS.CLASS_SELECTION);
-  }, []);
-
-  const handleBackToSubject = useCallback(() => {
-    setSubject(null);
-    setExamConfig(null);
-    setStudentInfo(null);
-    setQuizQuestions([]);
-    setAnswers({});
-    setCurrentScreen(SCREENS.SUBJECT_SELECTION);
-  }, []);
+  const goBack = useCallback(() => {
+    const steps = ['home', 'class', 'subject', 'intro', 'preassessment', 'student', 'quiz', 'result'];
+    const currentIndex = steps.indexOf(screen);
+    if (currentIndex > 0) {
+      const prevScreen = steps[currentIndex - 1];
+      if (prevScreen === 'home') {
+        goToHome();
+      } else if (prevScreen === 'class') {
+        updateParams({ class: null, subject: null, screen: 'class' });
+      } else if (prevScreen === 'subject') {
+        updateParams({ subject: null, screen: 'subject' });
+      } else if (prevScreen === 'intro') {
+        updateParams({ screen: 'intro' });
+      } else if (prevScreen === 'preassessment') {
+        updateParams({ screen: 'preassessment' });
+      } else if (prevScreen === 'student') {
+        updateParams({ screen: 'student' });
+      }
+    }
+  }, [screen, updateParams, goToHome]);
 
   const renderScreen = () => {
-    if (!hasExams && currentScreen !== SCREENS.RESULT) {
+    if (!hasExams && screen !== 'result') {
       return <EmptyState />;
     }
 
-    switch (currentScreen) {
-      case SCREENS.EXAM_TYPE:
+    switch (screen) {
+      case 'home':
         return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} />;
 
-      case SCREENS.CLASS_SELECTION:
+      case 'class':
         return (
           <ClassSelectionScreen
             examType={examType}
             classes={classes}
             onSelect={handleSelectClass}
-            onBack={handleBackToExamType}
+            onBack={goToHome}
           />
         );
 
-      case SCREENS.SUBJECT_SELECTION:
+      case 'subject':
         return (
           <SubjectSelectionScreen
             examType={examType}
             classNum={classNum}
             subjects={subjects}
             onSelect={handleSelectSubject}
-            onBack={handleBackToClass}
+            onBack={goBack}
           />
         );
 
-      case SCREENS.INTRO:
+      case 'intro':
         return examConfig ? (
           <IntroScreen
             config={examConfig}
             onStart={handleIntroStart}
             onReports={handleOpenReports}
-            onBack={handleBackToSubject}
+            onBack={goBack}
           />
         ) : <EmptyState />;
 
-      case SCREENS.PRE_ASSESSMENT:
+      case 'preassessment':
         return examConfig ? (
           <PreAssessmentScreen
             config={examConfig}
             onSuccess={handlePreAssessmentSuccess}
-            onBack={handleBackToSubject}
+            onBack={goBack}
           />
         ) : <EmptyState />;
 
-      case SCREENS.ROLL_NUMBER:
+      case 'student':
         return (
           <RollNumberScreen
             onStartQuiz={handleStartWithStudentInfo}
             questionsCount={examConfig?.totalQuestions || 0}
-            onBack={handleBackToSubject}
+            onBack={goBack}
           />
         );
 
-      case SCREENS.QUIZ:
+      case 'quiz':
         return (
           <QuizScreen
             questions={quizQuestions}
@@ -183,22 +198,22 @@ function App() {
           />
         );
 
-      case SCREENS.RESULT:
+      case 'result':
         return (
           <ResultScreen
             questions={quizQuestions}
             answers={answers}
             studentInfo={studentInfo}
             config={examConfig}
-            onRestart={handleBackToExamType}
+            onRestart={goToHome}
           />
         );
 
-      case SCREENS.REPORTS:
-        return <ReportsScreen config={examConfig} onBack={handleBackToSubject} />;
+      case 'reports':
+        return <ReportsScreen config={examConfig} onBack={goBack} />;
 
       default:
-        return null;
+        return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} />;
     }
   };
 
@@ -216,6 +231,16 @@ function App() {
 
       <Footer />
     </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/*" element={<AppContent />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
