@@ -109,24 +109,47 @@ function AppContent() {
   }, [clearExamParams, navigate]);
 
   const goBack = useCallback(() => {
-    const steps = ['home', 'class', 'subject', 'intro', 'preassessment', 'student', 'quiz', 'result'];
-    const currentIndex = steps.indexOf(screen);
-    if (currentIndex > 0) {
-      const prevScreen = steps[currentIndex - 1];
-      if (prevScreen === 'home') {
-        goToHome();
-      } else if (prevScreen === 'class') {
-        updateParams({ class: null, subject: null, screen: 'class' });
-      } else if (prevScreen === 'subject') {
-        updateParams({ subject: null, screen: 'subject' });
-      } else if (prevScreen === 'intro') {
-        updateParams({ screen: 'intro' });
-      } else if (prevScreen === 'preassessment') {
-        updateParams({ screen: 'preassessment' });
-      } else if (prevScreen === 'student') {
-        updateParams({ screen: 'student' });
-      }
+    if (screen === 'reports') {
+      updateParams({ screen: 'intro' });
+      return;
     }
+    
+    if (screen === 'result') {
+      updateParams({ screen: 'quiz' });
+      return;
+    }
+    
+    if (screen === 'quiz') {
+      updateParams({ screen: 'student' });
+      return;
+    }
+    
+    if (screen === 'student') {
+      updateParams({ screen: 'preassessment' });
+      return;
+    }
+    
+    if (screen === 'preassessment') {
+      updateParams({ screen: 'intro' });
+      return;
+    }
+    
+    if (screen === 'intro') {
+      updateParams({ screen: 'subject' });
+      return;
+    }
+    
+    if (screen === 'subject') {
+      updateParams({ class: null, subject: null, screen: 'class' });
+      return;
+    }
+    
+    if (screen === 'class') {
+      goToHome();
+      return;
+    }
+    
+    goToHome();
   }, [screen, updateParams, goToHome]);
 
   const renderScreen = () => {

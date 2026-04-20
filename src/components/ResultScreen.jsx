@@ -53,11 +53,11 @@ const CertificateCard = ({ studentInfo, config, results }) => {
         <p className="text-center text-white/70 text-sm mb-6">This is to certify that</p>
         
         <h2 className="text-center text-2xl sm:text-3xl font-bold text-white mb-2">
-          {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
+          {studentInfo ? `${formatName(studentInfo.firstName)} ${formatName(studentInfo.lastName)}` : 'Student'}
         </h2>
         
         <p className="text-center text-white/60 text-xs sm:text-sm mb-6">
-          Student of Class {config.classNum} | Roll No: {studentInfo.rollNumber}
+          Student of Class {config.classNum || 'N/A'} | Roll No: {studentInfo?.rollNumber || '-'}
         </p>
         
         <p className="text-center text-white/70 text-sm mb-4">has successfully completed the</p>
@@ -178,12 +178,14 @@ const ResultScreen = ({
           </p>
         </header>
 
-        <div className="p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-semibold mb-1">
-            {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
-          </h3>
-          <p className="text-gray-400">Roll Number: {studentInfo.rollNumber}</p>
-        </div>
+        {studentInfo && (
+          <div className="p-4 sm:p-6 rounded-2xl bg-white/5 border border-white/10 mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-semibold mb-1">
+              {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
+            </h3>
+            <p className="text-gray-400">Roll Number: {studentInfo.rollNumber}</p>
+          </div>
+        )}
 
         <div className="text-center mb-4" role="status" aria-live="polite" aria-label="Your score">
           <div className="text-5xl sm:text-6xl font-bold">

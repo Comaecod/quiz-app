@@ -1,4 +1,4 @@
-const ExamTypeScreen = ({ examTypes, onSelect, onBack }) => {
+const ExamTypeScreen = ({ examTypes, onSelect }) => {
   const getExamIcon = (type) => {
     const icons = {
       'Slip Test': '📝',
@@ -6,7 +6,8 @@ const ExamTypeScreen = ({ examTypes, onSelect, onBack }) => {
       'Unit Test 1': '📖',
       'Term 1': '📚',
       'Unit Test 2': '📖',
-      'Term 2': '📚'
+      'Term 2': '📚',
+      'Learning': '📚'
     };
     return icons[type] || '📋';
   };
@@ -18,7 +19,8 @@ const ExamTypeScreen = ({ examTypes, onSelect, onBack }) => {
       'Unit Test 1': 'First unit evaluation',
       'Term 1': 'First term examination',
       'Unit Test 2': 'Second unit evaluation',
-      'Term 2': 'Second term examination'
+      'Term 2': 'Second term examination',
+      'Learning': 'Learn concepts and test yourself'
     };
     return descriptions[type] || 'Assessment';
   };
@@ -34,7 +36,7 @@ const ExamTypeScreen = ({ examTypes, onSelect, onBack }) => {
         <p className="text-gray-400 mt-2">Choose the type of exam you want to take</p>
       </div>
 
-      <div className="space-y-3 mb-8">
+      <div className="space-y-3">
         {examTypes.map((type) => (
           <button
             key={type}
@@ -49,15 +51,6 @@ const ExamTypeScreen = ({ examTypes, onSelect, onBack }) => {
             <span className="text-gray-500 group-hover:text-primary transition-colors">→</span>
           </button>
         ))}
-      </div>
-
-      <div className="text-center">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all"
-        >
-          ← Back
-        </button>
       </div>
     </div>
   );
