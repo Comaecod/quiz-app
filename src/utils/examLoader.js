@@ -155,18 +155,12 @@ export const getSubjectsForClass = async (examType, classNum) => {
 // STAGE 4: Get full exam config with questions
 export const getExamConfig = async (examType, classNum, subject) => {
   if (examType === 'Learning') {
-    // Load from local for learning
     return getLearningTopicConfig(subject);
   }
   
   const key = `${examType}_${classNum}_${subject}`;
   
-  // Check cache first
-  if (examConfigCache.has(key)) {
-    return examConfigCache.get(key);
-  }
-  
-  // Fetch from examConfig collection (only when needed)
+  // Always fetch fresh to get latest keys - no caching for security
   try {
     const docRef = doc(db, 'examConfigs', key);
     const docSnap = await getDoc(docRef);
@@ -199,7 +193,6 @@ export const getExamConfig = async (examType, classNum, subject) => {
       isEnabled: exam.enabled !== false
     };
     
-    examConfigCache.set(key, config);
     return config;
   } catch (error) {
     console.error('Error fetching exam config:', error.message);
