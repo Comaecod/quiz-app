@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
-import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig, getLearningTopics } from './utils/examLoader';
+import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
 import migrateExams from './utils/migrateExams';
 import migrateToLazyStructure from './utils/migrateLazy';
@@ -15,6 +15,8 @@ import ResultScreen from './components/ResultScreen';
 import ReportsScreen from './components/ReportsScreen';
 import EmptyState from './components/EmptyState';
 import Footer from './components/Footer';
+import HolidayHomeworkScreen from './components/HolidayHomeworkScreen';
+import Header from './components/Header';
 import './index.css';
 
 function AppContent() {
@@ -28,6 +30,7 @@ function AppContent() {
   
   const [loading, setLoading] = useState(true);
   const [examTypes, setExamTypes] = useState([]);
+  const [showMainCategory, setShowMainCategory] = useState(true);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [migrating, setMigrating] = useState(false);
@@ -119,8 +122,7 @@ function AppContent() {
         return;
       }
       try {
-        // For Learning, classNum is null
-        const config = await getExamConfig(examType, examType === 'Learning' ? null : classNum, subject);
+        const config = await getExamConfig(examType, classNum, subject);
         setExamConfig(config);
       } catch (err) {
         console.error('Error loading config:', err);
@@ -154,12 +156,10 @@ function AppContent() {
   }, [setSearchParams]);
 
   const handleSelectExamType = useCallback((type) => {
-    if (type === 'Learning') {
-      const topics = getLearningTopics();
-      if (topics.length > 0) {
-        updateParams({ exam: type, subject: topics[0], screen: 'intro' });
-      }
+    if (type === 'Holiday Homework') {
+      updateParams({ exam: type, screen: 'class' });
     } else {
+      setShowMainCategory(false);
       updateParams({ exam: type, screen: 'class' });
     }
   }, [updateParams]);
@@ -169,8 +169,12 @@ function AppContent() {
   }, [updateParams]);
 
   const handleSelectSubject = useCallback((subj) => {
-    updateParams({ subject: subj, screen: 'intro' });
-  }, [updateParams]);
+    if (examType === 'Holiday Homework') {
+      updateParams({ subject: subj, screen: 'content' });
+    } else {
+      updateParams({ subject: subj, screen: 'intro' });
+    }
+  }, [examType, updateParams]);
 
   const handleIntroStart = useCallback(() => {
     updateParams({ screen: 'preassessment' });
@@ -200,6 +204,7 @@ function AppContent() {
 
   const goToHome = useCallback(() => {
     clearExamParams();
+    setShowMainCategory(true);
     navigate('/');
   }, [clearExamParams, navigate]);
 
@@ -228,16 +233,21 @@ function AppContent() {
       updateParams({ screen: 'subject' });
       return;
     }
+    if (screen === 'content') {
+      updateParams({ screen: 'subject' });
+      return;
+    }
     if (screen === 'subject') {
       updateParams({ class: null, subject: null, screen: 'class' });
       return;
     }
     if (screen === 'class') {
+      setShowMainCategory(true);
       goToHome();
       return;
     }
     goToHome();
-  }, [screen, updateParams, goToHome]);
+  }, [screen, updateParams, goToHome, setShowMainCategory]);
 
   const renderScreen = () => {
     if (loading) {
@@ -254,7 +264,7 @@ function AppContent() {
 
     switch (screen) {
       case 'home':
-        return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} />;
+        return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} showMainCategory={showMainCategory} setShowMainCategory={setShowMainCategory} />;
 
       case 'class':
         return (
@@ -330,8 +340,13 @@ function AppContent() {
       case 'reports':
         return <ReportsScreen config={examConfig} onBack={goBack} />;
 
+      case 'content':
+        return examConfig && examConfig.isHolidayHomework ? (
+          <HolidayHomeworkScreen config={examConfig} onBack={goBack} />
+        ) : <EmptyState />;
+
       default:
-        return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} />;
+        return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} showMainCategory={showMainCategory} setShowMainCategory={setShowMainCategory} />;
     }
   };
 
@@ -370,13 +385,15 @@ function AppContent() {
         </div>
       )}
       
+      <Header />
+      
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
         <div className="absolute w-80 h-80 rounded-full bg-blue-500 opacity-20 top-1/2 -right-40 animate-float" style={{ animationDelay: '-5s' }} />
         <div className="absolute w-64 h-64 rounded-full bg-pink-500 opacity-20 bottom-0 left-1/3 animate-float" style={{ animationDelay: '-10s' }} />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 pb-12">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 pb-12 pt-24">
         {renderScreen()}
       </div>
 

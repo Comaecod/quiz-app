@@ -9,109 +9,116 @@ const CertificateCard = ({ studentInfo, config, results }) => {
   const teacherName = config.teacher || 'Venkata Vishnu';
   
   const gradeColors = {
-    'A+': 'from-green-400 to-emerald-500',
-    'A': 'from-green-500 to-teal-500',
-    'A-': 'from-lime-400 to-green-500',
-    'B+': 'from-yellow-400 to-amber-500',
-    'B': 'from-amber-400 to-orange-500',
-    'B-': 'from-orange-400 to-yellow-500',
-    'C': 'from-orange-500 to-red-400',
-    'D': 'from-red-500 to-rose-500',
-    'F': 'from-red-600 to-red-800'
+    'A+': { bg: 'from-amber-300 via-yellow-400 to-orange-400', glow: 'shadow-[0_0_30px_rgba(251,191,36,0.6)]', text: 'text-amber-900' },
+    'A': { bg: 'from-emerald-300 via-green-400 to-teal-400', glow: 'shadow-[0_0_30px_rgba(52,211,153,0.6)]', text: 'text-emerald-900' },
+    'A-': { bg: 'from-lime-300 via-green-400 to-emerald-400', glow: 'shadow-[0_0_30px_rgba(132,204,22,0.6)]', text: 'text-lime-900' },
+    'B+': { bg: 'from-cyan-300 via-blue-400 to-indigo-400', glow: 'shadow-[0_0_30px_rgba(103,232,249,0.6)]', text: 'text-cyan-900' },
+    'B': { bg: 'from-blue-300 via-indigo-400 to-purple-400', glow: 'shadow-[0_0_30px_rgba(165,180,252,0.6)]', text: 'text-blue-900' },
+    'B-': { bg: 'from-violet-300 via-purple-400 to-fuchsia-400', glow: 'shadow-[0_0_30px_rgba(196,181,253,0.6)]', text: 'text-violet-900' },
+    'C': { bg: 'from-rose-300 via-pink-400 to-rose-400', glow: 'shadow-[0_0_30px_rgba(251,113,133,0.6)]', text: 'text-rose-900' },
+    'D': { bg: 'from-red-300 via-orange-400 to-amber-400', glow: 'shadow-[0_0_30px_rgba(252,129,97,0.6)]', text: 'text-red-900' },
+    'F': { bg: 'from-gray-400 via-gray-500 to-slate-400', glow: 'shadow-[0_0_20px_rgba(148,163,184,0.4)]', text: 'text-gray-900' }
   };
-  const gradeColor = gradeColors[results.grade] || 'from-gray-400 to-gray-500';
+  
+  const gradeStyle = gradeColors[results.grade] || { bg: 'from-gray-300 via-slate-400 to-gray-500', glow: 'shadow-[0_0_20px_rgba(148,163,184,0.4)]', text: 'text-gray-900' };
 
   return (
-    <div className="bg-gradient-to-b from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 sm:p-8 border-4 border-yellow-400 relative overflow-hidden">
-      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-yellow-400"></div>
-      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-yellow-400"></div>
-      <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-yellow-400"></div>
-      <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-yellow-400"></div>
+    <div className="relative rounded-3xl overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900"></div>
+      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.4)_0%,transparent_50%),radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.4)_0%,transparent_50%),radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.2)_0%,transparent_70%)]"></div>
+      <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMzAgMEwzMCA2MCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIwLjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuMSIvPgo8cGF0aCBkPSJNMEwzMCAzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIwLjUiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]"></div>
       
-      <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 opacity-90"></div>
-      
-      <div className="relative">
-        <div className="flex justify-center mb-4">
-          <img 
-            src="/assets/logo.png" 
-            alt="School Logo" 
-            className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-full bg-white p-1"
-            onError={(e) => e.target.style.display = 'none'}
-          />
+      <div className="relative p-6 sm:p-10">
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"></div>
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-violet-500/20 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-tl from-amber-500/20 to-transparent rounded-full blur-3xl"></div>
+        
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 p-1 shadow-2xl">
+              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
+                <span className="text-4xl sm:text-5xl">🎓</span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <p className="text-center text-blue-200 text-xs sm:text-sm font-medium mb-1">
+        <p className="text-center text-purple-200 text-xs sm:text-sm font-semibold tracking-[0.3em] uppercase mb-1">
           {config.schoolName || 'Sri Kanchi Kamakoti Sankara Vidyalaya'}
         </p>
         
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="h-px w-12 sm:w-20 bg-yellow-400"></div>
-          <span className="text-yellow-400 font-bold text-xs sm:text-sm">CERTIFICATE</span>
-          <div className="h-px w-12 sm:w-20 bg-yellow-400"></div>
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <div className="h-px w-16 sm:w-24 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+          <span className="text-2xl sm:text-3xl">🏆</span>
+          <div className="h-px w-16 sm:w-24 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
         </div>
         
-        <p className="text-center text-white/70 text-sm mb-6">This is to certify that</p>
+        <h3 className="text-center text-purple-200 font-bold text-lg sm:text-xl tracking-[0.5em] uppercase mb-6">
+          Certificate of Achievement
+        </h3>
         
-        <h2 className="text-center text-2xl sm:text-3xl font-bold text-white mb-2">
-          {studentInfo ? `${formatName(studentInfo.firstName)} ${formatName(studentInfo.lastName)}` : 'Student'}
-        </h2>
+        <p className="text-center text-slate-400 text-sm mb-2">This is to certify that</p>
         
-        <p className="text-center text-white/60 text-xs sm:text-sm mb-6">
-          Student of Class {config.classNum || 'N/A'} | Roll No: {studentInfo?.rollNumber || '-'}
+        <div className="text-center mb-2">
+          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent inline-block">
+            {studentInfo ? `${formatName(studentInfo.firstName)} ${formatName(studentInfo.lastName)}` : 'Student'}
+          </h2>
+        </div>
+        
+        <p className="text-center text-slate-400 text-sm mb-6">
+          Student of Class {config.classNum || 'N/A'} • Roll No: {studentInfo?.rollNumber || '-'}
         </p>
         
-        <p className="text-center text-white/70 text-sm mb-4">has successfully completed the</p>
+        <p className="text-center text-slate-400 text-sm mb-3">has successfully completed</p>
         
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl py-3 px-4 mb-4 text-center border border-blue-500">
-          <span className="text-white font-bold text-lg sm:text-xl">
-            {config.examTitle}
-          </span>
+        <div className="relative mb-6">
+          <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-2xl blur opacity-50"></div>
+          <div className="relative bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-xl py-4 px-6 text-center border border-white/10">
+            <span className="text-white font-bold text-lg sm:text-xl tracking-wide">
+              {config.examTitle}
+            </span>
+            <p className="text-slate-400 text-sm mt-1">Subject: {config.subject || 'General'}</p>
+          </div>
         </div>
         
-        <p className="text-center text-white/70 text-sm mb-4">
-          Subject: {config.subject || 'General'}
-        </p>
-        
-        <div className="text-center mb-4">
-          <span className={`inline-block px-6 py-2 rounded-xl bg-gradient-to-r ${gradeColor} text-white font-bold text-lg`}>
-            Score: {results.totalEarned.toFixed(1)} / {results.totalMarks} ({results.percentage}%)
-          </span>
+        <div className="flex justify-center gap-4 mb-6">
+          <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${gradeStyle.bg} ${gradeStyle.glow} ${gradeStyle.text} font-bold text-xl`}>
+            {results.grade}
+          </div>
+          <div className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold">
+            {results.totalEarned.toFixed(1)} / {results.totalMarks}
+          </div>
+          <div className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold">
+            {results.percentage}%
+          </div>
         </div>
         
-        <div className="text-center mb-6">
-          <span className={`inline-block px-4 py-1 rounded-lg bg-gradient-to-r ${gradeColor} text-white font-bold text-xl`}>
-            Grade: {results.grade}
-          </span>
-        </div>
+        <p className="text-center text-slate-500 text-xs mb-6">Awarded on {date}</p>
         
-        <p className="text-center text-white/50 text-xs mb-6">Date: {date}</p>
-        
-        <div className="border-t border-white/20 pt-4 flex justify-between items-start">
-          <div className="text-center flex-1">
-            <img 
-              src="/assets/signatures/vishnu.png" 
-              alt="Teacher Signature" 
-              className="h-10 sm:h-12 mx-auto mb-1 object-contain"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-            <p className="text-white/80 text-xs sm:text-sm font-medium">{teacherName}</p>
-            <p className="text-white/50 text-xs">Class Teacher</p>
+        <div className="grid grid-cols-2 gap-8 pt-4 border-t border-white/10">
+          <div className="text-center">
+            <div className="relative inline-block mb-2">
+              <div className="hidden font-serif italic text-purple-300 text-2xl absolute -bottom-2 left-1/2 -translate-x-1/2">{teacherName?.charAt(0)}</div>
+            </div>
+            <div className="w-24 mx-auto h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-2"></div>
+            <p className="text-white font-medium text-sm">{teacherName}</p>
+            <p className="text-purple-300 text-xs">Subject Teacher</p>
           </div>
           
-          <div className="text-center flex-1">
-            <img 
-              src="/assets/signatures/principal.png" 
-              alt="Principal Signature" 
-              className="h-10 sm:h-12 mx-auto mb-1 object-contain"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-            <p className="text-white/80 text-xs sm:text-sm font-medium">Padma Gayathri</p>
-            <p className="text-white/50 text-xs">Principal</p>
+          <div className="text-center">
+            <div className="relative inline-block mb-2">
+              <div className="hidden font-serif italic text-purple-300 text-2xl absolute -bottom-2 left-1/2 -translate-x-1/2">P</div>
+            </div>
+            <div className="w-24 mx-auto h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-2"></div>
+            <p className="text-white font-medium text-sm">Padma Gayathri</p>
+            <p className="text-purple-300 text-xs">Principal</p>
           </div>
+        </div>
+        
+        <div className="flex justify-center mt-6 gap-2">
+          <span className="text-purple-400">✨</span>
+          <span className="text-purple-400 text-xs tracking-widest">COMAECOD SKKSV SCHOLAR</span>
+          <span className="text-purple-400">✨</span>
         </div>
       </div>
     </div>

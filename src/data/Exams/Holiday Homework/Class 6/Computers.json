@@ -1,0 +1,44 @@
+{
+  "examType": "Holiday Homework",
+  "classNum": "6",
+  "className": 6,
+  "title": "Summer Holiday Homework 2026",
+  "subject": "Computers",
+  "teacher": "Venkata Vishnu",
+  "invigilator": "Venkata Vishnu",
+  "enabled": true,
+  "content": {
+    "period": "Apr 23 to June 10",
+    "classroomPeriods": "0",
+    "projects": [
+      {
+        "title": "Project 1: My Smart Village scrapbook",
+        "description": "Children observe home devices, farming tools, mobile use, and simple patterns in nature. They interview elders about how life changed."
+      },
+      {
+        "title": "Project 2: Nature Pattern Detective",
+        "description": "They collect leaves, seeds, stones, or flowers and group them by type, colour, size, or pattern. This becomes their first data-collection experience."
+      },
+      {
+        "title": "Project 3: Family Technology Timeline",
+        "description": "Children document how technology has changed in their family over generations."
+      },
+      {
+        "title": "Project 4: Safe Internet Pledge",
+        "description": "Create a poster with internet safety rules."
+      },
+      {
+        "title": "Project 5: My AI in Daily Life page",
+        "description": "A picture page on 'My view of AI' with borders, colours, and a title page."
+      }
+    ],
+    "materials": "No computer required. Optional phone camera or notes app only if available. Everything must work with notebook and pencil alone.",
+    "submission": "Bring back a compiled holiday notebook with: 1) 5 AI examples, 2) 10 safety rules, 3) one nature-pattern page, 4) one elder interview, 5) one page on computer care.",
+    "grading": {
+      "belowAverage": "Completes at least 2–3 simple pages with drawings and short lines.",
+      "average": "Completes the full pack neatly.",
+      "bright": "Adds extra pages, comparisons, and neat presentation."
+    },
+    "note": "Use holidays to build curiosity, not pressure. 📧 You can email me anytime at venkatavishnu.skksv@gmail.com or message me on Instagram @comaecod. I will surely reply!"
+  }
+}

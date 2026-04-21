@@ -29,7 +29,7 @@ const ClassSelectionScreen = ({ examType, classes, onSelect, onBack }) => {
           onClick={onBack}
           className="px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all"
         >
-          ← Back to Assessment Types
+          ← Back to Home
         </button>
       </div>
     </div>

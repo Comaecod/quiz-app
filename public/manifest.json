@@ -1,6 +1,6 @@
 {
-  "name": "Quiz Application",
-  "short_name": "Quiz",
+  "name": "Comaecod SKKSV Scholar",
+  "short_name": "SKKSV",
   "description": "Interactive Quiz Application for Students",
   "start_url": "/quiz-app/",
   "display": "standalone",
@@ -8,10 +8,14 @@
   "theme_color": "#667eea",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

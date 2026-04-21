@@ -12,12 +12,18 @@ const examModules = import.meta.glob('../data/Exams/**/*.json', { eager: true })
 
 const migrateExams = async () => {
   console.log('Starting migration...');
+  console.log('Found modules:', Object.keys(examModules).length);
   
   let uploaded = 0;
   let skipped = 0;
   const errors = [];
   
   try {
+    // Log all JSON files found
+    for (const path of Object.keys(examModules)) {
+      console.log('Found JSON:', path);
+    }
+    
     // Get existing exams to check what's already uploaded
     const existingQuery = query(collection(db, 'exams'));
     const existingSnapshot = await getDocs(existingQuery);
@@ -29,6 +35,10 @@ const migrateExams = async () => {
     
     for (const [path, module] of Object.entries(examModules)) {
       const data = module.default || module;
+      
+      console.log(`Processing: ${path}`);
+      console.log(`  data.exam exists:`, !!data.exam);
+      console.log(`  data.exam.enabled:`, data.exam?.enabled);
       
       if (!data.exam || !data.exam.enabled) {
         console.log(`Skipping disabled: ${path}`);
@@ -43,6 +53,8 @@ const migrateExams = async () => {
         } else {
           examType = path.split('/Exams/')[1]?.split('/')[0] || 'Other';
         }
+        
+        console.log(`  examType: ${examType}`);
         
         if (examType === 'Learning') {
           const topicName = data.exam.title;

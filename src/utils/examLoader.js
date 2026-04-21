@@ -10,7 +10,7 @@ import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firesto
 
 // Lightweight cache - exam types only
 const examTypesCache = { data: null, timestamp: 0 };
-const CACHE_TTL = 60 * 1000; // 1 minute
+const CACHE_TTL = 60 * 1000;
 
 // Cache for classes per exam type
 const classCache = new Map();
@@ -21,16 +21,19 @@ const subjectCache = new Map();
 // Cache for exam config (full with questions)
 const examConfigCache = new Map();
 
-// Learning topics cache
-let learningTopicsCache = null;
+// Holiday Homework classes
+const holidayHomeworkClasses = ['4', '5', '6', '7', '8', '9', '10'];
 
-// STAGE 1: Get exam types only (very lightweight)
+// Holiday Homework cache
+const holidayHomeworkCache = new Map();
+
+// STAGE 1: Get exam types only
 export const getExamTypes = async () => {
   const now = Date.now();
   
   if (examTypesCache.data && (now - examTypesCache.timestamp) < CACHE_TTL) {
     const types = Object.keys(examTypesCache.data);
-    return [...types, 'Learning'].filter(Boolean);
+    return [...types, 'Holiday Homework'].filter(Boolean);
   }
   
   try {
@@ -53,16 +56,19 @@ export const getExamTypes = async () => {
     examTypesCache.data = types;
     examTypesCache.timestamp = now;
     
-    return Object.keys(types);
+    return [...Object.keys(types), 'Holiday Homework'];
   } catch (error) {
     console.error('Error fetching exam types:', error.message);
-    return examTypesCache.data ? Object.keys(examTypesCache.data) : [];
+    const cached = examTypesCache.data ? Object.keys(examTypesCache.data) : [];
+    return [...cached, 'Holiday Homework'];
   }
 };
 
 // STAGE 2: Get classes for exam type
 export const getClassesForType = async (examType) => {
-  if (examType === 'Learning') return [];
+  if (examType === 'Holiday Homework') {
+    return [...new Set(holidayHomeworkClasses)];
+  }
   
   if (classCache.has(examType)) {
     return classCache.get(examType);
@@ -84,7 +90,8 @@ export const getClassesForType = async (examType) => {
       }
     });
     
-    const sorted = classes.sort((a, b) => Number(a) - Number(b));
+    const uniqueClasses = [...new Set(classes)];
+    const sorted = uniqueClasses.sort((a, b) => Number(a) - Number(b));
     classCache.set(examType, sorted);
     return sorted;
   } catch (error) {
@@ -93,33 +100,10 @@ export const getClassesForType = async (examType) => {
   }
 };
 
-// Get learning topics from Firestore
-const getLearningTopicsFromFirestore = async () => {
-  if (learningTopicsCache) return learningTopicsCache;
-  
-  try {
-    const q = query(
-      collection(db, 'examConfigs'),
-      where('examType', '==', 'Learning')
-    );
-    const snapshot = await getDocs(q);
-    const topics = [];
-    snapshot.forEach(d => {
-      const data = d.data();
-      if (data.title) topics.push(data.title);
-    });
-    learningTopicsCache = topics;
-    return topics;
-  } catch (err) {
-    console.error('Error fetching learning topics:', err.message);
-    return [];
-  }
-};
-
 // STAGE 3: Get subjects for class
 export const getSubjectsForClass = async (examType, classNum) => {
-  if (examType === 'Learning') {
-    return getLearningTopicsFromFirestore();
+  if (examType === 'Holiday Homework') {
+    return ['Computers'];
   }
   
   const key = `${examType}_${classNum}`;
@@ -154,13 +138,12 @@ export const getSubjectsForClass = async (examType, classNum) => {
 
 // STAGE 4: Get full exam config with questions
 export const getExamConfig = async (examType, classNum, subject) => {
-  if (examType === 'Learning') {
-    return getLearningTopicConfig(subject);
+  if (examType === 'Holiday Homework') {
+    return getHolidayHomeworkConfig(classNum, subject);
   }
   
   const key = `${examType}_${classNum}_${subject}`;
   
-  // Always fetch fresh to get latest keys - no caching for security
   try {
     const docRef = doc(db, 'examConfigs', key);
     const docSnap = await getDoc(docRef);
@@ -200,49 +183,41 @@ export const getExamConfig = async (examType, classNum, subject) => {
   }
 };
 
-export const getLearningTopics = () => getLearningTopicsFromFirestore();
+// Get all exams (legacy)
+export const getAllExams = async () => {
+  return {};
+};
 
-export const getLearningTopicConfig = async (topicName) => {
+// Load Holiday Homework config from local JSON
+export const getHolidayHomeworkConfig = async (classNum, subject) => {
+  const cacheKey = `${classNum}_${subject}`;
+  
+  if (holidayHomeworkCache.has(cacheKey)) {
+    return holidayHomeworkCache.get(cacheKey);
+  }
+  
   try {
-    const q = query(
-      collection(db, 'examConfigs'),
-      where('examType', '==', 'Learning'),
-      where('title', '==', topicName)
-    );
-    const snapshot = await getDocs(q);
+    const module = await import(`../data/Exams/Holiday Homework/Class ${classNum}/${subject}.json`);
+    const data = module.default;
     
-    if (snapshot.empty) return null;
-    
-    const data = snapshot.docs[0].data();
-    return {
-      examType: 'Learning',
+    const config = {
+      examType: 'Holiday Homework',
       className: data.className,
       examTitle: data.title,
       classNum: data.classNum,
       subject: data.subject,
       teacher: data.teacher,
       invigilator: data.invigilator,
-      preassessmentsecretkey: data.preassessmentsecretkey,
-      secretKey: data.secretKey,
-      teacherSecretKey: data.teacherSecretKey,
       schoolName: 'Sri Kanchi Kamakoti Sankara Vidyalaya',
-      sections: data.sections || [{ range: [1, 10], marks: 1, count: 10 }],
-      totalQuestions: data.totalQuestions,
-      totalMarks: data.totalMarks,
-      marksPerQuestion: [{ range: [1, 10], marks: 1 }],
-      wrongAnswerPenaltyFraction: data.wrongAnswerPenaltyFraction ?? 0,
-      timeLimitMinutes: data.timeLimitMinutes || 30,
-      questions: data.questions || [],
-      topics: data.topics || [],
-      isEnabled: true
+      content: data.content,
+      isHolidayHomework: true,
+      isEnabled: data.enabled !== false
     };
+    
+    holidayHomeworkCache.set(cacheKey, config);
+    return config;
   } catch (err) {
-    console.error('Error loading learning topic:', err.message);
+    console.error('Error loading holiday homework:', err.message);
     return null;
   }
-};
-
-export const getAllExams = async () => {
-  // Legacy - not used now
-  return {};
 };
