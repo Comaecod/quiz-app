@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
+import { trackPageView, getPageViewCount } from './services/firebaseService';
 import migrateExams from './utils/migrateExams';
 import migrateToLazyStructure from './utils/migrateLazy';
 import ExamTypeScreen from './components/ExamTypeScreen';
@@ -33,10 +34,21 @@ function AppContent() {
   const [showMainCategory, setShowMainCategory] = useState(true);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [migrating, setMigrating] = useState(false);
+const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState(null);
-
+  const [pageViewCount, setPageViewCount] = useState(null);
+ 
   const showMigration = searchParams.get('migrate') === 'true';
+
+  // Track page view on mount
+  useEffect(() => {
+    const initAnalytics = async () => {
+      await trackPageView();
+      const count = await getPageViewCount();
+      setPageViewCount(count);
+    };
+    initAnalytics();
+  }, []);
 
   const handleMigration = async () => {
     setMigrating(true);
@@ -397,7 +409,7 @@ function AppContent() {
         {renderScreen()}
       </div>
 
-      <Footer />
+      <Footer pageViewCount={pageViewCount} />
     </>
   );
 }
