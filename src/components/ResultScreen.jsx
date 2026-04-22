@@ -139,11 +139,11 @@ const ResultScreen = ({
   const hasSaved = useRef(false);
   const keyInputRef = useRef(null);
 
-  const hasSecretKey = config.secretKey && config.secretKey.length > 0;
+  const hasSecretKey = config?.secretKey?.length > 0;
 
   const results = useMemo(() => {
-    return calculateTotalScore(questions, answers, config.wrongAnswerPenaltyFraction);
-  }, [questions, answers, config.wrongAnswerPenaltyFraction]);
+    return calculateTotalScore(questions, answers, config?.wrongAnswerPenaltyFraction || 0);
+  }, [questions, answers, config?.wrongAnswerPenaltyFraction]);
 
   const performance = getPerformanceMessage(results.percentage);
 

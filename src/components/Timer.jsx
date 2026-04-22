@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const Timer = ({ minutes, onTimeUp }) => {
   const [timeLeft, setTimeLeft] = useState(minutes * 60);
@@ -13,7 +13,7 @@ const Timer = ({ minutes, onTimeUp }) => {
   useEffect(() => {
     if (timeLeft <= 0 && !hasTriggered.current) {
       hasTriggered.current = true;
-      onTimeUpRef.current();
+      setTimeout(() => onTimeUpRef.current(), 0);
       return;
     }
 
@@ -23,7 +23,7 @@ const Timer = ({ minutes, onTimeUp }) => {
           clearInterval(interval);
           if (!hasTriggered.current) {
             hasTriggered.current = true;
-            onTimeUpRef.current();
+            setTimeout(() => onTimeUpRef.current(), 0);
           }
           return 0;
         }
@@ -59,9 +59,6 @@ const Timer = ({ minutes, onTimeUp }) => {
     return `Time remaining: ${mins} minutes and ${secs} seconds`;
   };
 
-  const timerId = 'quiz-timer';
-  const liveRegionId = 'timer-live-region';
-
   return (
     <div 
       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border ${getBgColor()} ${getColor()} font-mono font-bold text-base sm:text-lg flex items-center gap-2 ${isCritical ? 'animate-pulse' : ''}`}
@@ -69,11 +66,9 @@ const Timer = ({ minutes, onTimeUp }) => {
       aria-live="polite"
       aria-atomic="true"
       aria-label={getAriaLabel()}
-      id={timerId}
     >
       <span aria-hidden="true">{isCritical ? '🔴' : isWarning ? '🟡' : '⏱️'}</span>
       <span aria-hidden="true">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</span>
-      <span id={liveRegionId} className="sr-only">{getAriaLabel()}</span>
     </div>
   );
 };
