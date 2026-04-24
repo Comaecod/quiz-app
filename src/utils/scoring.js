@@ -3,6 +3,8 @@
  * Handles all quiz scoring logic including negative marking
  */
 
+import { GRADING_SYSTEM } from '../config/schoolConfig';
+
 export const normalizeSelectedAnswer = (selected, type) => {
   if (selected === undefined || selected === null) return [];
   
@@ -89,6 +91,7 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
     totalEarned: Math.round(totalEarned * 100) / 100,
     percentage,
     grade: getGrade(percentage),
+    gradeInfo: getGradeInfo(percentage),
     correctCount,
     wrongCount,
     skippedCount,
@@ -98,15 +101,22 @@ export const calculateTotalScore = (questions, answers, penaltyFraction) => {
 
 export const getGrade = (percentage) => {
   const pct = parseFloat(percentage);
+  const grades = Object.values(GRADING_SYSTEM);
   
-  if (pct >= 90) return 'A1';
-  if (pct >= 80) return 'A2';
-  if (pct >= 70) return 'B1';
-  if (pct >= 60) return 'B2';
-  if (pct >= 50) return 'C1';
-  if (pct >= 40) return 'C2';
-  if (pct >= 33) return 'D';
+  for (const g of grades) {
+    if (pct >= g.min) return g.grade;
+  }
   return 'E';
+};
+
+export const getGradeInfo = (percentage) => {
+  const pct = parseFloat(percentage);
+  const grades = Object.values(GRADING_SYSTEM);
+  
+  for (const g of grades) {
+    if (pct >= g.min) return g;
+  }
+  return GRADING_SYSTEM.E;
 };
 
 export const getPerformanceMessage = (percentage) => {

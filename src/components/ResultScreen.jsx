@@ -1,27 +1,15 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { calculateTotalScore, getPerformanceMessage } from '../utils/scoring';
+import { calculateTotalScore, getPerformanceMessage, getGradeInfo } from '../utils/scoring';
 import { formatName } from '../utils/format';
 import { saveQuizResult } from '../services/firebaseService';
 import { validateAnswerReveal } from '../utils/auth';
+import { SCHOOL_CONFIG, GRADING_SYSTEM } from '../config/schoolConfig';
 
 const CertificateCard = ({ studentInfo, config, results }) => {
   const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-  const teacherName = config.teacher || 'Venkata Vishnu';
+  const teacherName = config.teacher || SCHOOL_CONFIG.computerTeacher?.name || 'Venkata Vishnu';
+  const gradeInfo = getGradeInfo(results.percentage);
   
-  const gradeColors = {
-    'A+': { bg: 'from-amber-300 via-yellow-400 to-orange-400', glow: 'shadow-[0_0_30px_rgba(251,191,36,0.6)]', text: 'text-amber-900' },
-    'A': { bg: 'from-emerald-300 via-green-400 to-teal-400', glow: 'shadow-[0_0_30px_rgba(52,211,153,0.6)]', text: 'text-emerald-900' },
-    'A-': { bg: 'from-lime-300 via-green-400 to-emerald-400', glow: 'shadow-[0_0_30px_rgba(132,204,22,0.6)]', text: 'text-lime-900' },
-    'B+': { bg: 'from-cyan-300 via-blue-400 to-indigo-400', glow: 'shadow-[0_0_30px_rgba(103,232,249,0.6)]', text: 'text-cyan-900' },
-    'B': { bg: 'from-blue-300 via-indigo-400 to-purple-400', glow: 'shadow-[0_0_30px_rgba(165,180,252,0.6)]', text: 'text-blue-900' },
-    'B-': { bg: 'from-violet-300 via-purple-400 to-fuchsia-400', glow: 'shadow-[0_0_30px_rgba(196,181,253,0.6)]', text: 'text-violet-900' },
-    'C': { bg: 'from-rose-300 via-pink-400 to-rose-400', glow: 'shadow-[0_0_30px_rgba(251,113,133,0.6)]', text: 'text-rose-900' },
-    'D': { bg: 'from-red-300 via-orange-400 to-amber-400', glow: 'shadow-[0_0_30px_rgba(252,129,97,0.6)]', text: 'text-red-900' },
-    'F': { bg: 'from-gray-400 via-gray-500 to-slate-400', glow: 'shadow-[0_0_20px_rgba(148,163,184,0.4)]', text: 'text-gray-900' }
-  };
-  
-  const gradeStyle = gradeColors[results.grade] || { bg: 'from-gray-300 via-slate-400 to-gray-500', glow: 'shadow-[0_0_20px_rgba(148,163,184,0.4)]', text: 'text-gray-900' };
-
   return (
     <div className="relative rounded-3xl overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900"></div>
@@ -44,7 +32,7 @@ const CertificateCard = ({ studentInfo, config, results }) => {
         </div>
         
         <p className="text-center text-purple-200 text-xs sm:text-sm font-semibold tracking-[0.3em] uppercase mb-1">
-          {config.schoolName || 'Sri Kanchi Kamakoti Sankara Vidyalaya'}
+          {config.schoolName || SCHOOL_CONFIG.name}
         </p>
         
         <div className="flex items-center justify-center gap-4 mb-2">
@@ -82,7 +70,7 @@ const CertificateCard = ({ studentInfo, config, results }) => {
         </div>
         
         <div className="flex justify-center gap-4 mb-6">
-          <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${gradeStyle.bg} ${gradeStyle.glow} ${gradeStyle.text} font-bold text-xl`}>
+          <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r ${gradeInfo.color.replace('text-', 'from-').replace('-400', '-300 via-')} ${gradeInfo.color.replace('text-', 'to-').replace('-400', '-400')} shadow-lg font-bold text-xl text-white`}>
             {results.grade}
           </div>
           <div className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold">
@@ -110,7 +98,7 @@ const CertificateCard = ({ studentInfo, config, results }) => {
               <div className="hidden font-serif italic text-purple-300 text-2xl absolute -bottom-2 left-1/2 -translate-x-1/2">P</div>
             </div>
             <div className="w-24 mx-auto h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-2"></div>
-            <p className="text-white font-medium text-sm">Padma Gayathri</p>
+            <p className="text-white font-medium text-sm">{SCHOOL_CONFIG.principal.name}</p>
             <p className="text-purple-300 text-xs">Principal</p>
           </div>
         </div>

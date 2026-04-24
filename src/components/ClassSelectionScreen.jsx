@@ -1,4 +1,6 @@
 const ClassSelectionScreen = ({ examType, classes, onSelect, onBack }) => {
+  const isLoading = !classes || classes.length === 0;
+
   return (
     <div className="glass-card w-full max-w-2xl animate-slideUp">
       <div className="text-center mb-8">
@@ -7,22 +9,29 @@ const ClassSelectionScreen = ({ examType, classes, onSelect, onBack }) => {
         <p className="text-gray-400">Select your Class</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        {classes.map((classNum) => (
-          <button
-            key={classNum}
-            onClick={() => onSelect(classNum)}
-            className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all text-center group"
-          >
-            <div className="text-3xl font-bold text-white group-hover:text-primary transition-colors">
-              Class
-            </div>
-            <div className="text-4xl font-bold text-white group-hover:text-primary transition-colors">
-              {classNum}
-            </div>
-          </button>
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-400">Loading classes...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-3 mb-8">
+          {classes.map((classNum) => (
+            <button
+              key={classNum}
+              onClick={() => onSelect(classNum)}
+              className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/50 transition-all text-center group"
+            >
+              <div className="text-3xl font-bold text-white group-hover:text-primary transition-colors">
+                Class
+              </div>
+              <div className="text-4xl font-bold text-white group-hover:text-primary transition-colors">
+                {classNum}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="text-center">
         <button

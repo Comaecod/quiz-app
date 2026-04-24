@@ -52,6 +52,26 @@ def fetch_quizResults(db):
         data = doc.to_dict()
         data['document_id'] = doc.id
         
+        # Flatten studentInfo object
+        if 'studentInfo' in data and data['studentInfo']:
+            student_info = data['studentInfo']
+            data['firstName'] = student_info.get('firstName', '')
+            data['lastName'] = student_info.get('lastName', '')
+            data['rollNumber'] = student_info.get('rollNumber', '')
+            del data['studentInfo']  # Remove nested object
+        
+        # Flatten results object
+        if 'results' in data and data['results']:
+            results_data = data['results']
+            data['totalMarks'] = results_data.get('totalMarks', 0)
+            data['score'] = results_data.get('totalEarned', 0)
+            data['percentage'] = results_data.get('percentage', 0)
+            data['grade'] = results_data.get('grade', '')
+            data['correctCount'] = results_data.get('correctCount', 0)
+            data['wrongCount'] = results_data.get('wrongCount', 0)
+            data['skippedCount'] = results_data.get('skippedCount', 0)
+            del data['results']  # Remove nested object
+        
         if 'timestamp' in data and data['timestamp']:
             data['timestamp'] = data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
         
@@ -75,8 +95,9 @@ def export_to_excel(data, filename=None):
     column_order = [
         'document_id',
         'timestamp',
+        'firstName',
+        'lastName',
         'rollNumber',
-        'fullName',
         'class',
         'subject',
         'examName',
@@ -100,8 +121,9 @@ def export_to_excel(data, filename=None):
     df = df.rename(columns={
         'document_id': 'ID',
         'timestamp': 'Date & Time',
+        'firstName': 'First Name',
+        'lastName': 'Last Name',
         'rollNumber': 'Roll No.',
-        'fullName': 'Student Name',
         'class': 'Class',
         'subject': 'Subject',
         'examName': 'Exam',

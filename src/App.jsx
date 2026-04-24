@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'reac
 import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig, getHolidayTypes, getHolidayClassesForType } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
 import { trackPageView, getPageViewCount } from './services/firebaseService';
-import migrateExams from './utils/migrateExams';
 import migrateToLazyStructure from './utils/migrateLazy';
 import ExamTypeScreen from './components/ExamTypeScreen';
 import HolidayTypeScreen from './components/HolidayTypeScreen';
@@ -20,6 +19,7 @@ import Footer from './components/Footer';
 import HolidayHomeworkScreen from './components/HolidayHomeworkScreen';
 import StaffDirectoryScreen from './components/StaffDirectoryScreen';
 import Header from './components/Header';
+import BetaBanner from './components/BetaBanner';
 import './index.css';
 
 function AppContent() {
@@ -34,16 +34,19 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [examTypes, setExamTypes] = useState([]);
   const [showMainCategory, setShowMainCategory] = useState(true);
-const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+  const [configLoading, setConfigLoading] = useState(false);
   const [holidayTypes, setHolidayTypes] = useState([]);
   const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState(null);
   const [pageViewCount, setPageViewCount] = useState(null);
- 
+  const [previousPath, setPreviousPath] = useState('/');
+  
   const showMigration = searchParams.get('migrate') === 'true';
+  const hasExams = examTypes.length > 0;
 
-  // Track page view on mount
   useEffect(() => {
     const initAnalytics = async () => {
       await trackPageView();
@@ -52,17 +55,6 @@ const [classes, setClasses] = useState([]);
     };
     initAnalytics();
   }, []);
-
-  const handleMigration = async () => {
-    setMigrating(true);
-    try {
-      const result = await migrateExams();
-      setMigrationResult(result);
-    } catch (err) {
-      setMigrationResult({ error: err.message });
-    }
-    setMigrating(false);
-  };
 
   const handleLazyMigration = async () => {
     setMigrating(true);
@@ -80,7 +72,6 @@ const [classes, setClasses] = useState([]);
   const subject = searchParams.get('subject') || null;
   const screen = searchParams.get('screen') || 'home';
 
-  // Fetch exam types on mount
   useEffect(() => {
     const loadExamTypes = async () => {
       try {
@@ -95,7 +86,6 @@ const [classes, setClasses] = useState([]);
     loadExamTypes();
   }, []);
 
-  // Fetch classes when exam type changes
   useEffect(() => {
     const loadClasses = async () => {
       if (!examType) {
@@ -122,7 +112,6 @@ const [classes, setClasses] = useState([]);
     loadClasses();
   }, [examType, searchParams]);
 
-  // Fetch holiday types when Holiday Homework is selected
   useEffect(() => {
     const loadHolidayTypes = async () => {
       if (examType === 'Holiday Homework') {
@@ -139,42 +128,45 @@ const [classes, setClasses] = useState([]);
     loadHolidayTypes();
   }, [examType]);
 
-  // Fetch subjects when examType and classNum change
   useEffect(() => {
     const loadSubjects = async () => {
       if (!examType || !classNum) {
         setSubjects([]);
         return;
       }
+      setSubjectsLoading(true);
       try {
         const subs = await getSubjectsForClass(examType, classNum);
         setSubjects(subs);
       } catch (err) {
         console.error('Error loading subjects:', err);
+        setSubjects([]);
+      } finally {
+        setSubjectsLoading(false);
       }
     };
     loadSubjects();
   }, [examType, classNum]);
 
-  // Load exam config when any of these change
   useEffect(() => {
     const loadConfig = async () => {
       if (!examType || !subject) {
         setExamConfig(null);
         return;
       }
+      setConfigLoading(true);
       try {
         const holidayType = examType === 'Holiday Homework' ? searchParams.get('holidayType') : null;
         const config = await getExamConfig(examType, classNum, subject, holidayType);
         setExamConfig(config);
       } catch (err) {
         console.error('Error loading config:', err);
+      } finally {
+        setConfigLoading(false);
       }
     };
     loadConfig();
   }, [examType, classNum, subject, searchParams]);
-
-  const hasExams = examTypes.length > 0;
 
   const updateParams = useCallback((updates) => {
     setSearchParams(prev => {
@@ -313,13 +305,19 @@ const [classes, setClasses] = useState([]);
     if (loading) {
       return (
         <div className="glass-card p-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Loading...</p>
         </div>
       );
     }
 
-    if (!hasExams && screen !== 'result') {
-      return <EmptyState />;
+    if (!loading && !hasExams && screen !== 'result') {
+      return (
+        <div className="glass-card p-8 text-center">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading exam data...</p>
+        </div>
+      );
     }
 
     switch (screen) {
@@ -351,13 +349,19 @@ const [classes, setClasses] = useState([]);
             examType={examType}
             classNum={classNum}
             subjects={subjects}
+            isLoading={subjectsLoading}
             onSelect={handleSelectSubject}
             onBack={goBack}
           />
         );
 
       case 'intro':
-        return examConfig ? (
+        return configLoading ? (
+          <div className="glass-card p-8 text-center">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading assessment...</p>
+          </div>
+        ) : examConfig ? (
           <IntroScreen
             config={examConfig}
             onStart={handleIntroStart}
@@ -373,7 +377,12 @@ const [classes, setClasses] = useState([]);
             onSuccess={handlePreAssessmentSuccess}
             onBack={goBack}
           />
-        ) : <EmptyState />;
+        ) : (
+          <div className="glass-card p-8 text-center">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading assessment...</p>
+          </div>
+        );
 
       case 'student':
         return examConfig ? (
@@ -382,7 +391,12 @@ const [classes, setClasses] = useState([]);
             questionsCount={examConfig.totalQuestions || 0}
             onBack={goBack}
           />
-        ) : <EmptyState />;
+        ) : (
+          <div className="glass-card p-8 text-center">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading...</p>
+          </div>
+        );
 
       case 'quiz':
         return (
@@ -427,18 +441,11 @@ const [classes, setClasses] = useState([]);
           {!migrationResult ? (
             <div className="space-y-2">
               <button
-                onClick={handleMigration}
-                disabled={migrating}
-                className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium disabled:opacity-50 text-left"
-              >
-                {migrating ? 'Migrating...' : 'Old Migration (all in one)'}
-              </button>
-              <button
                 onClick={handleLazyMigration}
                 disabled={migrating}
                 className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium disabled:opacity-50 text-left"
               >
-                {migrating ? 'Migrating...' : 'NEW: Lazy Migration (recommended)'}
+                {migrating ? 'Migrating...' : 'Migrate Exams (recommended)'}
               </button>
             </div>
           ) : (
@@ -454,7 +461,7 @@ const [classes, setClasses] = useState([]);
         </div>
       )}
       
-      <Header onPeopleClick={() => setShowStaffDirectory(true)} />
+      <Header />
       
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
@@ -473,10 +480,17 @@ const [classes, setClasses] = useState([]);
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/quiz-app">
+      <BetaBanner />
       <Routes>
         <Route path="/*" element={<AppContent />} />
-        <Route path="/people" element={<StaffDirectoryScreen />} />
+        <Route path="/people" element={
+          <>
+            <Header />
+            <StaffDirectoryScreen />
+            <Footer />
+          </>
+        } />
       </Routes>
     </BrowserRouter>
   );

@@ -32,7 +32,12 @@ const ExamTypeScreen = ({ examTypes, onSelect, showMainCategory, setShowMainCate
       <div className="glass-card w-full max-w-2xl animate-slideUp">
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">🎓</div>
-          <h2 className="text-2xl font-semibold text-white">Welcome</h2>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h2 className="text-2xl font-semibold text-white">Welcome</h2>
+            <span className="px-2 py-0.5 text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full">
+              BETA
+            </span>
+          </div>
           <p className="text-gray-400 mt-2">Choose what you want to access</p>
         </div>
 

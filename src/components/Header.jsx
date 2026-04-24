@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logoImg from '../assets/logo.png';
+import { SCHOOL_CONFIG } from '../config/schoolConfig';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,10 +22,17 @@ const Header = () => {
               }}
             />
           </div>
-          <div className="hidden sm:block">
-            <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent leading-tight">
-              SKKSV Scholar
-            </h1>
+          <div className="hidden sm:flex flex-col">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent leading-tight">
+                {SCHOOL_CONFIG.shortName}
+              </h1>
+              {SCHOOL_CONFIG.beta && (
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full">
+                  BETA
+                </span>
+              )}
+            </div>
           </div>
         </div>
         
