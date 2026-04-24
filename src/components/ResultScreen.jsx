@@ -117,7 +117,7 @@ const CertificateCard = ({ studentInfo, config, results }) => {
         
         <div className="flex justify-center mt-6 gap-2">
           <span className="text-purple-400">✨</span>
-          <span className="text-purple-400 text-xs tracking-widest">COMAECOD SKKSV SCHOLAR</span>
+          <span className="text-purple-400 text-xs tracking-widest">SKKSV SCHOLAR</span>
           <span className="text-purple-400">✨</span>
         </div>
       </div>

@@ -21,11 +21,18 @@ const subjectCache = new Map();
 // Cache for exam config (full with questions)
 const examConfigCache = new Map();
 
-// Holiday Homework classes
-const holidayHomeworkClasses = ['4', '5', '6', '7', '8', '9', '10'];
+// Holiday Homework - Get available holiday types
+export const getHolidayTypes = async () => {
+  return ['Summer Vacation'];
+};
 
-// Holiday Homework cache
-const holidayHomeworkCache = new Map();
+// Holiday Homework - Get classes for a specific holiday type
+export const getHolidayClassesForType = async (holidayType) => {
+  if (holidayType === 'Summer Vacation') {
+    return ['4', '5', '6', '7', '8', '9', '10'];
+  }
+  return [];
+};
 
 // STAGE 1: Get exam types only
 export const getExamTypes = async () => {
@@ -67,7 +74,7 @@ export const getExamTypes = async () => {
 // STAGE 2: Get classes for exam type
 export const getClassesForType = async (examType) => {
   if (examType === 'Holiday Homework') {
-    return [...new Set(holidayHomeworkClasses)];
+    return getHolidayTypes();
   }
   
   if (classCache.has(examType)) {
@@ -137,9 +144,9 @@ export const getSubjectsForClass = async (examType, classNum) => {
 };
 
 // STAGE 4: Get full exam config with questions
-export const getExamConfig = async (examType, classNum, subject) => {
+export const getExamConfig = async (examType, classNum, subject, holidayType) => {
   if (examType === 'Holiday Homework') {
-    return getHolidayHomeworkConfig(classNum, subject);
+    return getHolidayHomeworkConfig(holidayType, classNum, subject);
   }
   
   const key = `${examType}_${classNum}_${subject}`;
@@ -188,20 +195,24 @@ export const getAllExams = async () => {
   return {};
 };
 
+// Holiday Homework cache
+const holidayHomeworkCache = new Map();
+
 // Load Holiday Homework config from local JSON
-export const getHolidayHomeworkConfig = async (classNum, subject) => {
-  const cacheKey = `${classNum}_${subject}`;
+export const getHolidayHomeworkConfig = async (holidayType, classNum, subject) => {
+  const cacheKey = `${holidayType}_${classNum}_${subject}`;
   
   if (holidayHomeworkCache.has(cacheKey)) {
     return holidayHomeworkCache.get(cacheKey);
   }
   
   try {
-    const module = await import(`../data/Exams/Holiday Homework/Class ${classNum}/${subject}.json`);
+    const module = await import(`../data/Exams/Holiday Homework/${holidayType}/Class ${classNum}/${subject}.json`);
     const data = module.default;
     
     const config = {
       examType: 'Holiday Homework',
+      holidayType: data.holidayType || holidayType,
       className: data.className,
       examTitle: data.title,
       classNum: data.classNum,

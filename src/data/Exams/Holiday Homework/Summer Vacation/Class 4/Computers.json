@@ -1,8 +1,9 @@
 {
   "examType": "Holiday Homework",
-  "classNum": "7",
-  "className": 7,
-  "title": "Summer Holiday Homework 2026",
+  "holidayType": "Summer Vacation",
+  "classNum": "4",
+  "className": 4,
+  "title": "Summer Vacation Holiday Homework 2026",
   "subject": "Computers",
   "teacher": "Venkata Vishnu",
   "invigilator": "Venkata Vishnu",
@@ -17,19 +18,19 @@
       },
       {
         "title": "Project 2: Nature Patterns in Notebook",
-        "description": "Go outside and observe nature. Don't collect or bring anything! Just look carefully and make pages in your notebook showing: 1) Different types of leaves (draw 5-6 leaves with names if you know them), 2) Patterns in flowers or seeds you see, 3) Animal tracks or marks you notice, 4) fruits that comes in seasons. Write what differences or patterns you notice between them."
+        "description": "Go outside and observe nature. Don't collect or bring anything! Just look carefully and make pages in your notebook showing: 1) Different types of leaves (draw 5-6 leaves with names if you know them), 2) Patterns in flowers or seeds you see, 3) Animal tracks or marks you notice. Write what differences or patterns you notice between them."
       },
       {
         "title": "Project 3: Family Technology Timeline",
-        "description": "Interview your parents/grandparents about technology they used. Make a timeline in your notebook: What did they use when they were your age? When did they get their first mobile? First TV? First computer? Write 5-6 points about how technology changed in your family."
+        "description": "Interview your parents/grandparents about technology they used. Make a timeline in your notebook: What did they use when they were your age? When did they get their first mobile? First TV? Write 5-6 points about how technology changed in your family."
       },
       {
         "title": "Project 4: Safe Internet Pledge Notebook Page",
-        "description": "Make a colorful page in your notebook showing internet safety rules. Include: 1) Never share password with anyone, 2) Don't talk to strangers online, 3) Think before clicking links, 4) Tell adults if something bad happens, 5) Be kind online, 6) Don't share personal photos. Draw pictures or icons for each rule. Write 2-3 sentences about why each rule is important."
+        "description": "Make a colorful page in your notebook showing internet safety rules. Include: 1) Never share password with anyone, 2) Don't talk to strangers online, 3) Think before clicking links, 4) Tell adults if something bad happens, 5) Be kind online. Draw pictures or icons for each rule."
       },
       {
         "title": "Project 5: My AI Notebook Page",
-        "description": "Make a beautiful page in your notebook titled 'My Understanding of AI'. Include: 1) What is AI? (write in your own words), 2) Draw or paste pictures showing AI in daily life (smart phones, google search, face unlock, voice assistant), 3) Write 3-4 sentences about how AI helps people, 4) Draw what you think AI will do in the future. Use colors, borders, and make it look like a special project page!"
+        "description": "Make a beautiful page in your notebook titled 'My Understanding of AI'. Include: 1) What is AI? (write in your own words), 2) Draw or paste pictures showing AI in daily life (smart phones, google search, face unlock, voice assistant), 3) Write 3-4 sentences about how AI helps people. Use colors and make it look special!"
       }
     ],
     "materials": "Your notebook, pencil, colors/sketch pens. No computer needed!",

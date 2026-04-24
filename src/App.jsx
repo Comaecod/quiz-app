@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
-import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig } from './utils/examLoader';
+import { getExamTypes, getClassesForType, getSubjectsForClass, getExamConfig, getHolidayTypes, getHolidayClassesForType } from './utils/examLoader';
 import { getQuizQuestions } from './utils/shuffle';
 import { trackPageView, getPageViewCount } from './services/firebaseService';
 import migrateExams from './utils/migrateExams';
 import migrateToLazyStructure from './utils/migrateLazy';
 import ExamTypeScreen from './components/ExamTypeScreen';
+import HolidayTypeScreen from './components/HolidayTypeScreen';
 import ClassSelectionScreen from './components/ClassSelectionScreen';
 import SubjectSelectionScreen from './components/SubjectSelectionScreen';
 import IntroScreen from './components/IntroScreen';
@@ -17,6 +18,7 @@ import ReportsScreen from './components/ReportsScreen';
 import EmptyState from './components/EmptyState';
 import Footer from './components/Footer';
 import HolidayHomeworkScreen from './components/HolidayHomeworkScreen';
+import StaffDirectoryScreen from './components/StaffDirectoryScreen';
 import Header from './components/Header';
 import './index.css';
 
@@ -32,9 +34,10 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [examTypes, setExamTypes] = useState([]);
   const [showMainCategory, setShowMainCategory] = useState(true);
-  const [classes, setClasses] = useState([]);
+const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-const [migrating, setMigrating] = useState(false);
+  const [holidayTypes, setHolidayTypes] = useState([]);
+  const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState(null);
   const [pageViewCount, setPageViewCount] = useState(null);
  
@@ -100,13 +103,40 @@ const [migrating, setMigrating] = useState(false);
         return;
       }
       try {
-        const cls = await getClassesForType(examType);
+        let cls;
+        if (examType === 'Holiday Homework') {
+          const holidayType = searchParams.get('holidayType');
+          if (holidayType) {
+            cls = await getHolidayClassesForType(holidayType);
+          } else {
+            cls = [];
+          }
+        } else {
+          cls = await getClassesForType(examType);
+        }
         setClasses(cls);
       } catch (err) {
         console.error('Error loading classes:', err);
       }
     };
     loadClasses();
+  }, [examType, searchParams]);
+
+  // Fetch holiday types when Holiday Homework is selected
+  useEffect(() => {
+    const loadHolidayTypes = async () => {
+      if (examType === 'Holiday Homework') {
+        try {
+          const types = await getHolidayTypes();
+          setHolidayTypes(types);
+        } catch (err) {
+          console.error('Error loading holiday types:', err);
+        }
+      } else {
+        setHolidayTypes([]);
+      }
+    };
+    loadHolidayTypes();
   }, [examType]);
 
   // Fetch subjects when examType and classNum change
@@ -134,14 +164,15 @@ const [migrating, setMigrating] = useState(false);
         return;
       }
       try {
-        const config = await getExamConfig(examType, classNum, subject);
+        const holidayType = examType === 'Holiday Homework' ? searchParams.get('holidayType') : null;
+        const config = await getExamConfig(examType, classNum, subject, holidayType);
         setExamConfig(config);
       } catch (err) {
         console.error('Error loading config:', err);
       }
     };
     loadConfig();
-  }, [examType, classNum, subject]);
+  }, [examType, classNum, subject, searchParams]);
 
   const hasExams = examTypes.length > 0;
 
@@ -169,11 +200,15 @@ const [migrating, setMigrating] = useState(false);
 
   const handleSelectExamType = useCallback((type) => {
     if (type === 'Holiday Homework') {
-      updateParams({ exam: type, screen: 'class' });
+      updateParams({ exam: type, screen: 'holiday-type' });
     } else {
       setShowMainCategory(false);
       updateParams({ exam: type, screen: 'class' });
     }
+  }, [updateParams]);
+
+  const handleSelectHolidayType = useCallback((type) => {
+    updateParams({ holidayType: type, screen: 'class' });
   }, [updateParams]);
 
   const handleSelectClass = useCallback((num) => {
@@ -250,16 +285,29 @@ const [migrating, setMigrating] = useState(false);
       return;
     }
     if (screen === 'subject') {
-      updateParams({ class: null, subject: null, screen: 'class' });
+      if (examType === 'Holiday Homework') {
+        updateParams({ class: null, subject: null, screen: 'holiday-type' });
+      } else {
+        updateParams({ class: null, subject: null, screen: 'class' });
+      }
       return;
     }
     if (screen === 'class') {
+      if (examType === 'Holiday Homework') {
+        updateParams({ screen: 'holiday-type', holidayType: null, class: null });
+      } else {
+        setShowMainCategory(true);
+        goToHome();
+      }
+      return;
+    }
+    if (screen === 'holiday-type') {
       setShowMainCategory(true);
       goToHome();
       return;
     }
     goToHome();
-  }, [screen, updateParams, goToHome, setShowMainCategory]);
+  }, [screen, updateParams, goToHome, setShowMainCategory, examType]);
 
   const renderScreen = () => {
     if (loading) {
@@ -277,6 +325,15 @@ const [migrating, setMigrating] = useState(false);
     switch (screen) {
       case 'home':
         return <ExamTypeScreen examTypes={examTypes} onSelect={handleSelectExamType} showMainCategory={showMainCategory} setShowMainCategory={setShowMainCategory} />;
+
+      case 'holiday-type':
+        return (
+          <HolidayTypeScreen
+            holidayTypes={holidayTypes}
+            onSelect={handleSelectHolidayType}
+            onBack={goToHome}
+          />
+        );
 
       case 'class':
         return (
@@ -397,7 +454,7 @@ const [migrating, setMigrating] = useState(false);
         </div>
       )}
       
-      <Header />
+      <Header onPeopleClick={() => setShowStaffDirectory(true)} />
       
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute w-96 h-96 rounded-full bg-purple-500 opacity-20 -top-48 -left-48 animate-float" />
@@ -419,6 +476,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/*" element={<AppContent />} />
+        <Route path="/people" element={<StaffDirectoryScreen />} />
       </Routes>
     </BrowserRouter>
   );
