@@ -7,8 +7,7 @@
     "alias": "MKP",
     "designation": "Correspondent",
     "subject": null,
-    "qualifications": null,
-    "photo": null
+    "qualifications": null
   },
   "principal": {
     "id": "principal-1",
@@ -18,8 +17,7 @@
     "alias": "PG",
     "designation": "Principal",
     "subject": null,
-    "qualifications": "X AISSCE, XII AISSE, BSc (OU), B.Ed (Annamalai University), MA English (OU), MA Economics (IGNOU)",
-    "photo": null
+    "qualifications": "X AISSCE, XII AISSE, BSc (OU), B.Ed (Annamalai University), MA English (OU), MA Economics (IGNOU)"
   },
   "director": {
     "id": "director-1",
@@ -29,8 +27,7 @@
     "alias": null,
     "designation": "Director",
     "subject": null,
-    "qualifications": "M.Sc., MBA",
-    "photo": null
+    "qualifications": "M.Sc., MBA"
   },
   "adminTeam": [
     {
@@ -41,8 +38,7 @@
       "alias": null,
       "designation": "Admin",
       "subject": null,
-      "qualifications": "MBA",
-      "photo": null
+      "qualifications": "MBA"
     },
     {
       "id": "admin-2",
@@ -52,8 +48,7 @@
       "alias": null,
       "designation": "Admin",
       "subject": null,
-      "qualifications": "SSC (2018), Intermediate (2019-2020), Graduation (2020-2023)",
-      "photo": null
+      "qualifications": "SSC (2018), Intermediate (2019-2020), Graduation (2020-2023)"
     },
     {
       "id": "admin-3",
@@ -63,11 +58,10 @@
       "alias": null,
       "designation": "Admin",
       "subject": null,
-      "qualifications": "10th (Govt Boys High School, Podili), Diploma (Bellamkonda College)",
-      "photo": null
+      "qualifications": "10th (Govt Boys High School, Podili), Diploma (Bellamkonda College)"
     }
   ],
-"staff": [
+  "staff": [
     {
       "id": "staff-1",
       "name": "Vishnubhatla Lakshmi Kameswari",
@@ -76,8 +70,7 @@
       "alias": "VLK",
       "designation": "Teacher",
       "subject": "Mathematics, Physics",
-      "qualifications": "MSc Physics (1994, HCU), PhD Physics (2010, HCU)",
-      "photo": null
+      "qualifications": "MSc Physics (1994, HCU), PhD Physics (2010, HCU)"
     },
     {
       "id": "staff-2",
@@ -87,8 +80,7 @@
       "alias": "AH",
       "designation": "Teacher",
       "subject": "Mathematics, EVS, English",
-      "qualifications": "SSLC (J.G.G.H.S.S, Nanganallur), HSC (J.G.G.H.S.S, Nanganallur), B.Sc. (Ideal College), B.Ed. (Mohan College)",
-      "photo": null
+      "qualifications": "SSLC (J.G.G.H.S.S, Nanganallur), HSC (J.G.G.H.S.S, Nanganallur), B.Sc. (Ideal College), B.Ed. (Mohan College)"
     },
     {
       "id": "staff-3",
@@ -98,8 +90,7 @@
       "alias": "BGY",
       "designation": "Teacher",
       "subject": "Mathematics",
-      "qualifications": "B.Tech Geo Informatics, Intermediate M.P.C, X Class (S.F.S High School)",
-      "photo": null
+      "qualifications": "B.Tech Geo Informatics, Intermediate M.P.C, X Class (S.F.S High School)"
     },
     {
       "id": "staff-4",
@@ -109,8 +100,7 @@
       "alias": "GNL",
       "designation": "Teacher",
       "subject": "Chemistry",
-      "qualifications": "SSC, Intermediate, B.Sc.",
-      "photo": null
+      "qualifications": "SSC, Intermediate, B.Sc."
     },
     {
       "id": "staff-5",
@@ -120,8 +110,7 @@
       "alias": "VNR",
       "designation": "Teacher",
       "subject": "Biology, General Science",
-      "qualifications": "SSC, Intermediate (Bi.P.C), B.Sc. (B.Z.C)",
-      "photo": null
+      "qualifications": "SSC, Intermediate (Bi.P.C), B.Sc. (B.Z.C)"
     },
     {
       "id": "staff-6",
@@ -131,8 +120,7 @@
       "alias": "GK",
       "designation": "Teacher",
       "subject": "Hindi",
-      "qualifications": "SSC, Hindi Vidwan, B.A. (Telugu)",
-      "photo": null
+      "qualifications": "SSC, Hindi Vidwan, B.A. (Telugu)"
     },
     {
       "id": "staff-7",
@@ -142,8 +130,7 @@
       "alias": "GR",
       "designation": "Teacher",
       "subject": "Hindi",
-      "qualifications": "Intermediate, Degree, BA, MA (Hindi)",
-      "photo": null
+      "qualifications": "Intermediate, Degree, BA, MA (Hindi)"
     },
     {
       "id": "staff-8",
@@ -153,8 +140,7 @@
       "alias": "RD",
       "designation": "Teacher",
       "subject": "Telugu",
-      "qualifications": "Junior College, D.Ed., B.Sc.",
-      "photo": null
+      "qualifications": "Junior College, D.Ed., B.Sc."
     },
     {
       "id": "staff-9",
@@ -164,8 +150,7 @@
       "alias": "PS",
       "designation": "Teacher",
       "subject": "Telugu",
-      "qualifications": "MA Telugu",
-      "photo": null
+      "qualifications": "MA Telugu"
     },
     {
       "id": "staff-10",
@@ -175,8 +160,7 @@
       "alias": "SN",
       "designation": "Teacher",
       "subject": "Telugu",
-      "qualifications": "MA (Telugu)",
-      "photo": null
+      "qualifications": "MA (Telugu)"
     },
     {
       "id": "staff-11",
@@ -186,8 +170,7 @@
       "alias": "AP",
       "designation": "Teacher",
       "subject": "Sanskrit",
-      "qualifications": "B.Ed",
-      "photo": null
+      "qualifications": "B.Ed"
     },
     {
       "id": "staff-12",
@@ -197,8 +180,7 @@
       "alias": "MNR",
       "designation": "Teacher",
       "subject": "Social Science",
-      "qualifications": "BA, B.Ed",
-      "photo": null
+      "qualifications": "BA, B.Ed"
     },
     {
       "id": "staff-13",
@@ -208,8 +190,7 @@
       "alias": "VJ",
       "designation": "Teacher",
       "subject": "Social Science",
-      "qualifications": "MA",
-      "photo": null
+      "qualifications": "MA"
     },
     {
       "id": "staff-14",
@@ -219,8 +200,7 @@
       "alias": "VV",
       "designation": "Computer Teacher",
       "subject": "Computers",
-      "qualifications": "MCA (Master of Computer Applications), B.Voc (Software Development)",
-      "photo": "/assets/employees/vv.jpg"
+      "qualifications": "MCA (Master of Computer Applications), B.Voc (Software Development)"
     },
     {
       "id": "staff-15",
@@ -230,8 +210,7 @@
       "alias": "TN",
       "designation": "Librarian",
       "subject": "Library",
-      "qualifications": "10th Class (MH School, Nandyal), Intermediate (MPC), B.A. (PPS), B.L.I.Sc., M.A. (Public Admin), PGD LAN, M.L.Sc.",
-      "photo": null
+      "qualifications": "10th Class (MH School, Nandyal), Intermediate (MPC), B.A. (PPS), B.L.I.Sc., M.A. (Public Admin), PGD LAN, M.L.Sc."
     },
     {
       "id": "staff-16",
@@ -241,8 +220,7 @@
       "alias": "CM",
       "designation": "Physical Training Instructor",
       "subject": "Physical Education",
-      "qualifications": "10th, Intermediate, Degree",
-      "photo": null
+      "qualifications": "10th, Intermediate, Degree"
     },
     {
       "id": "staff-17",
@@ -252,8 +230,7 @@
       "alias": "RN",
       "designation": "Physical Training Instructor",
       "subject": "Physical Education",
-      "qualifications": null,
-      "photo": null
+      "qualifications": null
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import staffData from '../data/staffDirectory.json';
 import vvPhoto from '../assets/employees/vv.jpg';
+import apPhoto from '../assets/employees/ap.jpeg';
 
 const capitalize = (str) => {
   if (!str) return '';
@@ -25,7 +26,8 @@ const getAvatarText = (person) => {
 };
 
 const staffPhotoMap = {
-  'staff-14': vvPhoto
+  'staff-11': apPhoto,
+  'staff-14': vvPhoto,
 };
 
 export const Avatar = ({ person, size = 'md' }) => {
@@ -47,7 +49,7 @@ export const Avatar = ({ person, size = 'md' }) => {
 
   const colorIndex = person.name?.charCodeAt(0) % bgColors.length || 0;
 
-  const photoSrc = person.photo ? (staffPhotoMap[person.id] || person.photo) : null;
+  const photoSrc = staffPhotoMap[person.id] || null;
 
   if (photoSrc) {
     return (

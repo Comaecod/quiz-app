@@ -73,10 +73,6 @@ export const getExamTypes = async () => {
 
 // STAGE 2: Get classes for exam type
 export const getClassesForType = async (examType) => {
-  if (examType === 'Holiday Homework') {
-    return getHolidayTypes();
-  }
-  
   if (classCache.has(examType)) {
     return classCache.get(examType);
   }
@@ -110,7 +106,16 @@ export const getClassesForType = async (examType) => {
 // STAGE 3: Get subjects for class
 export const getSubjectsForClass = async (examType, classNum) => {
   if (examType === 'Holiday Homework') {
-    return ['Computers'];
+    const subjectMap = {
+      '4': ['Computers'],
+      '5': ['Computers'],
+      '6': ['Computers'],
+      '7': ['Computers'],
+      '8': ['Computers', 'Science'],
+      '9': ['Computers', 'Mathematics'],
+      '10': ['Computers', 'Mathematics']
+    };
+    return subjectMap[classNum] || ['Computers'];
   }
   
   const key = `${examType}_${classNum}`;

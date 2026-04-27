@@ -1,5 +1,7 @@
-const ClassSelectionScreen = ({ examType, classes, onSelect, onBack }) => {
-  const isLoading = !classes || classes.length === 0;
+import { motion } from 'framer-motion';
+
+const ClassSelectionScreen = ({ examType, classes, onSelect, onBack, isLoading }) => {
+  const showEmpty = !isLoading && (!classes || classes.length === 0);
 
   return (
     <div className="glass-card w-full max-w-2xl animate-slideUp">
@@ -13,6 +15,12 @@ const ClassSelectionScreen = ({ examType, classes, onSelect, onBack }) => {
         <div className="flex flex-col items-center justify-center py-12">
           <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
           <p className="text-gray-400">Loading classes...</p>
+        </div>
+      ) : showEmpty ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-4xl mb-4">📭</div>
+          <p className="text-gray-400 mb-2">No classes available</p>
+          <p className="text-gray-500 text-sm">This exam type may not be configured yet</p>
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-3 mb-8">

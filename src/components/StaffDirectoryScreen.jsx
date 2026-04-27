@@ -55,7 +55,7 @@ const StaffDirectoryScreen = () => {
 
   return (
     <motion.div
-      className="w-full min-h-screen pb-12 overflow-y-auto"
+      className="w-full min-h-screen pb-12 overflow-y-auto pt-20 sm:pt-16"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}

@@ -1,96 +1,184 @@
-const HolidayHomeworkScreen = ({ config, onBack }) => {
-  const { content, examTitle, subject, classNum, teacher } = config;
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getHolidayTypes, getHolidayClassesForType, getSubjectsForClass, getExamConfig } from '../utils/examLoader';
+import HolidayTypeScreen from './HolidayTypeScreen';
+import ClassSelectionScreen from './ClassSelectionScreen';
+import SubjectSelectionScreen from './SubjectSelectionScreen';
+import HolidayHomeworkContent from './HolidayHomeworkContent';
+import EmptyState from './EmptyState';
 
-  if (!content) {
+const HolidayHomeworkScreen = () => {
+  const navigate = useNavigate();
+  
+  const [holidayTypes, setHolidayTypes] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [examConfig, setExamConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+
+  const [holidayType, setHolidayType] = useState(null);
+  const [classNum, setClassNum] = useState(null);
+  const [subject, setSubject] = useState(null);
+  const [screen, setScreen] = useState('holiday-type');
+
+  useEffect(() => {
+    const loadHolidayTypes = async () => {
+      setLoading(true);
+      try {
+        const types = await getHolidayTypes();
+        setHolidayTypes(types);
+      } catch (err) {
+        console.error('Error loading holiday types:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadHolidayTypes();
+  }, []);
+
+  useEffect(() => {
+    const loadClasses = async () => {
+      if (!holidayType) {
+        setClasses([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const cls = await getHolidayClassesForType(holidayType);
+        setClasses(cls);
+      } catch (err) {
+        console.error('Error loading classes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadClasses();
+  }, [holidayType]);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      if (!classNum) {
+        setSubjects([]);
+        return;
+      }
+      setSubjectsLoading(true);
+      try {
+        const subs = await getSubjectsForClass('Holiday Homework', classNum);
+        setSubjects(subs);
+      } catch (err) {
+        console.error('Error loading subjects:', err);
+      } finally {
+        setSubjectsLoading(false);
+      }
+    };
+    loadSubjects();
+  }, [classNum]);
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      if (!subject) {
+        setExamConfig(null);
+        return;
+      }
+      try {
+        const config = await getExamConfig('Holiday Homework', classNum, subject, holidayType);
+        setExamConfig(config);
+      } catch (err) {
+        console.error('Error loading config:', err);
+      }
+    };
+    loadConfig();
+  }, [subject, classNum, holidayType]);
+
+  const goBack = () => {
+    if (screen === 'class') {
+      setScreen('holiday-type');
+      setHolidayType(null);
+      return;
+    }
+    if (screen === 'subject') {
+      setScreen('class');
+      setClassNum(null);
+      return;
+    }
+    if (screen === 'content') {
+      setScreen('subject');
+      setSubject(null);
+      return;
+    }
+    navigate('/');
+  };
+
+  const handleSelectHolidayType = (type) => {
+    setHolidayType(type);
+    setClassNum(null);
+    setSubject(null);
+    setScreen('class');
+  };
+
+  const handleSelectClass = (num) => {
+    setClassNum(num);
+    setSubject(null);
+    setScreen('subject');
+  };
+
+  const handleSelectSubject = (subj) => {
+    setSubject(subj);
+    setScreen('content');
+  };
+
+  if (loading && !holidayTypes.length) {
     return (
-      <div className="glass-card w-full max-w-2xl animate-slideUp">
-        <p className="text-gray-400">No content available.</p>
-        <button onClick={onBack} className="mt-4 px-6 py-2 rounded-lg bg-primary text-white">
-          Back
-        </button>
+      <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+        <div className="glass-card p-8 text-center w-full max-w-md">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="glass-card w-full max-w-2xl animate-slideUp">
-      <div className="text-center mb-6">
-        <div className="text-4xl mb-3">🏖️</div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-          {examTitle}
-        </h1>
-        <p className="text-gray-400">Class {classNum} - {subject}</p>
-        {teacher && <p className="text-sm text-gray-500 mt-1">Teacher: {teacher}</p>}
-      </div>
+  switch (screen) {
+    case 'holiday-type':
+      return (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <HolidayTypeScreen holidayTypes={holidayTypes} onSelect={handleSelectHolidayType} onBack={() => navigate('/')} />
+        </div>
+      );
 
-      <div className="space-y-6 text-left">
-        {content.period && (
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="font-semibold text-primary mb-1">📅 Duration</h3>
-            <p className="text-gray-300">{content.period}</p>
-          </div>
-        )}
+    case 'class':
+      return (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <ClassSelectionScreen examType="Holiday Homework" classes={classes} onSelect={handleSelectClass} onBack={goBack} isLoading={loading} />
+        </div>
+      );
 
-        {content.projects && content.projects.length > 0 && (
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="font-semibold text-primary mb-3">📋 Projects</h3>
-            <div className="space-y-4">
-              {content.projects.map((project, index) => (
-                <div key={index} className="pl-4 border-l-2 border-primary/30">
-                  <h4 className="font-medium text-white">{index + 1}. {project.title}</h4>
-                  <p className="text-gray-400 text-sm mt-1">{project.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+    case 'subject':
+      return (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <SubjectSelectionScreen examType="Holiday Homework" classNum={classNum} subjects={subjects} isLoading={subjectsLoading} onSelect={handleSelectSubject} onBack={goBack} />
+        </div>
+      );
 
-        {content.materials && (
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="font-semibold text-primary mb-1">🎒 Materials Required</h3>
-            <p className="text-gray-300">{content.materials}</p>
-          </div>
-        )}
+    case 'content':
+      return examConfig && examConfig.isHolidayHomework ? (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <HolidayHomeworkContent config={examConfig} onBack={goBack} />
+        </div>
+      ) : (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <EmptyState />
+        </div>
+      );
 
-        {content.submission && (
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="font-semibold text-primary mb-1">📤 Submission</h3>
-            <p className="text-gray-300">{content.submission}</p>
-          </div>
-        )}
-
-        {content.grading && (
-          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="font-semibold text-primary mb-2">📊 Grading Criteria</h3>
-            <div className="space-y-2 text-sm">
-              {content.grading.belowAverage && (
-                <p className="text-gray-400"><span className="text-red-400">Below Average:</span> {content.grading.belowAverage}</p>
-              )}
-              {content.grading.average && (
-                <p className="text-gray-400"><span className="text-yellow-400">Average:</span> {content.grading.average}</p>
-              )}
-              {content.grading.bright && (
-                <p className="text-gray-400"><span className="text-green-400">Bright:</span> {content.grading.bright}</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {content.note && (
-          <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
-            <p className="text-primary italic">💡 {content.note}</p>
-          </div>
-        )}
-      </div>
-
-      <button
-        onClick={onBack}
-        className="mt-6 w-full p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center text-gray-400 hover:text-white"
-      >
-        ← Back
-      </button>
-    </div>
-  );
+    default:
+      return (
+        <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+          <HolidayTypeScreen holidayTypes={holidayTypes} onSelect={handleSelectHolidayType} onBack={() => navigate('/')} />
+        </div>
+      );
+  }
 };
 
 export default HolidayHomeworkScreen;
