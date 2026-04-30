@@ -40,6 +40,7 @@ export const validateTeacherKey = (inputKey, config) => {
   
   if (isMasterKey(key)) return true;
   if (config?.teacherSecretKey && key === config.teacherSecretKey) return true;
+  if (config?.preassessmentsecretkey && key === config.preassessmentsecretkey) return true;
   
   return false;
 };

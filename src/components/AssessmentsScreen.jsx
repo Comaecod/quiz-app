@@ -157,6 +157,10 @@ const AssessmentsScreen = () => {
     navigate('/');
   }, [navigate]);
 
+  const handleOpenReports = useCallback(() => {
+    navigate('/reports', { state: { config: examConfig } });
+  }, [navigate, examConfig]);
+
   if (loading && !examTypes.length) {
     return (
       <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
@@ -220,6 +224,7 @@ const AssessmentsScreen = () => {
           <IntroScreen 
             config={examConfig} 
             onStart={() => setScreen('preassessment')} 
+            onReports={handleOpenReports}
             onBack={goBack} 
           />
         </div>

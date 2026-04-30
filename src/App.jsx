@@ -11,6 +11,7 @@ import HolidayHomeworkScreen from './components/HolidayHomeworkScreen';
 import ContactScreen from './components/ContactScreen';
 import FeedbackScreen from './components/FeedbackScreen';
 import FeedbackReportsScreen from './components/FeedbackReportsScreen';
+import ReportsScreen from './components/ReportsScreen';
 import './index.css';
 
 function App() {
@@ -75,6 +76,13 @@ function App() {
           <>
             <Header />
             <FeedbackReportsScreen />
+            <Footer />
+          </>
+        } />
+        <Route path="/reports" element={
+          <>
+            <Header />
+            <ReportsScreen />
             <Footer />
           </>
         } />

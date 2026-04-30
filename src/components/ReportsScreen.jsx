@@ -1,8 +1,14 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { validateTeacherKey } from '../utils/auth';
 import { downloadReportAsExcel } from '../utils/excelExport';
 
-const ReportsScreen = ({ config, onBack }) => {
+const ReportsScreen = ({ config: propConfig, onBack: propOnBack }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const config = propConfig || location.state?.config;
+  const onBack = propOnBack || (() => navigate(-1));
+  
   const [secretKey, setSecretKey] = useState('');
   const [keyError, setKeyError] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -10,7 +16,7 @@ const ReportsScreen = ({ config, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'percentage', direction: 'desc' });
 
-  const hasSecretKey = config?.teacherSecretKey && config.teacherSecretKey.length > 0;
+  const hasSecretKey = config?.teacherSecretKey?.length > 0 || config?.preassessmentsecretkey?.length > 0;
 
   const handleKeySubmit = (e) => {
     e.preventDefault();
@@ -104,16 +110,18 @@ const ReportsScreen = ({ config, onBack }) => {
 
   if (!hasSecretKey) {
     return (
-      <div className="glass-card w-full max-w-md animate-slideUp">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-4">📊</div>
-          <h2 className="text-2xl font-bold mb-2">Reports</h2>
-          <p className="text-gray-400">Teacher secret key not configured</p>
-        </div>
-        <div className="text-center">
-          <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
-            ← Back
-          </button>
+      <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+        <div className="glass-card w-full max-w-md animate-slideUp">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold mb-2">Reports</h2>
+            <p className="text-gray-400">Teacher secret key not configured</p>
+          </div>
+          <div className="text-center">
+            <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
+              ← Back
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -121,132 +129,136 @@ const ReportsScreen = ({ config, onBack }) => {
 
   if (!isUnlocked) {
     return (
-      <div className="glass-card w-full max-w-md animate-slideUp">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-4">📊</div>
-          <h2 className="text-2xl font-bold mb-2">Teacher Reports</h2>
-          <p className="text-gray-400">Enter teacher secret key to view reports</p>
-        </div>
+      <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+        <div className="glass-card w-full max-w-md animate-slideUp">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold mb-2">Teacher Reports</h2>
+            <p className="text-gray-400">Enter teacher secret key to view reports</p>
+          </div>
 
-        <form onSubmit={handleKeySubmit} className="space-y-4">
-          <input
-            type="password"
-            className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none ${keyError ? 'border-red-500' : 'border-white/10 focus:border-primary/50'}`}
-            placeholder="Enter teacher secret key"
-            value={secretKey}
-            onChange={handleKeyChange}
-            autoFocus
-          />
-          {keyError && (
-            <p className="text-red-400 text-sm">⚠️ Incorrect secret key</p>
-          )}
-          <button type="submit" className="w-full px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90">
-            View Reports 🔓
-          </button>
-          <button type="button" className="w-full px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20" onClick={onBack}>
-            ← Back
-          </button>
-        </form>
+          <form onSubmit={handleKeySubmit} className="space-y-4">
+            <input
+              type="password"
+              className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-gray-500 outline-none ${keyError ? 'border-red-500' : 'border-white/10 focus:border-primary/50'}`}
+              placeholder="Enter teacher secret key"
+              value={secretKey}
+              onChange={handleKeyChange}
+              autoFocus
+            />
+            {keyError && (
+              <p className="text-red-400 text-sm">⚠️ Incorrect secret key</p>
+            )}
+            <button type="submit" className="w-full px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90">
+              View Reports 🔓
+            </button>
+            <button type="button" className="w-full px-6 py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20" onClick={onBack}>
+              ← Back
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-4xl">
-      <div className="glass-card animate-slideUp">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-4">📊</div>
-          <h2 className="text-2xl font-bold mb-2">{config.examType} - Class {config.classNum}</h2>
-          <p className="text-gray-400">{config.subject} | {config.teacher}</p>
-        </div>
+    <div className="w-full min-h-screen pt-20 sm:pt-16 pb-20 sm:pb-16 flex items-center justify-center px-4">
+      <div className="w-full max-w-4xl">
+        <div className="glass-card animate-slideUp">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">📊</div>
+            <h2 className="text-2xl font-bold mb-2">{config.examType} - Class {config.classNum}</h2>
+            <p className="text-gray-400">{config.subject} | {config.teacher}</p>
+          </div>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400">Loading reports...</p>
-          </div>
-        ) : sortedData.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400">No reports found for this assessment.</p>
-          </div>
-        ) : (
-          <>
-            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-              <div className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium" style={{ 
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.2))',
-                border: '1px solid rgba(16, 185, 129, 0.4)'
-              }}>
-                <span>👥</span>
-                <span>Total Students Submitted: {sortedData.length}</span>
-              </div>
-              <div className="flex gap-3">
-                <button 
-                  className="px-4 py-2 rounded-xl font-medium bg-green-600/30 border border-green-600/50 text-green-400 hover:bg-green-600/40 flex items-center gap-2" 
-                  onClick={handleExportExcel}
-                >
-                  <span>📥</span> Export Excel
-                </button>
-                <button 
-                  className="px-4 py-2 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center gap-2" 
-                  onClick={fetchReportData}
-                >
-                  <span>🔄</span> Refresh
-                </button>
-              </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400">Loading reports...</p>
             </div>
+          ) : sortedData.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400">No reports found for this assessment.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <div className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium" style={{ 
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.2))',
+                  border: '1px solid rgba(16, 185, 129, 0.4)'
+                }}>
+                  <span>👥</span>
+                  <span>Total Students Submitted: {sortedData.length}</span>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    className="px-4 py-2 rounded-xl font-medium bg-green-600/30 border border-green-600/50 text-green-400 hover:bg-green-600/40 flex items-center gap-2" 
+                    onClick={handleExportExcel}
+                  >
+                    <span>📥</span> Export Excel
+                  </button>
+                  <button 
+                    className="px-4 py-2 rounded-xl font-medium bg-white/10 border border-white/20 text-white hover:bg-white/20 flex items-center gap-2" 
+                    onClick={fetchReportData}
+                  >
+                    <span>🔄</span> Refresh
+                  </button>
+                </div>
+              </div>
 
-            <div className="overflow-x-auto rounded-xl bg-black/20">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white" onClick={() => handleSort('name')}>
-                      Name <SortIcon columnKey="name" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-24" onClick={() => handleSort('rollNumber')}>
-                      Roll No <SortIcon columnKey="rollNumber" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('correct')}>
-                      Correct <SortIcon columnKey="correct" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('wrong')}>
-                      Wrong <SortIcon columnKey="wrong" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('skipped')}>
-                      Skipped <SortIcon columnKey="skipped" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('marks')}>
-                      Marks <SortIcon columnKey="marks" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('percentage')}>
-                      % <SortIcon columnKey="percentage" />
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('grade')}>
-                      Grade <SortIcon columnKey="grade" />
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedData.map((row) => (
-                    <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
-                      <td className="px-4 py-3 text-sm">{row.name}</td>
-                      <td className="px-4 py-3 text-sm">{row.rollNumber}</td>
-                      <td className="px-4 py-3 text-sm text-green-400">{row.correct}</td>
-                      <td className="px-4 py-3 text-sm text-red-400">{row.wrong}</td>
-                      <td className="px-4 py-3 text-sm text-yellow-400">{row.skipped}</td>
-                      <td className="px-4 py-3 text-sm">{row.marks}</td>
-                      <td className="px-4 py-3 text-sm">{row.percentage}%</td>
-                      <td className="px-4 py-3 text-sm font-medium">{row.grade}</td>
+              <div className="overflow-x-auto rounded-xl bg-black/20">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white" onClick={() => handleSort('name')}>
+                        Name <SortIcon columnKey="name" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-24" onClick={() => handleSort('rollNumber')}>
+                        Roll No <SortIcon columnKey="rollNumber" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('correct')}>
+                        Correct <SortIcon columnKey="correct" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('wrong')}>
+                        Wrong <SortIcon columnKey="wrong" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('skipped')}>
+                        Skipped <SortIcon columnKey="skipped" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('marks')}>
+                        Marks <SortIcon columnKey="marks" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('percentage')}>
+                        % <SortIcon columnKey="percentage" />
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 cursor-pointer hover:text-white w-20" onClick={() => handleSort('grade')}>
+                        Grade <SortIcon columnKey="grade" />
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+                  </thead>
+                  <tbody>
+                    {sortedData.map((row) => (
+                      <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
+                        <td className="px-4 py-3 text-sm">{row.name}</td>
+                        <td className="px-4 py-3 text-sm">{row.rollNumber}</td>
+                        <td className="px-4 py-3 text-sm text-green-400">{row.correct}</td>
+                        <td className="px-4 py-3 text-sm text-red-400">{row.wrong}</td>
+                        <td className="px-4 py-3 text-sm text-yellow-400">{row.skipped}</td>
+                        <td className="px-4 py-3 text-sm">{row.marks}</td>
+                        <td className="px-4 py-3 text-sm">{row.percentage}%</td>
+                        <td className="px-4 py-3 text-sm font-medium">{row.grade}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
 
-        <div className="text-center mt-8">
-          <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
-            ← Back
-          </button>
+          <div className="text-center mt-8">
+            <button className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90" onClick={onBack}>
+              ← Back
+            </button>
+          </div>
         </div>
       </div>
     </div>
