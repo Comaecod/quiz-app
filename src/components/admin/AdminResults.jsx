@@ -1,13 +1,80 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { subjectLabel } from '../../utils/format';
 import { useAuth } from '../../auth/contexts/AuthContext';
+import { getGrade } from '../../utils/scoring';
+import { ROLES } from '../../auth/types/roles';
+import { auditService, AUDIT_ACTIONS } from '../../auth/services/auditService';
 import CustomSelect from '../CustomSelect';
 import DataTable from '../DataTable';
 
-function DetailModal({ submission, onClose }) {
-  if (!submission) return null;
+const buildRow = (d) => {
+  const r = d.results || {};
+  const hasResult = r.totalMarks != null;
+  const qTotal = (r.correctCount || 0) + (r.wrongCount || 0) + (r.skippedCount || 0);
+  let total;
+  if (hasResult) total = r.totalMarks;
+  else total = qTotal || d.totalMarks || d.total || 0;
+  let score;
+  if (hasResult) score = r.totalEarned ?? r.correctCount ?? r.score ?? d.marks ?? d.score ?? 0;
+  else score = r.correctCount ?? r.score ?? d.marks ?? d.score ?? 0;
+  const percentage = r.percentage != null ? parseFloat(r.percentage) : (total > 0 ? (score / total) * 100 : 0);
+  const grade = r.grade || (total > 0 ? getGrade(percentage.toFixed(2)) : '-');
+  return { score, total, percentage, grade };
+};
+
+function DetailModal({ submission, onClose, onSaved, readOnly }) {
+  const [scoreInput, setScoreInput] = useState(submission.score ?? 0);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saved, setSaved] = useState(false);
 
   const { type } = submission;
+  const isProject = type === 'project' || (type === 'timed' && submission._raw?.assessmentType === 'project');
+
+  const totalMarks = Number(submission._raw?.totalMarks ?? submission._raw?.results?.totalMarks ?? submission.total ?? 0) || 0;
+  const clamped = isProject ? Math.max(0, Math.min(totalMarks, Number(scoreInput) || 0)) : 0;
+  const livePercentage = totalMarks > 0 ? ((clamped / totalMarks) * 100).toFixed(2) : '0.00';
+  const liveGrade = totalMarks > 0 ? getGrade(livePercentage) : '-';
+
+  const displayScore = isProject ? clamped : submission.score;
+  const displayTotal = isProject ? totalMarks : submission.total;
+  const displayPercentage = isProject ? livePercentage : submission.percentage;
+  const displayGrade = isProject ? liveGrade : submission.grade;
+
+  const handleSaveScore = async () => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      const { db } = await import('../../firebase');
+      const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      const results = {
+        type: 'project',
+        totalMarks,
+        totalEarned: clamped,
+        percentage: livePercentage,
+        grade: liveGrade,
+        correctCount: 0,
+        wrongCount: 0,
+        skippedCount: 0,
+      };
+      await updateDoc(doc(db, 'submissions', submission.id), {
+        score: clamped,
+        totalMarks,
+        marks: clamped,
+        percentage: livePercentage,
+        grade: liveGrade,
+        results,
+        gradedAt: serverTimestamp(),
+      });
+      setSaved(true);
+      onSaved?.();
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save score');
+    }
+    setSaving(false);
+  };
+
+  if (!submission) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
@@ -36,24 +103,82 @@ function DetailModal({ submission, onClose }) {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 text-center">
-              <p className={`text-2xl font-bold ${submission.percentage >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                {submission.percentage.toFixed(1)}%
+              <p className={`text-2xl font-bold ${displayPercentage >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                {Number(displayPercentage).toFixed(1)}%
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Percentage</p>
             </div>
             <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{submission.score}</p>
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{displayScore}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Score</p>
             </div>
             <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{submission.total}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{displayTotal}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total</p>
             </div>
             <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-gray-400">{submission.grade !== '-' ? submission.grade : '—'}</p>
+              <p className="text-2xl font-bold text-gray-400">{displayGrade !== '-' ? displayGrade : '—'}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Grade</p>
             </div>
           </div>
+
+          {isProject && (
+            <>
+              <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 space-y-2">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">📁 Project Details</h4>
+                {submission._raw.topic && <p className="text-sm text-gray-700 dark:text-gray-300"><span className="text-gray-500 dark:text-gray-400">Topic:</span> {submission._raw.topic}</p>}
+                {submission._raw.description && <p className="text-sm text-gray-700 dark:text-gray-300"><span className="text-gray-500 dark:text-gray-400">Description:</span> {submission._raw.description}</p>}
+                {submission._raw.fileUrl ? (
+                  <div>
+                    <a href={submission._raw.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 text-primary text-sm font-medium hover:bg-primary/20 dark:hover:bg-primary/30 transition-all">
+                      📎 View Attached File{submission._raw.fileName ? ` — ${submission._raw.fileName}` : ''}
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No file attached</p>
+                )}
+              </div>
+
+              <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 space-y-3">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">🎯 Grade Project</h4>
+                {readOnly ? (
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Your project score: <span className="font-semibold text-gray-900 dark:text-white">{displayScore}/{displayTotal}</span>
+                  </p>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <label className="text-sm text-gray-600 dark:text-gray-300">Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={totalMarks}
+                        step="0.5"
+                        value={scoreInput}
+                        onChange={e => { setScoreInput(e.target.value); setSaved(false); }}
+                        className="w-28 px-3 py-2 rounded-xl bg-white dark:bg-[#1e1e38] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm outline-none focus:border-primary/50"
+                      />
+                      <span className="text-sm text-gray-500 dark:text-gray-400">/ {totalMarks}</span>
+                      {isProject && totalMarks === 0 && <span className="text-xs text-red-400">No total marks set for this assessment</span>}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Percentage: <span className={`font-semibold ${livePercentage >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{livePercentage}%</span>
+                      {' '}| Grade: <span className="font-semibold text-gray-900 dark:text-white">{liveGrade}</span>
+                    </p>
+                    {saved && <p className="text-sm text-emerald-600 dark:text-emerald-400">✓ Score saved</p>}
+                    {saveError && <p className="text-sm text-red-500">⚠️ {saveError}</p>}
+                    <button
+                      onClick={handleSaveScore}
+                      disabled={saving || (isProject && totalMarks === 0)}
+                      className="px-5 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all disabled:opacity-40"
+                    >
+                      {saving ? 'Saving...' : 'Save Score'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
 
           {type === 'coding' && submission._raw?.code && (
             <>
@@ -81,19 +206,6 @@ function DetailModal({ submission, onClose }) {
               )}
             </>
           )}
-
-          {type === 'timed' && submission._raw?.assessmentType === 'project' && (
-            <div className="bg-gray-100 dark:bg-[#282843] rounded-xl p-4 space-y-2">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Project Details</h4>
-              {submission._raw.topic && <p className="text-sm text-gray-700 dark:text-gray-300"><span className="text-gray-500 dark:text-gray-400">Topic:</span> {submission._raw.topic}</p>}
-              {submission._raw.description && <p className="text-sm text-gray-700 dark:text-gray-300"><span className="text-gray-500 dark:text-gray-400">Description:</span> {submission._raw.description}</p>}
-              {submission._raw.fileUrl && (
-                <a href={submission._raw.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-sm text-primary hover:underline mt-2">
-                  View Attached File
-                </a>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -118,71 +230,61 @@ export default function AdminResults() {
   const [sortKey, setSortKey] = useState('timestamp');
   const [sortDir, setSortDir] = useState('desc');
   const [selected, setSelected] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const isStudentView = userProfile?.role === ROLES.STUDENT;
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { db } = await import('../../firebase');
+      const { collection, getDocs, query, orderBy, where } = await import('firebase/firestore');
+
+      const snap = isStudentView && userProfile?.id
+        ? await getDocs(query(
+            collection(db, 'submissions'),
+            where('student.userId', '==', userProfile.id)
+          ))
+        : await getDocs(query(collection(db, 'submissions'), orderBy('submittedAt', 'desc')));
+
+      const out = [];
+
+      snap.docs.forEach(doc => {
+        const d = doc.data();
+        const student = d.student || d.studentInfo || {};
+        const studentName = student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'N/A';
+        const type = d.type || 'mcq';
+        const { score, total, percentage, grade } = buildRow(d);
+
+        out.push({
+          id: doc.id,
+          type,
+          _raw: d,
+          studentName,
+          className: d.classNum || d.examKey?.split('_')[1] || '',
+          subject: subjectLabel(d.subject) || d.subject || '',
+          examTitle: d.title || (type === 'coding' ? 'Coding Assessment' : 'Untitled'),
+          examType: d.examType || '',
+          invigilator: d.invigilator || '',
+          createdBy: d.createdBy || '',
+          score,
+          total,
+          percentage,
+          grade,
+          timestamp: d.submittedAt?.toDate?.() || new Date(0),
+        });
+      });
+
+      setResults(out);
+    } catch (err) {
+      console.error('Error fetching results:', err);
+    }
+    setLoading(false);
+  }, [isStudentView, userProfile?.id]);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const { db } = await import('../../firebase');
-        const { collection, getDocs, query, orderBy } = await import('firebase/firestore');
-
-        const snap = await getDocs(query(collection(db, 'submissions'), orderBy('submittedAt', 'desc')));
-
-        const out = [];
-
-        snap.docs.forEach(doc => {
-          const d = doc.data();
-          const student = d.student || d.studentInfo || {};
-          const studentName = student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'N/A';
-          const type = d.type || 'mcq';
-
-          if (type === 'coding') {
-            out.push({
-              id: doc.id,
-              type: 'coding',
-              _raw: d,
-              studentName,
-              className: d.classNum || d.examKey?.split('_')[1] || '',
-              subject: subjectLabel(d.subject) || d.subject || '',
-              examTitle: d.title || 'Coding Assessment',
-              examType: d.examType || '',
-              invigilator: d.invigilator || '',
-              createdBy: d.createdBy || '',
-              score: d.score || 0,
-              total: d.total || 0,
-              percentage: d.total > 0 ? ((d.score || 0) / d.total) * 100 : 0,
-              grade: '-',
-              timestamp: d.submittedAt?.toDate?.() || new Date(0),
-            });
-          } else {
-            const results = d.results || {};
-            out.push({
-              id: doc.id,
-              type,
-              _raw: d,
-              studentName,
-              className: d.classNum || '',
-              subject: subjectLabel(d.subject) || d.subject || '',
-              examTitle: d.title || 'Untitled',
-              examType: d.examType || '',
-              invigilator: d.invigilator || '',
-              createdBy: d.createdBy || '',
-              score: results.totalEarned ?? results.correctCount ?? results.score ?? 0,
-              total: (results.totalMarks ?? ((results.correctCount || 0) + (results.wrongCount || 0) + (results.skippedCount || 0))) || 0,
-              percentage: parseFloat(results.percentage) || 0,
-              grade: results.grade || '-',
-              timestamp: d.submittedAt?.toDate?.() || new Date(0),
-            });
-          }
-        });
-
-        setResults(out);
-      } catch (err) {
-        console.error('Error fetching results:', err);
-      }
-      setLoading(false);
-    };
     fetchAll();
-  }, []);
+  }, [fetchAll]);
 
   const filterOptions = useMemo(() => {
     const classes = new Set();
@@ -224,6 +326,24 @@ export default function AdminResults() {
     } else {
       setSortKey(key);
       setSortDir('asc');
+    }
+  };
+
+  const handleDelete = async (r) => {
+    if (confirmDelete !== r.id) {
+      setConfirmDelete(r.id);
+      return;
+    }
+    setConfirmDelete(null);
+    try {
+      const { db } = await import('../../firebase');
+      const { doc, deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(doc(db, 'submissions', r.id));
+      auditService.log(AUDIT_ACTIONS.RESULT_DELETED, userProfile?.id, { submissionId: r.id, studentName: r.studentName, title: r.examTitle, subject: r.subject, classNum: r.className, type: r.type });
+      if (selected?.id === r.id) setSelected(null);
+      fetchAll();
+    } catch (err) {
+      console.error('Error deleting result:', err);
     }
   };
 
@@ -272,7 +392,7 @@ export default function AdminResults() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">All Results</h2>
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{isStudentView ? 'My Results' : 'All Results'}</h2>
 
       <div className="flex flex-col gap-3 mb-4">
         <div className="flex flex-wrap gap-3">
@@ -286,9 +406,11 @@ export default function AdminResults() {
             />
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </div>
-          <CustomSelect value={classFilter} onChange={setClassFilter}
-            options={[{ value: 'all', label: 'All Classes' }, ...filterOptions.classes.map(c => ({ value: c, label: `Class ${c}` }))]}
-            className="min-w-[140px]" />
+          {!isStudentView && (
+            <CustomSelect value={classFilter} onChange={setClassFilter}
+              options={[{ value: 'all', label: 'All Classes' }, ...filterOptions.classes.map(c => ({ value: c, label: `Class ${c}` }))]}
+              className="min-w-[140px]" />
+          )}
           <CustomSelect value={subjectFilter} onChange={setSubjectFilter}
             options={[{ value: 'all', label: 'All Subjects' }, ...filterOptions.subjects.map(s => ({ value: s, label: s }))]}
             className="min-w-[140px]" />
@@ -322,6 +444,19 @@ export default function AdminResults() {
             { key: 'score', label: 'Score', sortable: true, render: (r) => `${r.score}/${r.total}` },
             { key: 'percentage', label: '%', sortable: true, render: (r) => <span className={`font-semibold ${r.percentage >= 40 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{r.percentage.toFixed(1)}%</span> },
             { key: 'timestamp', label: 'Date', sortable: true, render: (r) => <span className="text-xs text-gray-400 dark:text-gray-500">{r.timestamp.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}</span> },
+            ...(userProfile?.role === ROLES.SUPER_ADMIN ? [{
+              key: 'actions', label: 'Actions', render: (r) => {
+                const isConfirming = confirmDelete === r.id;
+                return (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(r); }}
+                    className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${isConfirming ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 animate-pulse' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20'}`}
+                  >
+                    {isConfirming ? 'Confirm?' : 'Delete'}
+                  </button>
+                );
+              },
+            }] : []),
           ]}
           data={filtered}
           rowKey={(r) => `${r.type}-${r.id}`}
@@ -332,7 +467,7 @@ export default function AdminResults() {
         />
       )}
 
-      {selected && <DetailModal submission={selected} onClose={() => setSelected(null)} />}
+      {selected && <DetailModal submission={selected} onClose={() => setSelected(null)} onSaved={fetchAll} readOnly={isStudentView} />}
     </div>
   );
 }

@@ -159,6 +159,8 @@ service cloud.firestore {
     match /submissions/{submissionId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
+      allow update: if isAdmin() || isStaff();
+      allow delete: if isSuperAdmin();
     }
 
     // Existing collections (keep access patterns)

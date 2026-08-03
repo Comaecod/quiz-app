@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { auditService, AUDIT_ACTIONS } from '../auth/services/auditService';
+import { getGrade } from '../utils/scoring';
 
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
 const INDEX_URL = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/';
@@ -28,7 +29,7 @@ const LineNumbers = ({ lines }) => (
 
 export default function CodingScreen({ config, studentInfo, onComplete }) {
   const coding = config?.coding || {};
-  const { problemStatement = '', examples = '', starterCode = '', functionName = 'solution', testCases = [] } = coding;
+  const { problemStatement = '', examples = '', starterCode = '', functionName = 'solution', testCases = [], mode = 'function' } = coding;
 
   const [code, setCode] = useState(starterCode || '# Write your Python code here');
   const [pyReady, setPyReady] = useState(false);
@@ -155,6 +156,23 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
     await pyRef.current.runPythonAsync(code);
 
     const results = [];
+    if (mode === 'script') {
+      const output = stdout.trim();
+      for (let i = 0; i < testCases.length; i++) {
+        const tc = testCases[i];
+        const expected = tc.expected == null ? '' : String(tc.expected);
+        const passed = output === expected;
+        results.push({
+          index: i,
+          passed,
+          result: output,
+          expected,
+          error: passed ? null : `Expected "${expected}", got "${output}"`,
+        });
+      }
+      return results;
+    }
+
     for (let i = 0; i < testCases.length; i++) {
       const tc = testCases[i];
       try {
@@ -171,7 +189,7 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
       }
     }
     return results;
-  }, [code, testCases, functionName]);
+  }, [code, testCases, functionName, mode]);
 
   const runCode = useCallback(async () => {
     if (!pyRef.current) return;
@@ -210,13 +228,36 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
     try {
       const { db } = await import('../firebase');
       const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
-      await addDoc(collection(db, 'submissions'), {
+
+      const passed = testResults ? testResults.filter(r => r.passed).length : 0;
+      const total = testCases.length;
+      const totalMarks = Number(config.totalMarks) || 0;
+      const penalty = Number(config.wrongAnswerPenaltyFraction) || 0;
+      const failed = total - passed;
+      let marksEarned = totalMarks > 0 ? (totalMarks * (passed - failed * penalty)) / total : 0;
+      marksEarned = Math.max(0, Math.round(marksEarned * 100) / 100);
+      const percentage = totalMarks > 0 ? ((marksEarned / totalMarks) * 100).toFixed(2) : '0.00';
+
+      const results = {
+        type: 'coding',
+        correctCount: passed,
+        wrongCount: failed,
+        skippedCount: 0,
+        totalMarks,
+        totalEarned: marksEarned,
+        percentage,
+        grade: getGrade(percentage),
+        testCaseResults: testResults || [],
+      };
+
+      const submission = {
         type: 'coding',
         subject: config.subject,
         title: config.examTitle,
         assessmentId: config.id || '',
         teacher: config.teacher || '',
         invigilator: config.invigilator || '',
+        classNum: config.classNum || null,
         createdBy: config.createdBy || null,
         student: {
           userId: studentInfo?.userId || null,
@@ -224,12 +265,20 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
         },
         code,
         testResults: testResults || [],
-        score: testResults ? testResults.filter(r => r.passed).length : 0,
-        total: testCases.length,
+        score: passed,
+        total,
+        marks: marksEarned,
+        totalMarks,
+        wrongAnswerPenaltyFraction: penalty,
+        results,
+        solutionCode: config?.coding?.solutionCode || '',
         submittedAt: serverTimestamp(),
-      });
+      };
+
+      await addDoc(collection(db, 'submissions'), submission);
       auditService.log(AUDIT_ACTIONS.ASSESSMENT_SUBMITTED, studentInfo?.userId, { studentName: studentInfo?.name || `${studentInfo?.firstName || ''} ${studentInfo?.lastName || ''}`.trim(), assessmentId: config.id, title: config.examTitle, subject: config.subject, classNum: config.classNum, type: 'coding' });
       setSubmitted(true);
+      onComplete({ results, code, testResults: testResults || [], passed, total, marks: marksEarned, totalMarks, wrongAnswerPenaltyFraction: penalty, solutionCode: submission.solutionCode });
     } catch (err) {
       setOutput(`Submit error: ${err.message}`);
     }

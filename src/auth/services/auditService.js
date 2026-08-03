@@ -14,6 +14,7 @@ export const AUDIT_ACTIONS = {
   ASSESSMENT_UPDATED: 'assessment_updated',
   ASSESSMENT_DELETED: 'assessment_deleted',
   ASSESSMENT_SUBMITTED: 'assessment_submitted',
+  RESULT_DELETED: 'result_deleted',
   STUDENT_CREATED: 'student_created',
   STUDENT_UPDATED: 'student_updated',
   STUDENT_ACTIVATED: 'student_activated',

@@ -111,7 +111,7 @@ export const submitMcqAttempt = async (assessmentId, studentInfo, answers, resul
   try {
     const assessment = await getAssessmentById(assessmentId);
     if (!assessment) throw new Error('Assessment not found');
-    if (new Date() > toDate(assessment.endDateTime)) {
+    if (assessment.endDateTime && new Date() > toDate(assessment.endDateTime)) {
       throw new Error('Assessment has expired');
     }
     const docRef = await addDoc(collection(db, SUBMISSIONS_COL), {
@@ -145,7 +145,7 @@ export const submitProject = async (assessmentId, studentInfo, projectData, file
   try {
     const assessment = await getAssessmentById(assessmentId);
     if (!assessment) throw new Error('Assessment not found');
-    if (new Date() > toDate(assessment.endDateTime)) {
+    if (assessment.endDateTime && new Date() > toDate(assessment.endDateTime)) {
       throw new Error('Assessment has expired');
     }
     let fileUrl = '';
@@ -172,6 +172,7 @@ export const submitProject = async (assessmentId, studentInfo, projectData, file
       description: projectData.description || '',
       fileUrl,
       fileName,
+      totalMarks: assessment.totalMarks || 0,
       submittedAt: serverTimestamp(),
     });
     auditService.log(AUDIT_ACTIONS.ASSESSMENT_SUBMITTED, studentInfo.userId, { studentName: `${studentInfo.firstName || ''} ${studentInfo.lastName || ''}`.trim(), assessmentId, title: assessment.title, subject: assessment.subject, classNum: assessment.classNum, type: 'project' });

@@ -37,7 +37,7 @@ const ALL_NAV_ITEMS = {
   student: [
     { to: '/dashboard', icon: '📊', label: 'Dashboard' },
     { to: '/assessments', icon: '📝', label: 'Assessments' },
-    { to: '/reports', icon: '📊', label: 'My Results' },
+    { to: '/dashboard/results', icon: '📊', label: 'My Results' },
   ],
 };
 

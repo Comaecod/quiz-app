@@ -25,7 +25,6 @@ const ContactScreen = lazy(() => import('./components/ContactScreen'));
 const FeedbackScreen = lazy(() => import('./components/FeedbackScreen'));
 const FeedbackReportsScreen = lazy(() => import('./components/FeedbackReportsScreen'));
 const ReportsScreen = lazy(() => import('./components/ReportsScreen'));
-const StudentResults = lazy(() => import('./components/StudentResults'));
 const MakeNotification = lazy(() => import('./components/MakeNotification'));
 
 const MakeAssessment = lazy(() => import('./components/MakeAssessment'));
@@ -138,15 +137,6 @@ function App() {
               <DashboardLayout>
                 <Suspense fallback={<AuthFallback />}>
                   <AssessmentsScreen />
-                </Suspense>
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
-          <Route path="/reports" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Suspense fallback={<AuthFallback />}>
-                  <StudentResults />
                 </Suspense>
               </DashboardLayout>
             </ProtectedRoute>

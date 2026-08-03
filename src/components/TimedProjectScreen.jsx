@@ -106,6 +106,15 @@ const TimedProjectScreen = ({ assessment, onComplete, onBack }) => {
           {allowFileUpload && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Upload File</label>
+              <div className="mb-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p className="font-semibold text-blue-600 dark:text-blue-400 mb-1.5">ℹ️ About file upload (puter)</p>
+                <p className="mb-1.5">When you click to upload, a <strong>puter</strong> window will open. It shows a <em>"I am not a robot"</em> check and asks you to sign in with Google, Microsoft, Apple, or any email account.</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Puter is a cloud storage service used only to store your uploaded file securely. Nobody else can see or access it.</li>
+                  <li>Any account works — you don't need to create a special one.</li>
+                  <li>This is a one-time step on this device/browser. If you use a new device, you will need to sign in again.</li>
+                </ul>
+              </div>
               <div className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all ${file ? 'border-green-500/50 bg-green-500/5' : 'border-gray-300 dark:border-white/20 hover:border-primary/50'}`}>
                 {file ? (
                   <div>

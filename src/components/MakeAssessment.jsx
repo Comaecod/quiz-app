@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/contexts/AuthContext';
 import { isMasterKey } from '../utils/auth';
@@ -102,12 +102,16 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
   const [maxFileSizeMB, setMaxFileSizeMB] = useState(10);
   const [projectTitle, setProjectTitle] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+  const [projectTotalMarks, setProjectTotalMarks] = useState(10);
 
   const [problemStatement, setProblemStatement] = useState('');
   const [codingExamples, setCodingExamples] = useState('');
   const [starterCode, setStarterCode] = useState(`def solution():\n    # Write your code here\n    pass\n\nprint(solution())`);
   const [functionName, setFunctionName] = useState('solution');
   const [testCasesJson, setTestCasesJson] = useState('[]');
+  const [codingMode, setCodingMode] = useState('function');
+  const [solutionCode, setSolutionCode] = useState('');
+  const [codingTotalMarks, setCodingTotalMarks] = useState(10);
 
   const [questionsJson, setQuestionsJson] = useState(DEFAULT_QUESTIONS);
   const [questionsMd, setQuestionsMd] = useState(DEFAULT_QUESTIONS_MD);
@@ -122,6 +126,14 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
 
   const isProject = assessmentFormat === 'project';
   const isCoding = assessmentFormat === 'coding';
+  const codingTestCaseCount = useMemo(() => {
+    try {
+      const arr = JSON.parse(testCasesJson);
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
+  }, [testCasesJson]);
 
   useEffect(() => {
     if (!id) return;
@@ -150,10 +162,14 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
         setMaxFileSizeMB(data.maxFileSizeMB ?? 10);
         setProjectTitle(data.projectTitle || '');
         setProjectDescription(data.projectDescription || '');
+        setProjectTotalMarks(data.totalMarks != null ? Number(data.totalMarks) : 10);
         setProblemStatement(data.coding?.problemStatement || '');
         setCodingExamples(data.coding?.examples || '');
         setStarterCode(data.coding?.starterCode || '');
         setFunctionName(data.coding?.functionName || 'solution');
+        setCodingMode(data.coding?.mode || 'function');
+        setSolutionCode(data.coding?.solutionCode || '');
+        setCodingTotalMarks(data.totalMarks != null ? Number(data.totalMarks) : 10);
         setTestCasesJson(JSON.stringify(data.coding?.testCases || [], null, 2));
         setQuestionsJson(JSON.stringify(data.questions || [], null, 2));
         setQuestionsMd(questionsToMarkdown(data.questions || []));
@@ -202,8 +218,8 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
       teacher,
       invigilator: invigilator || teacher,
       enabled,
-      totalQuestions: hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count), 0) : questions.length,
-      totalMarks: hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count) * Number(s.marks), 0) : questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0),
+      totalQuestions: isCoding ? codingTestCaseCount : hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count), 0) : questions.length,
+      totalMarks: isProject ? Number(projectTotalMarks) || 0 : isCoding ? Number(codingTotalMarks) || 0 : hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count) * Number(s.marks), 0) : questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0),
       wrongAnswerPenaltyFraction: Number(wrongAnswerPenaltyFraction),
       assessmentFormat,
       createdBy: userProfile?.id || null,
@@ -221,10 +237,12 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
       projectDescription,
       studentInputs: { topic: true, description: true },
       coding: isCoding ? {
+        mode: codingMode,
         problemStatement,
         examples: codingExamples,
         starterCode,
         functionName,
+        solutionCode,
         testCases: tryParseJson(testCasesJson, [])
       } : null,
     };
@@ -250,13 +268,17 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
 
     if (isCoding) {
       if (!problemStatement.trim()) return 'Problem statement is required';
-      if (!functionName.trim()) return 'Function name is required';
+      if (codingMode === 'function' && !functionName.trim()) return 'Function name is required';
+      if (!Number(codingTotalMarks) || Number(codingTotalMarks) < 1) return 'Total marks must be at least 1';
       try {
         const tcs = JSON.parse(testCasesJson);
         if (!Array.isArray(tcs) || tcs.length === 0) return 'At least one test case is required';
       } catch {
         return 'Invalid test cases JSON format';
       }
+    } else if (isProject) {
+      if (!projectTitle.trim()) return 'Project title is required';
+      if (!Number(projectTotalMarks) || Number(projectTotalMarks) < 1) return 'Total marks must be at least 1';
     } else {
       if (timeLimitMinutes < 0) return 'Time limit cannot be negative';
       if (Number(totalQuestions) < 1) return 'At least 1 question required';
@@ -437,6 +459,11 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
                     <textarea className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 text-sm resize-none" rows={2} value={projectDescription} onChange={e => setProjectDescription(e.target.value)} disabled={readOnly} />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Total Marks *</label>
+                    <input type="number" min="1" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={projectTotalMarks} onChange={e => setProjectTotalMarks(Number(e.target.value))} disabled={readOnly} />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Marks teacher can award after reviewing the project</p>
+                  </div>
+                  <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                       <input type="checkbox" checked={allowFileUpload} onChange={e => setAllowFileUpload(e.target.checked)} className="rounded" disabled={readOnly} />
                       Allow File Upload
@@ -464,6 +491,28 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-4">💻 Coding Configuration</h3>
                 <div className="space-y-4">
                   <div>
+                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Grading Mode</label>
+                    <div className="flex gap-1 bg-black/10 dark:bg-white/10 rounded-lg p-0.5 w-fit">
+                      <button
+                        type="button"
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${codingMode === 'function' ? 'bg-primary text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+                        onClick={() => setCodingMode('function')}
+                        disabled={readOnly}
+                      >Function-based</button>
+                      <button
+                        type="button"
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${codingMode === 'script' ? 'bg-primary text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+                        onClick={() => setCodingMode('script')}
+                        disabled={readOnly}
+                      >Script (main)</button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {codingMode === 'function'
+                        ? 'Students define a function that is called with each test case input.'
+                        : 'Students write a top-level program; its printed output is compared to each test case.'}
+                    </p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Problem Statement *</label>
                     <textarea className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 text-sm resize-none" rows={3} placeholder="Describe the coding problem..." value={problemStatement} onChange={e => setProblemStatement(e.target.value)} disabled={readOnly} />
                   </div>
@@ -471,29 +520,83 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Examples</label>
                     <textarea className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 text-sm resize-none font-mono" rows={3} placeholder={`Input: a=2, b=3 → Output: 5\nInput: a=10, b=20 → Output: 30`} value={codingExamples} onChange={e => setCodingExamples(e.target.value)} disabled={readOnly} />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className={codingMode === 'function' ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}>
+                    {codingMode === 'function' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Function Name *</label>
+                        <input type="text" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-sm" placeholder="e.g. add" value={functionName} onChange={e => setFunctionName(e.target.value)} disabled={readOnly} />
+                      </div>
+                    )}
                     <div>
-                      <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Function Name *</label>
-                      <input type="text" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-sm" placeholder="e.g. add" value={functionName} onChange={e => setFunctionName(e.target.value)} disabled={readOnly} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Total Test Cases</label>
-                      <input type="number" min="1" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={totalQuestions} onChange={e => setTotalQuestions(Number(e.target.value))} disabled={readOnly} />
+                      <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Time Limit (minutes)</label>
+                      <input type="number" min="0" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={timeLimitMinutes} onChange={e => setTimeLimitMinutes(Number(e.target.value))} disabled={readOnly} />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">0 = no limit</p>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Time Limit (minutes)</label>
-                    <input type="number" min="0" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={timeLimitMinutes} onChange={e => setTimeLimitMinutes(Number(e.target.value))} disabled={readOnly} />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">0 = no limit</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Total Marks *</label>
+                      <input type="number" min="1" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={codingTotalMarks} onChange={e => setCodingTotalMarks(Number(e.target.value))} disabled={readOnly} />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Full marks for passing all test cases</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Negative Marking (%)</label>
+                      <input type="number" min="0" max="100" step="25" className="w-full px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white outline-none focus:border-primary/50 text-sm" value={wrongAnswerPenaltyFraction * 100} onChange={e => setWrongAnswerPenaltyFraction(Number(e.target.value) / 100)} disabled={readOnly} />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{wrongAnswerPenaltyFraction * 100}% of each failed test case's marks deducted</p>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Starter Code</label>
                     <textarea className="w-full h-32 px-4 py-3 rounded-xl bg-black/10 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-sm resize-none" value={starterCode} onChange={e => setStarterCode(e.target.value)} disabled={readOnly} />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Expected / Solution Code</label>
+                    <textarea className="w-full h-32 px-4 py-3 rounded-xl bg-black/10 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-sm resize-none" placeholder="Write the expected solution code..." value={solutionCode} onChange={e => setSolutionCode(e.target.value)} disabled={readOnly} />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shown on the certificate after entering the answer reveal key</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Test Cases (JSON) *</label>
-                    <textarea className="w-full h-32 px-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-xs resize-none" placeholder='[{"input": [2, 3], "expected": 5}]' value={testCasesJson} onChange={e => setTestCasesJson(e.target.value)} disabled={readOnly} />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Array of objects with "input" (array of args) and "expected" values</p>
+                    <textarea className="w-full h-32 px-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:border-primary/50 font-mono text-xs resize-none" placeholder={codingMode === 'function' ? '[{"input": [2, 3], "expected": 5}]' : '[{"input": [], "expected": "Hello World"}]'} value={testCasesJson} onChange={e => setTestCasesJson(e.target.value)} disabled={readOnly} />
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${codingTestCaseCount > 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300'}`}>
+                        {codingTestCaseCount} test case{codingTestCaseCount === 1 ? '' : 's'} detected
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium">How to add test cases:</p>
+                    {codingMode === 'function' ? (
+                      <ul className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-1 list-disc list-inside">
+                        <li>The box must contain a valid JSON <span className="font-mono">array</span> of test case objects.</li>
+                        <li>Each test case has <span className="font-mono">"input"</span> (array of arguments passed to the function, in order) and <span className="font-mono">"expected"</span> (the value the function must return).</li>
+                        <li>Use <span className="font-mono">[]</span> for <span className="font-mono">"input"</span> when the function takes no arguments.</li>
+                        <li>Separate multiple test cases with commas. No trailing comma after the last one.</li>
+                        <li>Comparison is by string value, so keep types consistent (e.g. <span className="font-mono">5</span> vs <span className="font-mono">"5"</span> will fail).</li>
+                      </ul>
+                    ) : (
+                      <ul className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-1 list-disc list-inside">
+                        <li>The box must contain a valid JSON <span className="font-mono">array</span> of test case objects.</li>
+                        <li>Each test case uses <span className="font-mono">"expected"</span> — the exact text the program must print. <span className="font-mono">"input"</span> is ignored in script mode (keep it as <span className="font-mono">[]</span>).</li>
+                        <li>Separate multiple test cases with commas. No trailing comma after the last one.</li>
+                        <li>Comparison is exact and case-sensitive; extra spaces at the start/end are trimmed.</li>
+                      </ul>
+                    )}
+                    <div className="mt-2 rounded-lg bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
+                      {codingMode === 'function' ? (
+                        <>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mb-1">Example for a function <span className="font-mono">add(a, b)</span>:</p>
+                          <pre className="text-[11px] text-gray-700 dark:text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{`[
+  {"input": [2, 3], "expected": 5},
+  {"input": [10, 20], "expected": 30}
+]`}</pre>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mb-1">Example for a program that prints <span className="font-mono">Hello World</span>:</p>
+                          <pre className="text-[11px] text-gray-700 dark:text-gray-300 font-mono overflow-x-auto whitespace-pre-wrap">{`[
+  {"input": [], "expected": "Hello World"}
+]`}</pre>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

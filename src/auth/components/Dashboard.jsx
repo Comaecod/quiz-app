@@ -38,7 +38,7 @@ export default function Dashboard() {
 
     if (role === ROLES.STUDENT) {
       cards.push(
-        { to: '/reports', icon: '📊', title: 'My Results', desc: 'View your assessment results and reports', color: 'from-pink-500 to-rose-600', roles: [ROLES.STUDENT] },
+        { to: '/dashboard/results', icon: '📊', title: 'My Results', desc: 'View your assessment results and reports', color: 'from-pink-500 to-rose-600', roles: [ROLES.STUDENT] },
       );
     }
 

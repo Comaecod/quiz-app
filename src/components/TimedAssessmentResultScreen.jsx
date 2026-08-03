@@ -5,7 +5,7 @@ import { SCHOOL_CONFIG } from '../config/schoolConfig';
 import staffData from '../data/staffDirectory.json';
 import { validateAnswerReveal } from '../utils/auth';
 
-const CertificateCard = ({ studentInfo, assessment, results }) => {
+export const CertificateCard = ({ studentInfo, assessment, results }) => {
   const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
   const teacherName = assessment?.teacher || 'Assessment Creator';
   const gradeInfo = getGradeInfo(results.percentage);

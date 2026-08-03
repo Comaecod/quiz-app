@@ -22,8 +22,8 @@ const STATUS_COLORS = {
 const getAssessmentStatus = (item) => {
   if (item.enabled === false) return 'disabled';
   const now = new Date();
-  const start = toDate(item.startDateTime);
-  const end = toDate(item.endDateTime);
+  const start = item.startDateTime ? toDate(item.startDateTime) : null;
+  const end = item.endDateTime ? toDate(item.endDateTime) : null;
   if (start && end && now < start) return 'upcoming';
   if (end && now > end) return 'expired';
   return 'active';
@@ -44,6 +44,7 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [classFilter, setClassFilter] = useState('all');
+  const [formatFilter, setFormatFilter] = useState('all');
   const [sortKey, setSortKey] = useState('title');
   const [sortDir, setSortDir] = useState('asc');
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -122,8 +123,9 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
       }
       const status = getAssessmentStatus(item);
       if (statusFilter !== 'all' && status !== statusFilter) return false;
-      if (subjectFilter !== 'all' && String(item.subject) !== subjectFilter) return false;
-      if (classFilter !== 'all' && String(item.classNum) !== classFilter) return false;
+      if (subjectFilter !== 'all' && String(item.subject) !== String(subjectFilter)) return false;
+      if (classFilter !== 'all' && String(item.classNum) !== String(classFilter)) return false;
+      if (formatFilter !== 'all' && item.assessmentFormat !== formatFilter) return false;
       if (!search) return true;
       const q = search.toLowerCase();
       return (item.title || '').toLowerCase().includes(q)
@@ -208,6 +210,9 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
           className="min-w-[140px]" />
         <CustomSelect value={classFilter} onChange={setClassFilter}
           options={[{ value: 'all', label: 'All Classes' }, ...filterOptions.classes.map(c => ({ value: c, label: `Class ${c}` }))]}
+          className="min-w-[130px]" />
+        <CustomSelect value={formatFilter} onChange={setFormatFilter}
+          options={[{ value: 'all', label: 'All Formats' }, ...Object.entries(FORMAT_LABELS).map(([v, l]) => ({ value: v, label: l }))]}
           className="min-w-[130px]" />
         <CustomSelect value={statusFilter} onChange={setStatusFilter}
           options={[{ value: 'all', label: 'All Status' }, ...Object.entries(STATUS_LABELS).map(([v, l]) => ({ value: v, label: l }))]}

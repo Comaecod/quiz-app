@@ -26,7 +26,7 @@ const pageNameMap = {
   '/gallery': 'Gallery',
   '/contact': 'Contact',
   '/feedback': 'Feedback',
-  '/reports': 'Reports',
+  '/dashboard/results': 'Results',
 };
 
 function getPageName(pathname) {

@@ -7,6 +7,8 @@ const CountdownTimer = ({ startDateTime, endDateTime }) => {
   const now = new Date();
   const start = toDate(startDateTime);
   const end = toDate(endDateTime);
+  const hasStart = !!startDateTime;
+  const hasEnd = !!endDateTime;
   const target = now < start ? start : end;
   const label = now < start ? 'Starts in' : 'Ends in';
 
@@ -35,6 +37,10 @@ const CountdownTimer = ({ startDateTime, endDateTime }) => {
     return () => clearInterval(intervalRef.current);
   }, [startDateTime, endDateTime]);
 
+  if ((!hasStart && !hasEnd) || (!hasEnd && now >= start)) {
+    return <span className="font-mono font-bold text-sm text-emerald-500">Active</span>;
+  }
+
   if (timeLeft.total <= 0) {
     const ended = now >= end;
     return <span className={`font-semibold ${ended ? 'text-red-400' : 'text-green-400'}`}>{ended ? 'Expired' : 'Active'}</span>;
@@ -60,14 +66,16 @@ const StatusBadge = ({ startDateTime, endDateTime }) => {
   const now = new Date();
   const start = toDate(startDateTime);
   const end = toDate(endDateTime);
+  const hasStart = !!startDateTime;
+  const hasEnd = !!endDateTime;
 
-  if (now < start) return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">Upcoming</span>;
-  if (now > end) return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">Expired</span>;
+  if (hasStart && now < start) return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">Upcoming</span>;
+  if (hasEnd && now > end) return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">Expired</span>;
   return <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">Active</span>;
 };
 
 const AssessmentTypeBadge = ({ type }) => {
-  const labels = { mcq: 'MCQ Test', project: 'Project', hybrid: 'Hybrid' };
+  const labels = { mcq: 'MCQ Test', project: 'Project', coding: 'Coding', hybrid: 'Hybrid' };
   const colors = {
     mcq: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
     project: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
@@ -87,7 +95,7 @@ const TimedAssessmentCardsScreen = ({ classNum, subject, assessments, isLoading,
     const check = () => {
       const now = new Date();
       const newlyExpired = assessments
-        .filter(a => toDate(a.endDateTime) <= now)
+        .filter(a => a.endDateTime && toDate(a.endDateTime) <= now)
         .map(a => a.id);
       if (newlyExpired.length > 0) {
         setExpiredIds(prev => new Set([...prev, ...newlyExpired]));
@@ -104,7 +112,7 @@ const TimedAssessmentCardsScreen = ({ classNum, subject, assessments, isLoading,
     <div className="glass-card w-full max-w-2xl animate-slideUp">
       <div className="text-center mb-8">
         <div className="text-5xl mb-4">⏱️</div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Timed Assessments</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Assessments</h2>
         <p className="text-gray-500 dark:text-gray-400">Class {classNum} - {subjectLabel(subject)}</p>
       </div>
 
@@ -145,7 +153,10 @@ const TimedAssessmentCardsScreen = ({ classNum, subject, assessments, isLoading,
                 const asmStart = toDate(asm.startDateTime);
                 const asmEnd = toDate(asm.endDateTime);
                 const asmNow = new Date();
-                if (asmNow >= asmStart && asmNow <= asmEnd) {
+                const hasStart = !!asm.startDateTime;
+                const hasEnd = !!asm.endDateTime;
+                const ready = (!hasStart || asmNow >= asmStart) && (!hasEnd || asmNow <= asmEnd);
+                if (ready) {
                   return (
                     <motion.button
                       whileHover={{ scale: 1.03 }}
@@ -156,7 +167,7 @@ const TimedAssessmentCardsScreen = ({ classNum, subject, assessments, isLoading,
                       Start Assessment →
                     </motion.button>
                   );
-                } else if (asmNow < asmStart) {
+                } else if (hasStart && asmNow < asmStart) {
                   return (
                     <div className="w-full px-4 py-2.5 rounded-xl font-medium text-sm text-center bg-black/5 dark:bg-white/5 text-gray-400 cursor-not-allowed">
                       Not yet available
