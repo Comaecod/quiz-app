@@ -18,6 +18,7 @@ const NotificationWidget = lazy(() => import('./components/NotificationWidget'))
 const StaffDirectoryScreen = lazy(() => import('./components/StaffDirectoryScreen'));
 const ExecutiveMembersScreen = lazy(() => import('./components/ExecutiveMembersScreen'));
 const AssessmentsScreen = lazy(() => import('./components/AssessmentsScreen'));
+const GuestAssessmentsScreen = lazy(() => import('./components/GuestAssessmentsScreen'));
 const GalleryScreen = lazy(() => import('./components/GalleryScreen'));
 
 const AcademicCalendar = lazy(() => import('./components/AcademicCalendar'));
@@ -141,6 +142,7 @@ function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+          <Route path="/assessments/guest" element={withLayout(GuestAssessmentsScreen)} />
           {/* Dashboard Panel Routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>

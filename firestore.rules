@@ -145,7 +145,8 @@ service cloud.firestore {
 
     // Exam configs collection (assessment content)
     match /examConfigs/{configId} {
-      allow read: if isAuthenticated();
+      // Public read for assessments flagged "Allow no-login attempts" (allowGuest)
+      allow read: if isAuthenticated() || resource.data.allowGuest == true;
       allow write: if isAdmin() || isStaff();
     }
 
@@ -158,7 +159,8 @@ service cloud.firestore {
     // Submissions collection (coding, projects, etc.)
     match /submissions/{submissionId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      // No-login (guest) submissions are allowed to be created anonymously
+      allow create: if isAuthenticated() || request.resource.data.guest == true;
       allow update: if isAdmin() || isStaff();
       allow delete: if isSuperAdmin();
     }

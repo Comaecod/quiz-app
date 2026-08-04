@@ -6,6 +6,7 @@ import { useAuth } from '../auth/contexts/AuthContext';
 import { ROLES } from '../auth/types/roles';
 import logoImg from '../assets/logo.png';
 import { SCHOOL_CONFIG } from '../config/schoolConfig';
+import { GUEST_MODE } from '../utils/config';
 
 const PUBLIC_NAV_ITEMS = [
   {
@@ -162,6 +163,12 @@ const Header = () => {
           <span>🔑</span> Sign In
         </Link>
       )}
+      {!isAuthenticated && GUEST_MODE && (
+        <Link to="/assessments/guest" onClick={() => setIsMenuOpen(false)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/40">
+          <span>🎯</span> Take a Test (No Login)
+        </Link>
+      )}
     </div>
   );
 
@@ -250,7 +257,14 @@ const Header = () => {
             <UserMenu />
           ) : (
             <>
-
+              {GUEST_MODE && (
+                <Link
+                  to="/assessments/guest"
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/10 transition-all"
+                >
+                  Take a Test
+                </Link>
+              )}
               <Link
                 to="/login"
                 className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all"

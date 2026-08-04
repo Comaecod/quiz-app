@@ -261,8 +261,10 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
         createdBy: config.createdBy || null,
         student: {
           userId: studentInfo?.userId || null,
+          guestId: studentInfo?.guestId || null,
           name: studentInfo?.name || `${studentInfo?.firstName || ''} ${studentInfo?.lastName || ''}`.trim() || 'Unknown',
         },
+        guest: !!studentInfo?.guestId,
         code,
         testResults: testResults || [],
         score: passed,

@@ -122,7 +122,6 @@ const QuestionCard = ({
                 }
               }}
               role={isMultiple ? 'checkbox' : 'radio'}
-              role-checked={isMultiple ? isSelected : undefined}
               aria-checked={isSelected}
               tabIndex={0}
               aria-label={`Option ${index + 1}: ${option.text}${isSelected ? ', selected' : ''}`}

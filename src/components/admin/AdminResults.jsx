@@ -96,7 +96,7 @@ function DetailModal({ submission, onClose, onSaved, readOnly }) {
 
         <div className="p-5 space-y-5">
           <div className="flex items-center gap-4 text-sm">
-            <div><span className="text-gray-500 dark:text-gray-400">Student:</span> <span className="text-gray-900 dark:text-white font-medium">{submission.studentName}</span></div>
+            <div><span className="text-gray-500 dark:text-gray-400">Student:</span> <span className="text-gray-900 dark:text-white font-medium">{submission.studentName}</span> {submission.guest && <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">No-Login</span>}</div>
             <div><span className="text-gray-500 dark:text-gray-400">Date:</span> <span className="text-gray-900 dark:text-white">{submission.timestamp.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}</span></div>
             {submission.invigilator && <div><span className="text-gray-500 dark:text-gray-400">Invigilator:</span> <span className="text-gray-900 dark:text-white">{submission.invigilator}</span></div>}
           </div>
@@ -227,6 +227,9 @@ export default function AdminResults() {
   const [classFilter, setClassFilter] = useState('all');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [formatFilter, setFormatFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [sortKey, setSortKey] = useState('timestamp');
   const [sortDir, setSortDir] = useState('desc');
   const [selected, setSelected] = useState(null);
@@ -261,6 +264,7 @@ export default function AdminResults() {
           type,
           _raw: d,
           studentName,
+          guest: d.guest === true || !student.userId,
           className: d.classNum || d.examKey?.split('_')[1] || '',
           subject: subjectLabel(d.subject) || d.subject || '',
           examTitle: d.title || (type === 'coding' ? 'Coding Assessment' : 'Untitled'),
@@ -303,6 +307,7 @@ export default function AdminResults() {
     const XLSX = await import('xlsx');
     const rows = filtered.map(r => ({
       Student: r.studentName,
+      Login: r.guest ? 'No-Login' : 'Logged-in',
       Class: r.className,
       Subject: r.subject,
       Invigilator: r.invigilator,
@@ -353,6 +358,10 @@ export default function AdminResults() {
       if (classFilter !== 'all' && r.className !== classFilter) return false;
       if (subjectFilter !== 'all' && r.subject !== subjectFilter) return false;
       if (formatFilter !== 'all' && r.type !== formatFilter) return false;
+      if (sourceFilter === 'guest' && !r.guest) return false;
+      if (sourceFilter === 'member' && r.guest) return false;
+      if (dateFrom && r.timestamp < new Date(`${dateFrom}T00:00:00`)) return false;
+      if (dateTo && r.timestamp > new Date(`${dateTo}T23:59:59.999`)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
       return r.studentName.toLowerCase().includes(q)
@@ -380,7 +389,7 @@ export default function AdminResults() {
     });
 
     return data;
-  }, [results, search, classFilter, subjectFilter, formatFilter, sortKey, sortDir, userProfile]);
+  }, [results, search, classFilter, subjectFilter, formatFilter, sourceFilter, dateFrom, dateTo, sortKey, sortDir, userProfile]);
 
   if (loading) {
     return (
@@ -417,6 +426,42 @@ export default function AdminResults() {
           <CustomSelect value={formatFilter} onChange={setFormatFilter}
             options={FORMAT_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
             className="min-w-[130px]" />
+          {!isStudentView && (
+            <CustomSelect value={sourceFilter} onChange={setSourceFilter}
+              options={[
+                { value: 'all', label: 'All Sources' },
+                { value: 'member', label: 'Logged-in' },
+                { value: 'guest', label: 'No-Login' },
+              ]}
+              className="min-w-[130px]" />
+          )}
+          {!isStudentView && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                type="date"
+                value={dateFrom}
+                max={dateTo || undefined}
+                onChange={e => setDateFrom(e.target.value)}
+                title="From date"
+                className="px-3 py-2 rounded-xl bg-white dark:bg-[#282843] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
+              />
+              <span className="text-gray-400 text-sm">→</span>
+              <input
+                type="date"
+                value={dateTo}
+                min={dateFrom || undefined}
+                onChange={e => setDateTo(e.target.value)}
+                title="To date"
+                className="px-3 py-2 rounded-xl bg-white dark:bg-[#282843] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-primary/50 transition-all"
+              />
+              {(dateFrom || dateTo) && (
+                <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+                  className="px-3 py-2 rounded-xl text-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-all">
+                  Clear
+                </button>
+              )}
+            </div>
+          )}
           <button onClick={handleExport} disabled={filtered.length === 0}
             className="px-4 py-2.5 rounded-xl bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 text-primary text-sm font-medium hover:bg-primary/20 dark:hover:bg-primary/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">
             Export Excel
@@ -432,7 +477,14 @@ export default function AdminResults() {
       ) : (
         <DataTable
           columns={[
-            { key: 'studentName', label: 'Student', sortable: true, cellClassName: 'text-gray-900 dark:text-white font-medium' },
+            { key: 'studentName', label: 'Student', sortable: true, cellClassName: 'text-gray-900 dark:text-white font-medium', render: (r) => (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span>{r.studentName}</span>
+                {r.guest && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">No-Login</span>
+                )}
+              </div>
+            ) },
             { key: 'className', label: 'Class', sortable: true, render: (r) => r.className },
             { key: 'subject', label: 'Subject', sortable: true, render: (r) => r.subject },
             { key: 'type', label: 'Type', sortable: true, render: (r) => (

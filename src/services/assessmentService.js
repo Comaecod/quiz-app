@@ -32,6 +32,128 @@ export const getActiveAssessments = async () => {
   }
 };
 
+const GUEST_ID_KEY = 'skksv_guest_id';
+const GUEST_ATTEMPT_KEY = 'skksv_guest_attempts';
+
+export const buildGuestId = () => {
+  try {
+    let id = localStorage.getItem(GUEST_ID_KEY);
+    if (!id) {
+      id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(GUEST_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  }
+};
+
+export const markGuestAttempt = (assessmentId, guestId) => {
+  if (!assessmentId || !guestId) return;
+  try {
+    const list = JSON.parse(localStorage.getItem(GUEST_ATTEMPT_KEY) || '[]');
+    const key = `${assessmentId}::${guestId}`;
+    if (!list.includes(key)) list.push(key);
+    localStorage.setItem(GUEST_ATTEMPT_KEY, JSON.stringify(list));
+  } catch {
+    // localStorage unavailable; server-side check (getGuestSubmission) still applies
+  }
+};
+
+export const hasGuestAttempt = (assessmentId, guestId) => {
+  if (!assessmentId || !guestId) return false;
+  try {
+    const list = JSON.parse(localStorage.getItem(GUEST_ATTEMPT_KEY) || '[]');
+    return list.includes(`${assessmentId}::${guestId}`);
+  } catch {
+    return false;
+  }
+};
+
+export const getGuestClasses = async () => {
+  try {
+    const q = query(
+      collection(db, ASSESSMENTS_COL),
+      where('enabled', '==', true),
+      where('allowGuest', '==', true)
+    );
+    const snapshot = await getDocs(q);
+    const now = new Date();
+    const classes = new Set(
+      snapshot.docs
+        .map(d => d.data())
+        .filter(a => !a.endDateTime || toDate(a.endDateTime) > now)
+        .map(a => a.classNum)
+        .filter(Boolean)
+    );
+    return [...classes].sort((a, b) => Number(a) - Number(b));
+  } catch (err) {
+    console.error('Error fetching guest classes:', err.message);
+    return [];
+  }
+};
+
+export const getGuestSubjectsForClass = async (classNum) => {
+  try {
+    const q = query(
+      collection(db, ASSESSMENTS_COL),
+      where('enabled', '==', true),
+      where('allowGuest', '==', true),
+      where('classNum', '==', String(classNum))
+    );
+    const snapshot = await getDocs(q);
+    const now = new Date();
+    const seen = new Set();
+    snapshot.docs
+      .map(d => d.data())
+      .filter(a => !a.endDateTime || toDate(a.endDateTime) > now)
+      .forEach(a => { if (a.subject != null) seen.add(a.subject); });
+    return [...seen];
+  } catch (err) {
+    console.error('Error fetching guest subjects:', err.message);
+    return [];
+  }
+};
+
+export const getGuestAssessmentsForClassSubject = async (classNum, subject) => {
+  try {
+    const q = query(
+      collection(db, ASSESSMENTS_COL),
+      where('allowGuest', '==', true),
+      where('classNum', '==', String(classNum)),
+      where('subject', '==', subject)
+    );
+    const snapshot = await getDocs(q);
+    const now = new Date();
+    return snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(a => a.enabled !== false && (!a.endDateTime || toDate(a.endDateTime) > now));
+  } catch (err) {
+    console.error('Error fetching guest assessments:', err.message);
+    return [];
+  }
+};
+
+export const getGuestSubmission = async (assessmentId, guestId) => {
+  try {
+    const q = query(
+      collection(db, SUBMISSIONS_COL),
+      where('assessmentId', '==', assessmentId),
+      where('student.guestId', '==', guestId)
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    return { id: doc.id, ...data };
+  } catch (err) {
+    console.error('Error fetching guest submission:', err.message);
+    return null;
+  }
+};
+
 export const getClassesWithActive = async () => {
   const assessments = await getActiveAssessments();
   const classes = [...new Set(assessments.map(a => a.classNum))];
@@ -123,8 +245,10 @@ export const submitMcqAttempt = async (assessmentId, studentInfo, answers, resul
       title: assessment.title,
       teacher: assessment.teacher || '',
       createdBy: assessment.createdBy || null,
+      guest: !!studentInfo.guestId,
       student: {
         userId: studentInfo.userId || null,
+        guestId: studentInfo.guestId || null,
         name: `${studentInfo.firstName || ''} ${studentInfo.lastName || ''}`.trim(),
       },
       answers,
@@ -164,8 +288,10 @@ export const submitProject = async (assessmentId, studentInfo, projectData, file
       title: assessment.title,
       teacher: assessment.teacher || '',
       createdBy: assessment.createdBy || null,
+      guest: !!studentInfo.guestId,
       student: {
         userId: studentInfo.userId || null,
+        guestId: studentInfo.guestId || null,
         name: `${studentInfo.firstName || ''} ${studentInfo.lastName || ''}`.trim(),
       },
       topic: projectData.topic || '',

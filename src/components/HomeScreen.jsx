@@ -138,6 +138,7 @@ const ImageCarousel = ({ images, onImageClick }) => {
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/contexts/AuthContext';
 import { ROLES } from '../auth/types/roles';
+import { GUEST_MODE } from '../utils/config';
 
 const HomeScreen = () => {
   const { isAuthenticated, userProfile, loading } = useAuth();
@@ -183,6 +184,20 @@ const HomeScreen = () => {
                   {userProfile?.role === ROLES.STUDENT && 'Continue your learning journey.'}
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+        {!isAuthenticated && !loading && GUEST_MODE && (
+          <div className="mb-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl">🎯</div>
+              <div className="flex-1 min-w-[220px]">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Take a Test Without Login</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No account needed — select your class, subject, and assessment to start.</p>
+              </div>
+              <Link to="/assessments/guest" className="px-5 py-2.5 rounded-xl font-medium bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 transition-all">
+                Start →
+              </Link>
             </div>
           </div>
         )}

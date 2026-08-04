@@ -86,6 +86,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
   const [teacher, setTeacher] = useState(userProfile?.displayName || 'Unknown');
   const [invigilator, setInvigilator] = useState('');
   const [enabled, setEnabled] = useState(true);
+  const [allowGuest, setAllowGuest] = useState(false);
 
   const [isTimed, setIsTimed] = useState(true);
   const [startDateTime, setStartDateTime] = useState('');
@@ -148,6 +149,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
         setTeacher(data.teacher || '');
         setInvigilator(data.invigilator || '');
         setEnabled(data.enabled !== false);
+        setAllowGuest(data.allowGuest === true);
         setIsTimed(!!data.startDateTime || !!data.endDateTime);
         setStartDateTime(formatTimestamp(data.startDateTime));
         setEndDateTime(formatTimestamp(data.endDateTime));
@@ -218,6 +220,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
       teacher,
       invigilator: invigilator || teacher,
       enabled,
+      allowGuest: !!allowGuest,
       totalQuestions: isCoding ? codingTestCaseCount : hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count), 0) : questions.length,
       totalMarks: isProject ? Number(projectTotalMarks) || 0 : isCoding ? Number(codingTotalMarks) || 0 : hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count) * Number(s.marks), 0) : questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0),
       wrongAnswerPenaltyFraction: Number(wrongAnswerPenaltyFraction),
@@ -391,6 +394,10 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
               <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
                 <input type="checkbox" checked={isTimed} onChange={e => setIsTimed(e.target.checked)} className="rounded" disabled={readOnly} />
                 Timed Assessment (with start/end window)
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 mt-3" title="Allow students to attempt this assessment without logging in. Their results are only visible to you and super admins.">
+                <input type="checkbox" checked={allowGuest} onChange={e => setAllowGuest(e.target.checked)} className="rounded" disabled={readOnly} />
+                Allow no-login attempts
               </label>
             </div>
 
