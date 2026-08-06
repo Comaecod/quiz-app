@@ -68,6 +68,7 @@ function DetailModal({ submission, onClose, onSaved, readOnly }) {
       });
       setSaved(true);
       onSaved?.();
+      onClose();
     } catch (err) {
       setSaveError(err.message || 'Failed to save score');
     }

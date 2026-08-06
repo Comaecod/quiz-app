@@ -331,13 +331,17 @@ const GuestAssessmentsScreen = () => {
   if (screen === 'subject') {
     return (
       <div className="w-full flex items-center justify-center px-4 py-8">
-        <SubjectSelectionScreen
-          classNum={classNum}
-          subjects={subjects}
-          isLoading={subjectsLoading}
-          onSelect={handleSelectSubject}
-          onBack={goBack}
-        />
+        <div className="w-full max-w-2xl">
+          <SubjectSelectionScreen
+            classNum={classNum}
+            subjects={subjects}
+            isLoading={subjectsLoading}
+            onSelect={handleSelectSubject}
+          />
+          <div className="mt-4 text-center">
+            <button onClick={goBack} className="px-6 py-3 rounded-xl font-medium bg-black/5 dark:bg-white/10 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all">← Back to Classes</button>
+          </div>
+        </div>
       </div>
     );
   }

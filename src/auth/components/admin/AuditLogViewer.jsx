@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
-import { auditService } from '../../services/auditService';
+import { auditService, AUDIT_ACTIONS } from '../../services/auditService';
+import { useAuth } from '../../contexts/AuthContext';
 import CustomSelect from '../../../components/CustomSelect';
 import DataTable from '../../../components/DataTable';
+import ConfirmModal from '../../../components/ConfirmModal';
+
+function SelectionCheckbox({ checked, onChange }) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      onClick={(e) => e.stopPropagation()}
+      className="w-4 h-4 rounded cursor-pointer accent-primary"
+    />
+  );
+}
 
 function DetailModal({ log, onClose }) {
   if (!log) return null;
@@ -104,12 +118,16 @@ function DetailModal({ log, onClose }) {
 }
 
 export default function AuditLogViewer() {
+  const { user } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionFilter, setActionFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [selectedLog, setSelectedLog] = useState(null);
+  const [selected, setSelected] = useState(new Set());
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadLogs();
@@ -142,6 +160,43 @@ export default function AuditLogViewer() {
 
   const uniqueActions = [...new Set(logs.map((log) => log.action))];
 
+  const selectedCount = selected.size;
+  const allSelected = filteredLogs.length > 0 && filteredLogs.every((log) => selected.has(log.id));
+
+  const toggleSelect = (log) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(log.id)) next.delete(log.id);
+      else next.add(log.id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) filteredLogs.forEach((log) => next.delete(log.id));
+      else filteredLogs.forEach((log) => next.add(log.id));
+      return next;
+    });
+  };
+
+  const handleDelete = async () => {
+    const ids = [...selected];
+    if (!ids.length) return;
+    setDeleting(true);
+    try {
+      await auditService.deleteLogs(ids);
+      await auditService.log(AUDIT_ACTIONS.AUDIT_LOG_DELETED, user?.uid, { count: ids.length });
+      setSelected(new Set());
+      setConfirmDelete(false);
+      loadLogs();
+    } catch (err) {
+      console.error('Failed to delete logs:', err);
+    }
+    setDeleting(false);
+  };
+
   const formatTimestamp = (ts) => {
     if (!ts) return '—';
     if (ts?.toDate) return ts.toDate().toLocaleString();
@@ -149,6 +204,12 @@ export default function AuditLogViewer() {
   };
 
   const logColumns = [
+    {
+      key: 'select',
+      label: '',
+      headerRender: () => <SelectionCheckbox checked={allSelected} onChange={toggleSelectAll} />,
+      render: (log) => <SelectionCheckbox checked={selected.has(log.id)} onChange={() => toggleSelect(log)} />,
+    },
     { key: 'timestamp', label: 'Timestamp', render: (log) => <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">{formatTimestamp(log.timestamp)}</span> },
     { key: 'action', label: 'Action', render: (log) => <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400">{log.action}</span> },
     { key: 'user', label: 'User', render: (log) => <span className="text-gray-900 dark:text-white">{log.userEmail || log.userId || '—'}</span> },
@@ -187,6 +248,25 @@ export default function AuditLogViewer() {
         <span className="text-sm text-gray-500 dark:text-gray-400 self-center whitespace-nowrap">{filteredLogs.length} result{filteredLogs.length !== 1 ? 's' : ''}</span>
       </div>
 
+      {selectedCount > 0 && (
+        <div className="flex items-center justify-between mb-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+          <div className="flex items-center gap-3">
+            <button onClick={toggleSelectAll} className="text-sm font-medium text-primary hover:underline">{allSelected ? 'Deselect all' : 'Select all'}</button>
+            <span className="text-sm text-gray-600 dark:text-gray-300">{selectedCount} selected</span>
+          </div>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            disabled={deleting}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20 transition-all disabled:opacity-50"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6" />
+            </svg>
+            Delete
+          </button>
+        </div>
+      )}
+
       <DataTable
         columns={logColumns}
         data={filteredLogs}
@@ -198,6 +278,18 @@ export default function AuditLogViewer() {
       />
 
       {selectedLog && <DetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />}
+
+      <ConfirmModal
+        isOpen={confirmDelete}
+        onClose={() => { if (!deleting) setConfirmDelete(false); }}
+        onConfirm={handleDelete}
+        isLoading={deleting}
+        variant="danger"
+        title={`Delete ${selectedCount} log${selectedCount > 1 ? 's' : ''}?`}
+        description="This will permanently delete the selected audit logs from Firebase. This action cannot be undone."
+        confirmText="Delete"
+        confirmLoadingText="Deleting..."
+      />
     </div>
   );
 }

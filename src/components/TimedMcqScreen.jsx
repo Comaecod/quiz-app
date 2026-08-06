@@ -10,12 +10,17 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
   const answersRef = useRef(answers);
   answersRef.current = answers;
   const [endTime, setEndTime] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const submittedRef = useRef(false);
   const startTime = useRef(Date.now());
   const mainRef = useRef(null);
 
   const { violation, countdown } = useFullscreenGuard({
     enabled: true,
     onViolation: useCallback(() => {
+      if (submittedRef.current) return;
+      submittedRef.current = true;
+      setSubmitting(true);
       onComplete(answersRef.current, Math.floor((Date.now() - startTime.current) / 1000));
     }, [onComplete]),
   });
@@ -63,11 +68,17 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
   };
 
   const handleTimeUp = useCallback(() => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    setSubmitting(true);
     const taken = Math.floor((Date.now() - startTime.current) / 1000);
     onComplete(answers, taken);
   }, [answers, onComplete]);
 
   const handleSubmit = useCallback(() => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    setSubmitting(true);
     const taken = Math.floor((Date.now() - startTime.current) / 1000);
     onComplete(answers, taken);
   }, [answers, onComplete]);
@@ -134,10 +145,18 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
               </button>
             ) : (
               <button
-                className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all flex items-center gap-2"
+                className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 onClick={handleSubmit}
+                disabled={submitting}
               >
-                Submit ✅
+                {submitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit ✅'
+                )}
               </button>
             )}
           </div>

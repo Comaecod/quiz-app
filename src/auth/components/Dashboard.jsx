@@ -19,7 +19,7 @@ export default function Dashboard() {
   const getCards = () => {
     const isStaffOrAbove = role === ROLES.SUPER_ADMIN || role === ROLES.ADMIN || role === ROLES.STAFF;
     const cards = [
-      { to: isStaffOrAbove ? '/dashboard/assessments' : '/assessments', icon: '📝', title: 'Assessments', desc: 'Take exams and assessments', color: 'from-blue-500 to-blue-600', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.STAFF, ROLES.STUDENT] },
+      { to: isStaffOrAbove ? '/dashboard/assessments' : '/assessments', icon: '📝', title: 'Assessments', desc: isStaffOrAbove ? 'Create and manage assessments' : 'Take exams and assessments', color: 'from-blue-500 to-blue-600', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.STAFF, ROLES.STUDENT] },
       { to: '/profile', icon: '👤', title: 'My Profile', desc: 'View and edit your profile', color: 'from-green-500 to-emerald-600', roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.STAFF, ROLES.STUDENT] },
     ];
 

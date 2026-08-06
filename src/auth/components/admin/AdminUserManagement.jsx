@@ -33,6 +33,7 @@ export default function AdminUserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(initialFormState);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -82,6 +83,49 @@ export default function AdminUserManagement() {
       loadUsers();
     } catch (err) {
       setFormError(err.message || 'Failed to create user');
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleEdit = (user) => {
+    setEditingId(user.id);
+    setForm({
+      email: user.email || '',
+      password: '',
+      displayName: user.displayName || '',
+      role: user.role || ROLES.STAFF,
+      roleSubtype: user.roleSubtype || '',
+      phone: user.phone || '',
+      forcePasswordChange: user.forcePasswordChange || false,
+    });
+    setShowCreateForm(true);
+    setFormError('');
+    setFormSuccess('');
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    setIsSubmitting(true);
+
+    try {
+      const updates = { ...form };
+      delete updates.email;
+      delete updates.password;
+      await userService.updateUser(editingId, updates);
+      await auditService.log(AUDIT_ACTIONS.USER_UPDATED, user?.uid, {
+        targetUserId: editingId,
+        targetEmail: form.email,
+        targetRole: form.role,
+      });
+      setFormSuccess(`User ${form.displayName || form.email} updated successfully!`);
+      setForm(initialFormState);
+      setShowCreateForm(false);
+      setEditingId(null);
+      loadUsers();
+    } catch (err) {
+      setFormError(err.message || 'Failed to update user');
     }
     setIsSubmitting(false);
   };
@@ -136,7 +180,7 @@ export default function AdminUserManagement() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => { setShowCreateForm(!showCreateForm); setFormError(''); setFormSuccess(''); }}
+            onClick={() => { setShowCreateForm(!showCreateForm); setEditingId(null); setForm(initialFormState); setFormError(''); setFormSuccess(''); }}
             className="px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all"
           >
             {showCreateForm ? 'Cancel' : '+ Create User'}
@@ -153,21 +197,22 @@ export default function AdminUserManagement() {
 
       {showCreateForm && (
         <div className="bg-white dark:bg-[#282843] rounded-xl border border-gray-200 dark:border-white/10 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Create New User</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{editingId ? 'Edit User' : 'Create New User'}</h2>
           {formError && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
               <p className="text-red-600 dark:text-red-400 text-sm">{formError}</p>
             </div>
           )}
-          <form onSubmit={handleCreateUser} className="space-y-4">
+          <form onSubmit={editingId ? handleUpdateUser : handleCreateUser} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="Email address *"
-                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-[#1e1e38] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                  required
+                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-[#1e1e38] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50"
+                  required={!editingId}
+                  disabled={!!editingId}
                 />
                 <input
                   type="password"
@@ -175,7 +220,7 @@ export default function AdminUserManagement() {
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Temporary password *"
                   className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-[#1e1e38] border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all"
-                  required
+                  required={!editingId}
                   minLength={6}
                 />
                 <input
@@ -221,7 +266,7 @@ export default function AdminUserManagement() {
               disabled={isSubmitting}
               className="px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create User'}
+              {isSubmitting ? 'Saving...' : editingId ? 'Update User' : 'Create User'}
             </button>
           </form>
         </div>
@@ -253,6 +298,7 @@ export default function AdminUserManagement() {
           )},
           { key: 'actions', label: 'Actions', className: 'text-center', render: (u) => (
             <div className="flex items-center justify-center gap-2">
+              <button onClick={() => handleEdit(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-all" title="Edit user">Edit</button>
               <button onClick={() => handleResetPassword(u.email)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-all" title="Send password reset">Reset Pwd</button>
               <button onClick={() => handleToggleStatus(u.id, u.status)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${u.status === USER_STATUS.ACTIVE ? 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20' : 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/20'}`}>{u.status === USER_STATUS.ACTIVE ? 'Deactivate' : 'Activate'}</button>
             </div>

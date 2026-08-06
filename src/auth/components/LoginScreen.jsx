@@ -71,6 +71,12 @@ export default function LoginScreen() {
       <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="w-full max-w-md">
           <div className="glass-card p-8 animate-slideUp text-center">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors mb-4"
+            >
+              ← Back to Home
+            </Link>
             <div className="text-5xl mb-4">✉️</div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Check Your Email</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-2">
@@ -96,10 +102,16 @@ export default function LoginScreen() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="w-full max-w-md">
-        <div className="glass-card p-8 animate-slideUp">
-          <div className="text-center mb-8">
-            <div className="text-5xl mb-4">🔐</div>
+        <div className="w-full max-w-md">
+          <div className="glass-card p-8 animate-slideUp">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors mb-4"
+            >
+              ← Back to Home
+            </Link>
+            <div className="text-center mb-8">
+              <div className="text-5xl mb-4">🔐</div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
             <p className="text-gray-500 dark:text-gray-400">Sign in to your account</p>
           </div>

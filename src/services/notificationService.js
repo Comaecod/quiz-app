@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, addDoc, query, where, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp, Timestamp, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const COLLECTION = 'notifications';
 
@@ -12,6 +12,30 @@ export async function addNotification({ title, message, expiresAt }) {
     isDeleted: false,
   });
   return docRef.id;
+}
+
+export async function getAllNotifications() {
+  const q = query(
+    collection(db, COLLECTION),
+    where('isDeleted', '==', false)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function updateNotification(id, { title, message, expiresAt }) {
+  const ref = doc(db, COLLECTION, id);
+  await updateDoc(ref, {
+    title,
+    message,
+    expiresAt: Timestamp.fromDate(new Date(expiresAt)),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteNotification(id) {
+  const ref = doc(db, COLLECTION, id);
+  await deleteDoc(ref);
 }
 
 export function subscribeToNotifications(callback) {

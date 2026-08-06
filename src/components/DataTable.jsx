@@ -31,7 +31,7 @@ export default function DataTable({
                 onClick={col.sortable && onSort ? () => onSort(col.key) : undefined}
                 className={`px-4 py-3 font-semibold ${col.sortable ? 'select-none cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors' : ''} ${sortKey === col.key ? 'text-primary' : ''} ${col.className || ''}`}
               >
-                {col.label}
+                {col.headerRender ? col.headerRender() : col.label}
                 {col.sortable && <SortIcon active={sortKey === col.key} direction={sortDir} />}
               </th>
             ))}

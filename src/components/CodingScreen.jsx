@@ -38,6 +38,7 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
   const [output, setOutput] = useState('');
   const [testResults, setTestResults] = useState(null);
   const [running, setRunning] = useState(false);
+  const [hasRunTests, setHasRunTests] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [outputTab, setOutputTab] = useState('output');
@@ -220,6 +221,7 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
     } catch (err) {
       setOutput(`Error: ${err.message}`);
     }
+    setHasRunTests(true);
     setRunning(false);
   }, [runAllTests, testCases]);
 
@@ -319,7 +321,7 @@ export default function CodingScreen({ config, studentInfo, onComplete }) {
           <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">{config?.subject}</span>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={handleSubmit} disabled={submitting || running} className="px-4 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-40 transition-all">
+          <button onClick={handleSubmit} disabled={submitting || running || (testCases.length > 0 && !hasRunTests)} title={!hasRunTests && testCases.length > 0 ? 'Run tests at least once before submitting' : undefined} className="px-4 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-40 transition-all">
             {submitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>

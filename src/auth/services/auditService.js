@@ -1,4 +1,4 @@
-import { collection, addDoc, query, orderBy, limit, getDocs, where, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, limit, getDocs, where, serverTimestamp, doc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 const AUDIT_COLLECTION = 'auditLogs';
@@ -7,6 +7,7 @@ export const AUDIT_ACTIONS = {
   LOGIN: 'login',
   LOGOUT: 'logout',
   USER_CREATED: 'user_created',
+  USER_UPDATED: 'user_updated',
   USER_ACTIVATED: 'user_activated',
   USER_DEACTIVATED: 'user_deactivated',
   PASSWORD_RESET: 'password_reset',
@@ -19,6 +20,10 @@ export const AUDIT_ACTIONS = {
   STUDENT_UPDATED: 'student_updated',
   STUDENT_ACTIVATED: 'student_activated',
   STUDENT_DEACTIVATED: 'student_deactivated',
+  NOTIFICATION_CREATED: 'notification_created',
+  NOTIFICATION_UPDATED: 'notification_updated',
+  NOTIFICATION_DELETED: 'notification_deleted',
+  AUDIT_LOG_DELETED: 'audit_log_deleted',
 };
 
 export const auditService = {
@@ -66,5 +71,18 @@ export const auditService = {
 
   getLogsByAction: async (action, maxLogs = 50) => {
     return auditService.getLogs({ action, limit: maxLogs });
+  },
+
+  deleteLog: async (id) => {
+    await deleteDoc(doc(db, AUDIT_COLLECTION, id));
+  },
+
+  deleteLogs: async (ids) => {
+    if (!ids?.length) return;
+    const batch = writeBatch(db);
+    ids.forEach((id) => {
+      batch.delete(doc(db, AUDIT_COLLECTION, id));
+    });
+    await batch.commit();
   },
 };
