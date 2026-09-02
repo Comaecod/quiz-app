@@ -82,6 +82,29 @@ export const userService = {
       updatedAt: serverTimestamp(),
     };
     await updateDoc(userRef, data);
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'profileImage')) {
+      try {
+        const snap = await getDoc(userRef);
+        const profile = snap.exists() ? snap.data() : null;
+        if (profile?.role === ROLES.STAFF && profile?.staffId) {
+          const avatarRef = doc(db, 'staffAvatars', profile.staffId);
+          const url = String(updates.profileImage ?? '').trim();
+          if (url) {
+            await setDoc(avatarRef, {
+              staffId: profile.staffId,
+              profileImage: url,
+              updatedAt: serverTimestamp(),
+            });
+          } else {
+            await deleteDoc(avatarRef);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to sync staff avatar:', e);
+      }
+    }
+
     return { id: uid, ...data };
   },
 

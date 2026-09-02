@@ -12,6 +12,7 @@ import BetaBanner from './components/BetaBanner';
 import MainLayout from './components/MainLayout';
 import HomeScreen from './components/HomeScreen';
 import DashboardLayout from './components/admin/AdminLayout';
+import { StaffAssetProvider } from './components/StaffComponents';
 
 const ChatBot = lazy(() => import('./components/ChatBot'));
 const NotificationWidget = lazy(() => import('./components/NotificationWidget'));
@@ -39,6 +40,7 @@ const ForgotPassword = lazy(() => import('./auth/components/ForgotPassword'));
 const ResetPassword = lazy(() => import('./auth/components/ResetPassword'));
 const Unauthorized = lazy(() => import('./auth/components/Unauthorized'));
 const ProfileScreen = lazy(() => import('./auth/components/ProfileScreen'));
+const ForcePasswordChangeGate = lazy(() => import('./auth/components/ForcePasswordChangeGate'));
 const Dashboard = lazy(() => import('./auth/components/Dashboard'));
 const EmailLinkCallback = lazy(() => import('./auth/components/EmailLinkCallback'));
 const AdminUserManagement = lazy(() => import('./auth/components/admin/AdminUserManagement'));
@@ -75,11 +77,15 @@ function App() {
 
   return (
     <BrowserRouter basename="/">
+      <StaffAssetProvider>
       <AuthProvider>
       <AdminAuthProvider>
       <NotificationProvider>
       <SankaraProvider>
         <BetaBanner />
+        <Suspense fallback={<AuthFallback />}>
+          <ForcePasswordChangeGate />
+        </Suspense>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={withLayout(HomeScreen)} />
@@ -232,6 +238,7 @@ function App() {
       </NotificationProvider>
       </AdminAuthProvider>
       </AuthProvider>
+      </StaffAssetProvider>
     </BrowserRouter>
   );
 }

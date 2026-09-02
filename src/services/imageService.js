@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, limit, startAfter, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, limit, startAfter, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 const COLLECTION = 'skksv-images';
 
@@ -35,6 +35,21 @@ export const getImagesByCategory = async (category, subCategory) => {
   const snapshot = await getDocs(q);
   const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   return items.sort((a, b) => (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0));
+};
+
+const AVATAR_COLLECTION = 'staffAvatars';
+
+export const subscribeStaffAvatars = (callback) => {
+  return onSnapshot(
+    collection(db, AVATAR_COLLECTION),
+    (snapshot) => {
+      const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      callback(items);
+    },
+    (error) => {
+      console.error('staffAvatars subscription failed:', error);
+    }
+  );
 };
 
 export const getImagesPaginated = async ({ pageSize = 12, lastDoc, category }) => {

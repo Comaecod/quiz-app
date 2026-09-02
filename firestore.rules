@@ -56,7 +56,7 @@ service cloud.firestore {
       allow update: if isAdmin()
         || (isStaff() && resource.data.role == 'student')
         || (isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['displayName', 'phone', 'profileImage', 'customFields']));
+          .hasOnly(['displayName', 'phone', 'profileImage', 'customFields', 'forcePasswordChange', 'updatedAt', 'lastLoginAt']));
       allow delete: if isSuperAdmin();
     }
 
@@ -115,6 +115,15 @@ service cloud.firestore {
     match /skksv-images/{imageId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Staff avatars (public profile photos shown on the staff directory)
+    match /staffAvatars/{staffId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        || (isStaff() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.staffId == staffId);
+      allow delete: if isAdmin()
+        || (isStaff() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.staffId == staffId);
     }
 
     // Notifications collection

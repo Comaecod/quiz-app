@@ -1,8 +1,8 @@
+import { useState, useEffect, useMemo, createContext, useContext, memo } from 'react';
 import { motion } from 'framer-motion';
 import staffData from '../data/staffDirectory.json';
-import { getImagesByCategory } from '../services/imageService';
+import { getImagesByCategory, subscribeStaffAvatars } from '../services/imageService';
 import vvPhoto from '../assets/employees/vv.jpg';
-import apPhoto from '../assets/employees/ap.jpeg';
 
 const capitalize = (str) => {
   if (!str) return '';
@@ -26,26 +26,46 @@ const getAvatarText = (person) => {
   return parts.slice(0, 3).map(p => p[0].toUpperCase()).join('');
 };
 
-let staffPhotoMap = {
-  'staff-13': apPhoto,
-  'executive-1': vvPhoto,
-};
+const StaffAssetContext = createContext({ avatars: {}, photos: {} });
 
-export const initStaffPhotos = async () => {
-  try {
-    const items = await getImagesByCategory('staff');
-    if (items.length === 0) return;
-    const newMap = {};
-    items.forEach(item => {
-      if (item.subCategory) newMap[item.subCategory] = item.url;
+export const StaffAssetProvider = ({ children }) => {
+  const [avatars, setAvatars] = useState({});
+  const [photos, setPhotos] = useState({ 'executive-1': vvPhoto });
+
+  useEffect(() => {
+    const unsub = subscribeStaffAvatars((items) => {
+      const newMap = {};
+      items.forEach(item => {
+        if (item.staffId && item.profileImage) newMap[item.staffId] = item.profileImage;
+      });
+      setAvatars(newMap);
     });
-    if (Object.keys(newMap).length > 0) staffPhotoMap = { ...staffPhotoMap, ...newMap };
-  } catch (e) {
-    // fallback to static
-  }
+
+    getImagesByCategory('staff')
+      .then(items => {
+        const newMap = {};
+        items.forEach(item => {
+          if (item.subCategory) newMap[item.subCategory] = item.url;
+        });
+        if (Object.keys(newMap).length > 0) setPhotos(prev => ({ ...prev, ...newMap }));
+      })
+      .catch(() => {});
+
+    return unsub;
+  }, []);
+
+  const value = useMemo(() => ({ avatars, photos }), [avatars, photos]);
+
+  return (
+    <StaffAssetContext.Provider value={value}>
+      {children}
+    </StaffAssetContext.Provider>
+  );
 };
 
-export const Avatar = ({ person, size = 'md' }) => {
+export const Avatar = memo(({ person, size = 'md' }) => {
+  const { avatars, photos } = useContext(StaffAssetContext);
+
   const sizeClasses = {
     sm: 'w-10 h-10 text-[9px]',
     md: 'w-14 h-14 text-[10px]',
@@ -64,7 +84,7 @@ export const Avatar = ({ person, size = 'md' }) => {
 
   const colorIndex = person.name?.charCodeAt(0) % bgColors.length || 0;
 
-  const photoSrc = staffPhotoMap[person.id] || null;
+  const photoSrc = avatars[person.id] || photos[person.id] || null;
 
   if (photoSrc) {
     return (
@@ -79,17 +99,17 @@ export const Avatar = ({ person, size = 'md' }) => {
       <span className="font-bold text-white">{getAvatarText(person)}</span>
     </div>
   );
-};
+});
 
-export const PersonCard = ({ person, onClick }) => {
+export const PersonCard = memo(({ person, onClick }) => {
   const displayName = capitalize(person.name);
   const salutation = person.salutation === 'Mr' ? 'Mr.' : person.salutation === 'Mrs' ? 'Mrs.' : '';
   const isOnLeave = person.onLeave;
 
   return (
     <motion.div
-      className={`glass-card p-4 w-64 h-32 flex flex-col justify-center cursor-pointer ${isOnLeave ? 'opacity-50 grayscale' : ''}`}
-      whileHover={isOnLeave ? {} : { scale: 1.02, boxShadow: '0 8px 30px rgba(102, 126, 234, 0.3)' }}
+      className={`glass-card p-4 w-64 h-32 flex flex-col justify-center cursor-pointer hover:shadow-xl transition-shadow ${isOnLeave ? 'opacity-50 grayscale' : ''}`}
+      whileHover={isOnLeave ? {} : { scale: 1.02 }}
       onClick={() => !isOnLeave && onClick(person)}
     >
       <div className="flex items-center gap-3">
@@ -111,7 +131,7 @@ export const PersonCard = ({ person, onClick }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 export const getHierarchy = (person) => {
   const hierarchy = [];

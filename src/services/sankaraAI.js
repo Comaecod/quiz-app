@@ -391,8 +391,17 @@ function buildCalendarContext() {
 
 const CALENDAR_CONTEXT = buildCalendarContext();
 
+const GROQ_MODELS = [
+  'groq/compound',
+  'qwen/qwen3.8-27b',
+  'openai/gpt-oss-120b',
+];
+
 async function groqQuery(userMessage, context) {
   const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  const currentPageNote = context.currentPage
+    ? `\nCurrent page context: The user is currently viewing the "${context.currentPage}" page of the app. When asked "what page am I on" or similar, state this page. Never guess a different page. Use it for navigation help.`
+    : '';
   const systemPrompt = `You are Sankara, a friendly and knowledgeable AI assistant for ${SCHOOL.name} (${SCHOOL.shortName}). 
 
 Key information about the school:
@@ -438,7 +447,7 @@ If a user asks about a specific staff member, teacher, or subject, use this list
 
 ${CALENDAR_CONTEXT}
 
-If a user asks about upcoming events, holidays, exam schedules, or competitions, answer from this calendar.`;
+If a user asks about upcoming events, holidays, exam schedules, or competitions, answer from this calendar.${currentPageNote}`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -446,23 +455,35 @@ If a user asks about upcoming events, holidays, exam schedules, or competitions,
     { role: 'user', content: userMessage }
   ];
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages,
-      temperature: 0.7,
-      max_tokens: 500,
-    }),
-  });
+  let lastError = null;
+  for (const model of GROQ_MODELS) {
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      });
 
-  if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
-  const data = await res.json();
-  return { text: data.choices[0].message.content, source: 'groq' };
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => null);
+        lastError = new Error(`${model} failed: ${res.status} ${errBody?.error?.message || ''}`);
+        continue;
+      }
+      const data = await res.json();
+      return { text: data.choices[0].message.content, source: 'groq', model };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError || new Error('Groq API error');
 }
 
 export async function getAIResponse(userMessage, context = {}) {

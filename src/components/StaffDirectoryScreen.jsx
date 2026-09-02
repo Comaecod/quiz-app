@@ -1,17 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import staffData from '../data/staffDirectory.json';
-import { Avatar, PersonCard, capitalize, initStaffPhotos } from './StaffComponents';
+import { Avatar, PersonCard, capitalize } from './StaffComponents';
 import PersonModal from './PersonModal';
 
-const SectionWithConnector = ({ title, icon, count, children, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
-    className="flex flex-col items-center"
-  >
+const SectionWithConnector = ({ title, icon, count, children }) => (
+  <div className="flex flex-col items-center">
     <div className="flex items-center gap-3 mb-4">
       <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary/40" />
       <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10">
@@ -24,37 +19,31 @@ const SectionWithConnector = ({ title, icon, count, children, delay = 0 }) => (
     <div className="flex flex-wrap gap-4 justify-center">
       {children}
     </div>
-  </motion.div>
+  </div>
 );
+
+const CardButton = memo(({ person, size = 'lg', onClick }) => (
+  <motion.button
+    className="glass-card p-4 flex flex-col items-center cursor-pointer w-56 h-36 hover:shadow-xl transition-shadow"
+    whileHover={{ scale: 1.05 }}
+    onClick={() => onClick(person)}
+  >
+    <Avatar person={person} size={size} />
+    <h3 className="mt-3 font-bold text-gray-900 dark:text-white text-sm text-center line-clamp-2 break-words" style={{ maxWidth: '180px' }}>
+      {person.salutation === 'Mr' ? 'Mr.' : 'Mrs.'} {capitalize(person.name)}
+    </h3>
+    <p className="text-xs text-primary/80">{person.designation}</p>
+  </motion.button>
+));
 
 const StaffDirectoryScreen = () => {
   const { correspondent, principal, siteSupervisor, executiveAssistant, adminTeam, staff } = staffData;
   const [selectedPerson, setSelectedPerson] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => { initStaffPhotos(); }, []);
-
-  const handlePersonClick = (person) => {
+  const handlePersonClick = useCallback((person) => {
     setSelectedPerson(person);
-  };
-
-  const closeModal = () => {
-    setSelectedPerson(null);
-  };
-
-  const CardButton = ({ person, size = 'lg' }) => (
-    <motion.button
-      className="glass-card p-4 flex flex-col items-center cursor-pointer w-56 h-36"
-      whileHover={{ scale: 1.05, boxShadow: '0 8px 30px rgba(102, 126, 234, 0.3)' }}
-      onClick={() => handlePersonClick(person)}
-    >
-      <Avatar person={person} size={size} />
-      <h3 className="mt-3 font-bold text-gray-900 dark:text-white text-sm text-center line-clamp-2 break-words" style={{ maxWidth: '180px' }}>
-        {person.salutation === 'Mr' ? 'Mr.' : 'Mrs.'} {capitalize(person.name)}
-      </h3>
-      <p className="text-xs text-primary/80">{person.designation}</p>
-    </motion.button>
-  );
+  }, []);
 
   return (
     <motion.div
@@ -83,14 +72,9 @@ const StaffDirectoryScreen = () => {
       </motion.div>
 
       <div className="px-4 space-y-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex justify-center"
-        >
-          <CardButton person={correspondent} size="lg" />
-        </motion.div>
+        <div className="flex justify-center">
+          <CardButton person={correspondent} size="lg" onClick={handlePersonClick} />
+        </div>
 
         <div className="flex justify-center">
           <div className="flex flex-col items-center">
@@ -100,31 +84,13 @@ const StaffDirectoryScreen = () => {
         </div>
 
         <div className="flex justify-center gap-8 flex-wrap">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <CardButton person={principal} size="lg" />
-          </motion.div>
+          <CardButton person={principal} size="lg" onClick={handlePersonClick} />
 
           {siteSupervisor && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.25 }}
-            >
-              <CardButton person={siteSupervisor} size="lg" />
-            </motion.div>
+            <CardButton person={siteSupervisor} size="lg" onClick={handlePersonClick} />
           )}
           {executiveAssistant && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <CardButton person={executiveAssistant} size="lg" />
-            </motion.div>
+            <CardButton person={executiveAssistant} size="lg" onClick={handlePersonClick} />
           )}
         </div>
 
@@ -143,16 +109,9 @@ const StaffDirectoryScreen = () => {
           <div className="h-px w-full max-w-lg bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         </div>
 
-        <SectionWithConnector title="Teaching Staff" icon="👨‍🏫" count={staff.length} delay={0.3}>
-          {staff.map((person, index) => (
-            <motion.div
-              key={person.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 + index * 0.05 }}
-            >
-              <PersonCard person={person} onClick={handlePersonClick} />
-            </motion.div>
+        <SectionWithConnector title="Teaching Staff" icon="👨‍🏫" count={staff.length}>
+          {staff.map((person) => (
+            <PersonCard key={person.id} person={person} onClick={handlePersonClick} />
           ))}
         </SectionWithConnector>
 
@@ -160,23 +119,16 @@ const StaffDirectoryScreen = () => {
           <div className="h-px w-full max-w-lg bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         </div>
 
-        <SectionWithConnector title="Admin Team" icon="👔" count={adminTeam.length} delay={0.5}>
-          {adminTeam.map((person, index) => (
-            <motion.div
-              key={person.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 + index * 0.05 }}
-            >
-              <PersonCard person={person} onClick={handlePersonClick} />
-            </motion.div>
+        <SectionWithConnector title="Admin Team" icon="👔" count={adminTeam.length}>
+          {adminTeam.map((person) => (
+            <PersonCard key={person.id} person={person} onClick={handlePersonClick} />
           ))}
         </SectionWithConnector>
       </div>
 
       <AnimatePresence>
         {selectedPerson && (
-          <PersonModal person={selectedPerson} onClose={closeModal} />
+          <PersonModal person={selectedPerson} onClose={() => setSelectedPerson(null)} />
         )}
       </AnimatePresence>
     </motion.div>

@@ -30,7 +30,8 @@ const pageNameMap = {
 };
 
 function getPageName(pathname) {
-  const match = Object.entries(pageNameMap).find(([path]) => pathname.startsWith(path));
+  if (pathname === '/') return 'Home';
+  const match = Object.entries(pageNameMap).find(([path]) => path !== '/' && pathname.startsWith(path));
   return match ? match[1] : '';
 }
 
@@ -84,6 +85,12 @@ function ChatBot({ isOpen, onToggle }) {
   useEffect(() => {
     if (isOpen && inputRef.current) inputRef.current.focus();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isLoading && isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isLoading, isOpen]);
 
   const handleSend = useCallback(async () => {
     const text = inputValue.trim();

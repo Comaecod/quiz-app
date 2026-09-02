@@ -502,18 +502,6 @@
                       "email":  "goutham12ab@gmail.com"
                   },
                   {
-                      "id":  "staff-4",
-                      "name":  "Gollapudi Nagalakshmi",
-                      "salutation":  "Mrs",
-                      "gender":  "F",
-                      "alias":  "GNL",
-                      "designation":  "Teacher",
-                      "subject":  "Chemistry",
-                      "onLeave":  true,
-                      "qualifications":  "SSC, Intermediate, B.Sc.",
-                      "career":  "Has a B.Sc. degree. Teaches Chemistry at SKKSV. Currently on leave."
-                  },
-                  {
                       "id":  "staff-5",
                       "name":  "Voduri Nagaraju",
                       "salutation":  "Mr",
@@ -1600,6 +1588,17 @@
                       "subject":  "Physical Education",
                       "qualifications":  null,
                       "career":  "Serves as a Physical Training Instructor, handling Physical Education at SKKSV."
+                  },
+                  {
+                      "id":  "staff-21",
+                      "name":  "T Sampath Kumar Reddy",
+                      "salutation":  "Mr",
+                      "gender":  "M",
+                      "alias":  "SKR",
+                      "designation":  "Teacher",
+                      "subject":  "Music",
+                      "qualifications":  "Class X, Intermediate, B.A. Music, M.A. Music",
+                      "career":  "Qualified in Music with Class X, Intermediate, B.A. Music and M.A. Music. Teaches Music at SKKSV."
                   }
               ]
 }

@@ -14,7 +14,7 @@ const PersonModal = ({ person, onClose }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -22,6 +22,7 @@ const PersonModal = ({ person, onClose }) => {
     >
       <motion.div
         className="glass-card w-full max-w-4xl max-h-[90vh]"
+        style={{ backgroundColor: 'var(--bg-primary)' }}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}

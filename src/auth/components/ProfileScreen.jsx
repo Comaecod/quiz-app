@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
 import { userService } from '../services/userService';
 import { uploadAvatar } from '../../services/cloudinaryService';
+import ConfirmModal from '../../components/ConfirmModal';
 import ChangePassword from './ChangePassword';
 
 export default function ProfileScreen() {
@@ -16,6 +17,8 @@ export default function ProfileScreen() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -56,6 +59,21 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleRemovePhoto = async () => {
+    setShowRemoveConfirm(false);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setDeleting(true);
+    try {
+      await userService.updateUser(user.uid, { profileImage: '' });
+      if (refreshProfile) await refreshProfile();
+    } catch (err) {
+      console.error('Failed to remove photo:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const avatarUrl = previewUrl || userProfile?.profileImage;
 
   if (!user) return null;
@@ -88,6 +106,21 @@ export default function ProfileScreen() {
             >
               📷
             </button>
+            {avatarUrl && (
+              <button
+                onClick={() => setShowRemoveConfirm(true)}
+                disabled={uploading || deleting}
+                className="absolute -bottom-1 -left-1 w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center border-2 border-white dark:border-slate-900 hover:bg-red-400 transition-all disabled:opacity-50"
+                title="Remove photo"
+                aria-label="Remove photo"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
+              </button>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -104,15 +137,21 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        {uploading && (
+        {(uploading || deleting) && (
           <div className="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
             <div className="flex items-center justify-between text-sm text-blue-600 dark:text-blue-400 mb-2">
-              <span>Uploading...</span>
-              <span>{uploadProgress}%</span>
+              <span>{deleting ? 'Deleting photo...' : 'Uploading...'}</span>
+              {!deleting && <span>{uploadProgress}%</span>}
             </div>
-            <div className="w-full h-2 bg-blue-200 dark:bg-blue-500/20 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-            </div>
+            {deleting ? (
+              <div className="flex justify-center py-1">
+                <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            ) : (
+              <div className="w-full h-2 bg-blue-200 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+              </div>
+            )}
           </div>
         )}
 
@@ -184,6 +223,18 @@ export default function ProfileScreen() {
           🚪 Sign Out
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showRemoveConfirm}
+        onClose={() => setShowRemoveConfirm(false)}
+        onConfirm={handleRemovePhoto}
+        title="Remove profile photo?"
+        description="Your photo will be removed from your profile and the staff directory."
+        confirmText="Remove"
+        confirmLoadingText="Removing..."
+        isLoading={deleting}
+        variant="danger"
+      />
     </div>
   );
 }
