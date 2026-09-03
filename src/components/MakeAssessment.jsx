@@ -10,7 +10,7 @@ import { SUBJECTS } from '../config/schoolConfig';
 import { parseQuestions, questionsToMarkdown, parseSections, sectionsToMarkdown } from '../utils/questionParser';
 import staffData from '../data/staffDirectory.json';
 
-const STAFF_NAMES = (staffData.staff || []).map(s => s.name).filter(Boolean).sort();
+const STAFF_NAMES = (staffData.staff || []).map(s => s.name).filter(Boolean).concat(['Challa Rama Rao']).sort();
 
 const DEFAULT_QUESTIONS = `[
   {

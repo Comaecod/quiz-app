@@ -355,7 +355,7 @@ export default function AdminResults() {
 
   const filtered = useMemo(() => {
     let data = results.filter(r => {
-      if (userProfile?.role === 'staff' && r.createdBy !== userProfile.id) return false;
+      if (userProfile?.role === 'staff' && !(userProfile?.roleSubtype === 'principal') && r.createdBy !== userProfile.id) return false;
       if (classFilter !== 'all' && r.className !== classFilter) return false;
       if (subjectFilter !== 'all' && r.subject !== subjectFilter) return false;
       if (formatFilter !== 'all' && r.type !== formatFilter) return false;

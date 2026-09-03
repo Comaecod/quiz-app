@@ -85,6 +85,10 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
   };
 
   const handleDelete = async (item) => {
+    if (!canDelete(item)) {
+      setStatus('You do not have permission to delete this assessment');
+      return;
+    }
     if (confirmDelete !== item.id) { setConfirmDelete(item.id); return; }
     setConfirmDelete(null);
     try {
@@ -100,6 +104,12 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
   };
 
   const handleEdit = (item) => navigate(`/dashboard/assessments/edit/${item.id}`);
+
+  const canDelete = (item) => {
+    if (userProfile?.role === 'super_admin') return true;
+    if (userProfile?.id && item.createdBy === userProfile.id) return true;
+    return false;
+  };
 
   const filterOptions = useMemo(() => {
     const subjects = new Set();
@@ -119,7 +129,9 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
   const filtered = [...assessments]
     .filter(item => {
       if (userProfile && userProfile.role !== 'super_admin' && userProfile.role !== 'admin') {
-        if (item.createdBy !== userProfile.id) return false;
+        if (!(userProfile.role === 'staff' && userProfile.roleSubtype === 'principal')) {
+          if (item.createdBy !== userProfile.id) return false;
+        }
       }
       const status = getAssessmentStatus(item);
       if (statusFilter !== 'all' && status !== statusFilter) return false;
@@ -239,9 +251,11 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
               return (
                 <div className="flex items-center gap-2">
                   <button className="px-2 py-1 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30" onClick={(e) => { e.stopPropagation(); handleEdit(item); }}>Edit</button>
-                  <button className={`px-2 py-1 rounded-lg text-xs font-medium ${isConfirming ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 animate-pulse' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20'}`} onClick={(e) => { e.stopPropagation(); handleDelete(item); }}>
-                    {isConfirming ? 'Confirm?' : 'Delete'}
-                  </button>
+                  {canDelete(item) && (
+                    <button className={`px-2 py-1 rounded-lg text-xs font-medium ${isConfirming ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 animate-pulse' : 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20'}`} onClick={(e) => { e.stopPropagation(); handleDelete(item); }}>
+                      {isConfirming ? 'Confirm?' : 'Delete'}
+                    </button>
+                  )}
                 </div>
               );
             }},

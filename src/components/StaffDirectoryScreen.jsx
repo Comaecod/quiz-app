@@ -89,9 +89,6 @@ const StaffDirectoryScreen = () => {
           {siteSupervisor && (
             <CardButton person={siteSupervisor} size="lg" onClick={handlePersonClick} />
           )}
-          {executiveAssistant && (
-            <CardButton person={executiveAssistant} size="lg" onClick={handlePersonClick} />
-          )}
         </div>
 
         <div className="flex justify-center">
@@ -109,7 +106,10 @@ const StaffDirectoryScreen = () => {
           <div className="h-px w-full max-w-lg bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         </div>
 
-        <SectionWithConnector title="Teaching Staff" icon="👨‍🏫" count={staff.length}>
+        <SectionWithConnector title="Teaching Staff" icon="👨‍🏫" count={staff.length + (executiveAssistant ? 1 : 0)}>
+          {executiveAssistant && (
+            <PersonCard person={executiveAssistant} onClick={handlePersonClick} />
+          )}
           {staff.map((person) => (
             <PersonCard key={person.id} person={person} onClick={handlePersonClick} />
           ))}
