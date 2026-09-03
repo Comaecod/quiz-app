@@ -122,6 +122,8 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
 
   const [showInstructions, setShowInstructions] = useState(false);
 
+  const [createdBy, setCreatedBy] = useState(null);
+
   const { id } = useParams();
   const isEditing = !!id;
 
@@ -148,6 +150,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
         setClassNum(data.classNum || '4');
         setTeacher(data.teacher || '');
         setInvigilator(data.invigilator || '');
+        setCreatedBy(data.createdBy || userProfile?.id || null);
         setEnabled(data.enabled !== false);
         setAllowGuest(data.allowGuest === true);
         setIsTimed(!!data.startDateTime || !!data.endDateTime);
@@ -225,7 +228,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
       totalMarks: isProject ? Number(projectTotalMarks) || 0 : isCoding ? Number(codingTotalMarks) || 0 : hasValidSections ? sections.reduce((sum, s) => sum + Number(s.count) * Number(s.marks), 0) : questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0),
       wrongAnswerPenaltyFraction: Number(wrongAnswerPenaltyFraction),
       assessmentFormat,
-      createdBy: userProfile?.id || null,
+      createdBy: isEditing ? (createdBy || userProfile?.id || null) : (userProfile?.id || null),
       timeLimitMinutes: Number(timeLimitMinutes),
       startDateTime: isTimed && startDateTime ? new Date(startDateTime).toISOString() : '',
       endDateTime: isTimed && endDateTime ? new Date(endDateTime).toISOString() : '',

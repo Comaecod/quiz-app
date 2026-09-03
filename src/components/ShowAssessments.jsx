@@ -107,6 +107,7 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
 
   const canDelete = (item) => {
     if (userProfile?.role === 'super_admin') return true;
+    if (userProfile?.role === 'staff' && userProfile?.roleSubtype === 'principal') return false;
     if (userProfile?.id && item.createdBy === userProfile.id) return true;
     return false;
   };
