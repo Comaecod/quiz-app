@@ -6,6 +6,7 @@ import { ROLES } from '../../auth/types/roles';
 import { auditService, AUDIT_ACTIONS } from '../../auth/services/auditService';
 import CustomSelect from '../CustomSelect';
 import DataTable from '../DataTable';
+import ResultsAnalytics from './ResultsAnalytics';
 
 const buildRow = (d) => {
   const r = d.results || {};
@@ -235,6 +236,7 @@ export default function AdminResults() {
   const [sortDir, setSortDir] = useState('desc');
   const [selected, setSelected] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(true);
 
   const isStudentView = userProfile?.role === ROLES.STUDENT;
 
@@ -518,6 +520,25 @@ export default function AdminResults() {
           onSort={handleSort}
           onRowClick={(r) => setSelected(r)}
         />
+      )}
+
+      {filtered.length > 0 && (
+        <div className="mt-4 rounded-2xl bg-white dark:bg-[#282843] border border-gray-200 dark:border-white/10 overflow-hidden">
+          <button
+            onClick={() => setShowAnalysis(v => !v)}
+            className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+          >
+            <span>📊 Analysis <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 ml-1">({filtered.length} submission{filtered.length === 1 ? '' : 's'})</span></span>
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showAnalysis ? '' : '-rotate-90'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showAnalysis && (
+            <div className="border-t border-gray-200 dark:border-white/10 p-4">
+              <ResultsAnalytics rows={filtered} />
+            </div>
+          )}
+        </div>
       )}
 
       {selected && <DetailModal submission={selected} onClose={() => setSelected(null)} onSaved={fetchAll} readOnly={isStudentView} />}
