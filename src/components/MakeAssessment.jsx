@@ -8,9 +8,8 @@ import CustomSelect from './CustomSelect';
 import { resolveSubjectValue } from '../utils/format';
 import { SUBJECTS } from '../config/schoolConfig';
 import { parseQuestions, questionsToMarkdown, parseSections, sectionsToMarkdown } from '../utils/questionParser';
-import staffData from '../data/staffDirectory.json';
-
-const STAFF_NAMES = (staffData.staff || []).map(s => s.name).filter(Boolean).concat(['Challa Rama Rao']).sort();
+import { userService } from '../auth/services/userService';
+import { ROLES, USER_STATUS } from '../auth/types/roles';
 
 const DEFAULT_QUESTIONS = `[
   {
@@ -84,7 +83,8 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
   const [classNum, setClassNum] = useState('4');
   const { userProfile } = useAuth();
   const [teacher, setTeacher] = useState(userProfile?.displayName || 'Unknown');
-  const [invigilator, setInvigilator] = useState('');
+  const [invigilator, setInvigilator] = useState(userProfile?.displayName || '');
+  const [staffNames, setStaffNames] = useState([]);
   const [enabled, setEnabled] = useState(true);
   const [allowGuest, setAllowGuest] = useState(false);
 
@@ -186,6 +186,28 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
       }
     })();
   }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const users = await userService.getAllUsers({ role: ROLES.STAFF, status: USER_STATUS.ACTIVE });
+        if (cancelled) return;
+        setStaffNames([...new Set(users.map(u => u.displayName).filter(Boolean))].sort());
+      } catch (err) {
+        console.warn('Failed to load staff list:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const invigilatorOptions = useMemo(() => {
+    const names = new Set(staffNames);
+    if (userProfile?.displayName) names.add(userProfile.displayName);
+    if (teacher) names.add(teacher);
+    if (invigilator) names.add(invigilator);
+    return [{ value: '', label: '— None —' }, ...[...names].sort().map(n => ({ value: n, label: n }))];
+  }, [staffNames, userProfile?.displayName, teacher, invigilator]);
 
   const formatTimestamp = (ts) => {
     if (!ts) return '';
@@ -382,7 +404,7 @@ const MakeAssessment = ({ skipInitialAuth, readOnly } = {}) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Invigilator</label>
-                  <CustomSelect value={invigilator} onChange={setInvigilator} options={[{ value: '', label: '— None —' }, ...STAFF_NAMES.map(n => ({ value: n, label: n }))]} className="w-full" disabled={readOnly} />
+                  <CustomSelect value={invigilator} onChange={setInvigilator} options={invigilatorOptions} className="w-full" disabled={readOnly} />
                 </div>
               </div>
             </div>
