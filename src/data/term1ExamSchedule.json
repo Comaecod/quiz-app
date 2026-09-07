@@ -1,0 +1,84 @@
+{
+  "title": "Term-1 Exam Schedule",
+  "period": "September – October 2026",
+  "dates": ["19-09-26", "21-09-26", "23-09-26", "25-09-26", "28-09-26", "30-09-26", "01-09-26", "03-09-26"],
+  "rows": [
+    { "class": "IV", "subjects": ["-", "Sanskrit", "Hindi", "Maths", "English", "EVS", "Telugu", "Computers"] },
+    { "class": "V", "subjects": ["-", "Sanskrit", "Telugu", "EVS", "Hindi", "English", "Maths", "Computers"] },
+    { "class": "VI", "subjects": ["Computers", "3L", "English", "Maths", "Science", "Sanskrit", "Social Science", "2L"] },
+    { "class": "VII", "subjects": ["Computers", "3L", "Maths", "2L", "English", "Sanskrit", "Science", "Social Science"] },
+    { "class": "VIII", "subjects": ["Computers", "3L", "Social Science", "English", "2L", "Sanskrit", "Maths", "Science"] },
+    { "class": "IX", "subjects": ["Computers", "3L", "Science", "Social Science", "Maths", "Sanskrit", "English", "2L"] },
+    { "class": "X", "subjects": ["Computers", "Hindi", "Telugu", "Science", "English", "Sanskrit", "Maths", "Social Science"] }
+  ],
+  "teachers": {
+    "IV": {
+      "Sanskrit": "Arjun",
+      "Hindi": "Gnanarajasri",
+      "Maths": "Anjana",
+      "English": "Anjana",
+      "EVS": "Anjana",
+      "Telugu": "Pratyusha",
+      "Computers": "Sriram"
+    },
+    "V": {
+      "Sanskrit": "Arjun",
+      "Telugu": "Pratyusha",
+      "EVS": "Sujatha",
+      "Hindi": "Gnanarajasri",
+      "English": "Sujatha",
+      "Maths": "Anjana",
+      "Computers": "Sriram"
+    },
+    "VI": {
+      "Computers": "Sriram",
+      "3L": [["Hindi", "Gnanarajasri"], ["Telugu", "SankaraNarayana"]],
+      "English": "Sujatha",
+      "Maths": "Goutham",
+      "Science": "Nagaraju",
+      "Sanskrit": "Arjun",
+      "Social Science": "Renjith",
+      "2L": [["Hindi", "Gnanarajasri"], ["Telugu", "Pratyusha"]]
+    },
+    "VII": {
+      "Computers": "Sriram",
+      "3L": [["Hindi", "Geetha"], ["Telugu", "SankaraNarayana"]],
+      "Maths": "Goutham",
+      "2L": [["Hindi", "Geetha"], ["Telugu", "Pratyusha"]],
+      "English": "Sujatha",
+      "Sanskrit": "Arjun",
+      "Science": "Nagaraju",
+      "Social Science": "Renjith"
+    },
+    "VIII": {
+      "Computers": "Sriram",
+      "3L": [["Hindi", "Narsingh"], ["Telugu", "Pratyusha"]],
+      "Social Science": "Renjith",
+      "English": "Anand",
+      "2L": [["Hindi", "Geetha"], ["Telugu", "SankaraNarayana"]],
+      "Sanskrit": "Arjun",
+      "Maths": "Kameswari",
+      "Science": [["Biology", "Nagaraju"], ["Physics", "Kameswari"], ["Chemistry", "Kameswari"]]
+    },
+    "IX": {
+      "Computers": "Sriram",
+      "3L": [["Hindi", "Geetha"], ["Telugu", "Pratyusha"]],
+      "Science": [["Biology", "Nagaraju"], ["Physics", "Rama Rao"], ["Chemistry", "Kameswari"]],
+      "Social Science": "Venugopal",
+      "Maths": "Rama Rao",
+      "Sanskrit": "Arjun",
+      "English": "Anand",
+      "2L": [["Hindi", "Narsingh"], ["Telugu", "SankaraNarayana"]]
+    },
+    "X": {
+      "Computers": "Sriram",
+      "Hindi": "Narsingh",
+      "Telugu": "SankaraNarayana",
+      "Science": [["Biology", "Nagaraju"], ["Physics", "Rama Rao"], ["Chemistry", "Kameswari"]],
+      "English": "Anand",
+      "Sanskrit": "Arjun",
+      "Maths": "Rama Rao",
+      "Social Science": "Venugopal"
+    }
+  }
+}

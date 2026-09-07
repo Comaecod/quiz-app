@@ -14,6 +14,7 @@ const PUBLIC_NAV_ITEMS = [
     icon: '📖',
     children: [
       { to: '/academic-calendar', icon: '📅', label: 'Academic Calendar' },
+      { to: '/term-1-exam-schedule', icon: '📝', label: 'Term-1 Exam Schedule' },
     ]
   },
   {

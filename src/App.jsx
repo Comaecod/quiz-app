@@ -23,6 +23,7 @@ const GuestAssessmentsScreen = lazy(() => import('./components/GuestAssessmentsS
 const GalleryScreen = lazy(() => import('./components/GalleryScreen'));
 
 const AcademicCalendar = lazy(() => import('./components/AcademicCalendar'));
+const Term1ExamSchedule = lazy(() => import('./components/Term1ExamSchedule'));
 const ContactScreen = lazy(() => import('./components/ContactScreen'));
 const FeedbackScreen = lazy(() => import('./components/FeedbackScreen'));
 const FeedbackReportsScreen = lazy(() => import('./components/FeedbackReportsScreen'));
@@ -92,6 +93,7 @@ function App() {
           <Route path="/gallery" element={withLayout(GalleryScreen)} />
           <Route path="/contact" element={withLayout(ContactScreen)} />
           <Route path="/academic-calendar" element={withLayout(AcademicCalendar)} />
+          <Route path="/term-1-exam-schedule" element={withLayout(Term1ExamSchedule)} />
           <Route path="/feedback" element={withLayout(FeedbackScreen)} />
 
           {/* Auth Routes */}
