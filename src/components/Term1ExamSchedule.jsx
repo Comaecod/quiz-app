@@ -123,20 +123,20 @@ const Term1ExamSchedule = () => {
         </Fade>
 
         <Fade>
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
+          <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
             <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">🗓️ Date Sheet</h3>
               <span className="text-xs text-gray-500 dark:text-gray-400">Scroll sideways on small screens</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1024px] table-fixed text-sm">
+              <table className="table-fixed mx-auto text-sm">
                 <thead>
                   <tr className="bg-gradient-to-r from-primary/20 to-secondary/20 dark:from-primary/10 dark:to-secondary/10">
-                    <th className="sticky left-0 z-10 w-20 px-2 py-3 text-center font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap bg-white dark:bg-slate-800">Class</th>
+                    <th className="sticky left-0 z-10 w-16 px-2 py-2 h-16 text-center font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap bg-white dark:bg-slate-800">Class</th>
                     {SCHEDULE.dates.map((date, i) => {
                       const { weekday, dd, mm } = parseDate(date);
                       return (
-                        <th key={i} className="px-2 py-3 h-16 text-center font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                        <th key={i} className="w-20 px-1 py-2 h-16 text-center font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
                           <span className="block text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">{weekday}</span>
                           <span className="block text-sm">{dd} {MONTHS[mm - 1]}</span>
                         </th>
@@ -146,8 +146,8 @@ const Term1ExamSchedule = () => {
                 </thead>
                 <tbody>
                   {SCHEDULE.rows.map((row, i) => (
-                    <tr key={row.class} className={`border-t border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors ${i % 2 === 1 ? 'bg-gray-50/40 dark:bg-white/[0.02]' : ''}`}>
-                      <td className="sticky left-0 z-10 w-20 px-2 py-2 h-16 text-center font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap bg-white dark:bg-slate-800">
+                    <tr key={row.class} className={`border-t border-gray-100 dark:border-white/5 ${i % 2 === 1 ? 'bg-gray-50/40 dark:bg-white/[0.02]' : ''}`}>
+                      <td className="sticky left-0 z-10 w-16 px-2 py-2 h-20 text-center font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap bg-white dark:bg-slate-800">
                         <span className="inline-flex w-10 h-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-secondary/15 text-primary dark:text-primary-light border border-primary/20 dark:border-primary/30">
                           {row.class}
                         </span>
@@ -156,13 +156,13 @@ const Term1ExamSchedule = () => {
                         const entries = toEntries(SCHEDULE.teachers[row.class]?.[subject]);
                         const empty = subject === '-' || entries.length === 0;
                         return (
-                          <td key={j} className="px-2 py-2 h-16 text-center align-middle border-l border-gray-100 dark:border-white/5">
+                          <td key={j} className="w-20 h-20 px-1 py-1 text-center align-middle border-l border-gray-100 dark:border-white/5 hover:bg-primary/[0.07] dark:hover:bg-primary/10 transition-colors">
                             {empty ? (
                               <span className="text-gray-300 dark:text-gray-600 text-lg">·</span>
                             ) : (
-                              <div className="space-y-1">
-                                <div className={`font-semibold truncate ${SUBJECT_STYLE[subject] || 'text-gray-900 dark:text-white'}`} title={subject}>{subject}</div>
-                                <div className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                              <div className="space-y-0.5">
+                                <div className={`font-semibold text-xs truncate ${SUBJECT_STYLE[subject] || 'text-gray-900 dark:text-white'}`} title={subject}>{subject}</div>
+                                <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
                                   {entries.map((e, k) => (
                                     <span key={k} className="block">
                                       {e.branch ? <span className="text-gray-400 dark:text-gray-500">{e.branch} · </span> : null}
@@ -184,7 +184,7 @@ const Term1ExamSchedule = () => {
         </Fade>
 
         <Fade delay={0.05}>
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
+          <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
             <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-100 dark:border-white/5">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">🧑‍🏫 Teacher Key</h3>
             </div>
@@ -192,7 +192,7 @@ const Term1ExamSchedule = () => {
               {teacherKey.map(([alias, name]) => (
                 <div key={alias} className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 px-4 py-2.5">
                   <span className="inline-flex items-center justify-center min-w-9 px-2 py-1 rounded-lg bg-primary/10 text-primary dark:text-primary-light text-xs font-bold">{alias}</span>
-                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{name}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate" title={name}>{name}</span>
                 </div>
               ))}
             </div>
