@@ -10,7 +10,6 @@ export const AUDIT_ACTIONS = {
   USER_UPDATED: 'user_updated',
   USER_ACTIVATED: 'user_activated',
   USER_DEACTIVATED: 'user_deactivated',
-  PASSWORD_RESET: 'password_reset',
   ASSESSMENT_CREATED: 'assessment_created',
   ASSESSMENT_UPDATED: 'assessment_updated',
   ASSESSMENT_DELETED: 'assessment_deleted',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { isMasterKey } from '../utils/auth';
 import { subjectLabel } from '../utils/format';
 import { useAuth } from '../auth/contexts/AuthContext';
+import { ROLES } from '../auth/types/roles';
 import { toDate } from '../services/assessmentService';
 import { auditService, AUDIT_ACTIONS } from '../auth/services/auditService';
 import CustomSelect from './CustomSelect';
@@ -49,6 +50,12 @@ const ShowAssessments = ({ skipInitialAuth } = {}) => {
   const [sortDir, setSortDir] = useState('asc');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    if (userProfile?.role === ROLES.STUDENT) {
+      navigate('/assessments', { replace: true });
+    }
+  }, [userProfile, navigate]);
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();

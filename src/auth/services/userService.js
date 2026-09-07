@@ -146,10 +146,6 @@ export const userService = {
     return userService.updateUser(uid, { status: USER_STATUS.INACTIVE });
   },
 
-  sendPasswordReset: async (email) => {
-    await sendPasswordResetEmail(auth, email);
-  },
-
   updateLastLogin: async (uid) => {
     const userRef = doc(db, USERS_COLLECTION, uid);
     await updateDoc(userRef, {

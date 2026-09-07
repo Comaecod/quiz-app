@@ -37,12 +37,10 @@ const AdminResults = lazy(() => import('./components/admin/AdminResults'));
 
 const LoginScreen = lazy(() => import('./auth/components/LoginScreen'));
 const ForgotPassword = lazy(() => import('./auth/components/ForgotPassword'));
-const ResetPassword = lazy(() => import('./auth/components/ResetPassword'));
 const Unauthorized = lazy(() => import('./auth/components/Unauthorized'));
 const ProfileScreen = lazy(() => import('./auth/components/ProfileScreen'));
 const ForcePasswordChangeGate = lazy(() => import('./auth/components/ForcePasswordChangeGate'));
 const Dashboard = lazy(() => import('./auth/components/Dashboard'));
-const EmailLinkCallback = lazy(() => import('./auth/components/EmailLinkCallback'));
 const AdminUserManagement = lazy(() => import('./auth/components/admin/AdminUserManagement'));
 const StudentManagement = lazy(() => import('./auth/components/admin/StudentManagement'));
 const AuditLogViewer = lazy(() => import('./auth/components/admin/AuditLogViewer'));
@@ -111,21 +109,9 @@ function App() {
               </GuestRoute>
             </Suspense>
           } />
-          <Route path="/reset-password" element={
-            <Suspense fallback={<AuthFallback />}>
-              <GuestRoute>
-                <ResetPassword />
-              </GuestRoute>
-            </Suspense>
-          } />
           <Route path="/unauthorized" element={
             <Suspense fallback={<AuthFallback />}>
               <Unauthorized />
-            </Suspense>
-          } />
-          <Route path="/login/email-link" element={
-            <Suspense fallback={<AuthFallback />}>
-              <EmailLinkCallback />
             </Suspense>
           } />
 

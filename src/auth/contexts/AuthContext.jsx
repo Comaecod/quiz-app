@@ -97,27 +97,6 @@ export function AuthProvider({ children }) {
     }
   }, [fetchUserProfile]);
 
-  const loginWithGoogle = useCallback(async () => {
-    setError(null);
-    try {
-      const firebaseUser = await authService.signInWithGoogle();
-      await userService.updateLastLogin(firebaseUser.uid);
-      profileLoadAttempted.current = false;
-      await fetchUserProfile(firebaseUser);
-
-      auditService.log(AUDIT_ACTIONS.LOGIN, firebaseUser.uid, {
-        userEmail: firebaseUser.email,
-        method: 'google',
-      });
-
-      return firebaseUser;
-    } catch (err) {
-      const message = getAuthErrorMessage(err.code);
-      setError(message);
-      throw err;
-    }
-  }, [fetchUserProfile]);
-
   const logout = useCallback(async () => {
     setError(null);
     try {
@@ -160,55 +139,6 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  const resetPassword = useCallback(async (email) => {
-    setError(null);
-    try {
-      await authService.sendPasswordReset(email);
-
-      if (user) {
-        await auditService.log(AUDIT_ACTIONS.PASSWORD_RESET, user.uid, {
-          targetEmail: email,
-        });
-      }
-    } catch (err) {
-      const message = getAuthErrorMessage(err.code);
-      setError(message);
-      throw err;
-    }
-  }, [user]);
-
-  const sendSignInLink = useCallback(async (email) => {
-    setError(null);
-    try {
-      await authService.sendSignInLink(email);
-    } catch (err) {
-      const message = getAuthErrorMessage(err.code);
-      setError(message);
-      throw err;
-    }
-  }, []);
-
-  const loginWithEmailLink = useCallback(async () => {
-    setError(null);
-    try {
-      const firebaseUser = await authService.signInWithEmailLink();
-      await userService.updateLastLogin(firebaseUser.uid);
-      profileLoadAttempted.current = false;
-      await fetchUserProfile(firebaseUser);
-
-      await auditService.log(AUDIT_ACTIONS.LOGIN, firebaseUser.uid, {
-        userEmail: firebaseUser.email,
-        method: 'email_link',
-      });
-
-      return firebaseUser;
-    } catch (err) {
-      const message = getAuthErrorMessage(err.code);
-      setError(message);
-      throw err;
-    }
-  }, [fetchUserProfile]);
-
   const clearError = useCallback(() => setError(null), []);
 
   const isSuperAdmin = userProfile?.role === ROLES.SUPER_ADMIN;
@@ -228,12 +158,8 @@ export function AuthProvider({ children }) {
     isStaff,
     isStudent,
     loginWithEmail,
-    loginWithGoogle,
     logout,
     createUser,
-    resetPassword,
-    sendSignInLink,
-    loginWithEmailLink,
     refreshProfile,
     clearError,
     hasPermission: (permission) => permissions.includes(permission),

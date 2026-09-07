@@ -149,18 +149,6 @@ export default function AdminUserManagement() {
     }
   };
 
-  const handleResetPassword = async (email) => {
-    try {
-      await userService.sendPasswordReset(email);
-      await auditService.log(AUDIT_ACTIONS.PASSWORD_RESET, user?.uid, {
-        targetEmail: email,
-      });
-      setFormSuccess(`Password reset email sent to ${email}`);
-    } catch (err) {
-      setFormError('Failed to send reset email');
-    }
-  };
-
   const filteredUsers = users.filter((u) => {
     const matchesSearch = !searchTerm || 
       u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -187,6 +175,14 @@ export default function AdminUserManagement() {
           </button>
           <button onClick={loadUsers} className="px-4 py-2 rounded-xl text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all">Refresh</button>
         </div>
+      </div>
+
+      <div className="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400">
+        To reset a user's login password, open the project terminal and run:
+        <code className="block mt-2 p-3 rounded-lg bg-black/5 dark:bg-white/10 text-xs text-gray-700 dark:text-gray-300 overflow-x-auto whitespace-pre">node scripts/resetPassword.mjs &lt;user-email&gt;</code>
+        <span className="block mt-2 text-xs">
+          Optionally pass a new password (default <strong>test@123</strong>), e.g. <code className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">node scripts/resetPassword.mjs &lt;user-email&gt; newpassword</code>
+        </span>
       </div>
 
       {formSuccess && (
@@ -299,7 +295,6 @@ export default function AdminUserManagement() {
           { key: 'actions', label: 'Actions', className: 'text-center', render: (u) => (
             <div className="flex items-center justify-center gap-2">
               <button onClick={() => handleEdit(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-all" title="Edit user">Edit</button>
-              <button onClick={() => handleResetPassword(u.email)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-all" title="Send password reset">Reset Pwd</button>
               <button onClick={() => handleToggleStatus(u.id, u.status)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${u.status === USER_STATUS.ACTIVE ? 'bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/20' : 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/20'}`}>{u.status === USER_STATUS.ACTIVE ? 'Deactivate' : 'Activate'}</button>
             </div>
           )},
