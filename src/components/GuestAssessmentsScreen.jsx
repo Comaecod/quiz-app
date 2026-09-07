@@ -83,6 +83,8 @@ const GuestAssessmentsScreen = () => {
 
   const HIDE_SCREENS = ['timed-mcq', 'timed-project', 'timed-coding', 'timed-coding-result', 'timed-result', 'timed-preassessment'];
 
+  const guardDisabled = import.meta.env.VITE_DISABLE_FULLSCREEN_GUARD === 'true' && import.meta.env.DEV;
+
   useEffect(() => {
     const hide = HIDE_SCREENS.includes(screen);
     setHideHeader(hide);
@@ -90,7 +92,7 @@ const GuestAssessmentsScreen = () => {
     setHideSidebar(hide);
     setSankaraVisible(!hide);
     setNotificationVisible(!hide);
-    if (hide && !document.fullscreenElement) {
+    if (hide && !guardDisabled && !document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
     } else if (!hide && document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});

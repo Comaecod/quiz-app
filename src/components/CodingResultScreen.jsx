@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { formatName, subjectLabel } from '../utils/format';
+import { subjectLabel } from '../utils/format';
 import { getPerformanceMessage } from '../utils/scoring';
 import { validateAnswerReveal } from '../utils/auth';
 import { CertificateCard } from './TimedAssessmentResultScreen';
@@ -62,7 +62,7 @@ export default function CodingResultScreen({ assessment, studentInfo, results, c
             <h2 className="text-2xl font-bold text-white">{performance.message}</h2>
             {studentInfo && (
               <p className="text-gray-400 mt-1">
-                {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
+                {studentInfo.firstName} {studentInfo.lastName}
               </p>
             )}
           </div>

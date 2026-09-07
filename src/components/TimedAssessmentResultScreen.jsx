@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { formatName, subjectLabel } from '../utils/format';
+import { toPng } from 'html-to-image';
+import { subjectLabel } from '../utils/format';
 import { getPerformanceMessage, getGradeInfo } from '../utils/scoring';
 import { SCHOOL_CONFIG } from '../config/schoolConfig';
 import staffData from '../data/staffDirectory.json';
@@ -46,7 +47,7 @@ export const CertificateCard = ({ studentInfo, assessment, results }) => {
 
         <div className="text-center mb-2">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
-            {studentInfo ? `${formatName(studentInfo.firstName)} ${formatName(studentInfo.lastName)}` : 'Student'}
+            {studentInfo ? `${studentInfo.firstName} ${studentInfo.lastName}` : 'Student'}
           </h2>
         </div>
 
@@ -68,7 +69,7 @@ export const CertificateCard = ({ studentInfo, assessment, results }) => {
           <div className={`px-6 py-3 rounded-2xl bg-gradient-to-r shadow-lg font-bold text-xl text-white ${gradeInfo.color.replace('text-', 'from-').replace('-400', '-300 via-')} ${gradeInfo.color.replace('text-', 'to-').replace('-400', '-400')}`}>
             {results.grade}
           </div>
-          <div className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold">
+          <div className="px-8 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold whitespace-nowrap">
             {results.totalEarned.toFixed(1)} / {results.totalMarks}
           </div>
           <div className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold">
@@ -102,6 +103,8 @@ const TimedAssessmentResultScreen = ({ questions, answers, studentInfo, assessme
   const [secretKey, setSecretKey] = useState('');
   const [keyError, setKeyError] = useState(false);
   const keyInputRef = useRef(null);
+  const certRef = useRef(null);
+  const [isDownloadingCert, setIsDownloadingCert] = useState(false);
 
   const hasSecretKey = assessment?.secretKey?.length > 0;
 
@@ -123,6 +126,33 @@ const TimedAssessmentResultScreen = ({ questions, answers, studentInfo, assessme
     if (keyError) setKeyError(false);
   };
 
+  const handleDownloadCertificate = async () => {
+    if (isDownloadingCert) return;
+    if (!certRef.current) {
+      setShowCertificate(true);
+      await new Promise(r => setTimeout(r, 150));
+    }
+    if (!certRef.current) return;
+    setIsDownloadingCert(true);
+    try {
+      const dataUrl = await toPng(certRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#0f172a',
+      });
+      const namePart = `${studentInfo?.firstName || 'Student'} ${studentInfo?.lastName || ''}`.trim().replace(/\s+/g, '-');
+      const titlePart = (assessment?.title || 'Assessment').replace(/\s+/g, '-');
+      const link = document.createElement('a');
+      link.download = `Certificate-${namePart}-${titlePart}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to download certificate:', err);
+    } finally {
+      setIsDownloadingCert(false);
+    }
+  };
+
   const formatTime = (seconds) => {
     if (!seconds && seconds !== 0) return '-';
     const m = Math.floor(seconds / 60);
@@ -139,7 +169,7 @@ const TimedAssessmentResultScreen = ({ questions, answers, studentInfo, assessme
           <p className="text-gray-500 dark:text-gray-400 mb-2">{assessment?.title || 'Timed Assessment'}</p>
           {studentInfo && (
             <div className="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 mb-6">
-              <p className="font-semibold text-gray-900 dark:text-white">{formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{studentInfo.firstName} {studentInfo.lastName}</p>
             </div>
           )}
           <p className="text-gray-500 dark:text-gray-400 mb-6">Your project has been submitted for review.</p>
@@ -163,7 +193,7 @@ const TimedAssessmentResultScreen = ({ questions, answers, studentInfo, assessme
         {studentInfo && (
           <div className="p-4 sm:p-6 rounded-2xl bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-white/10 mb-4 sm:mb-6">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-              {formatName(studentInfo.firstName)} {formatName(studentInfo.lastName)}
+              {studentInfo.firstName} {studentInfo.lastName}
             </h3>
           </div>
         )}
@@ -288,16 +318,35 @@ const TimedAssessmentResultScreen = ({ questions, answers, studentInfo, assessme
 
         {/* Certificate toggle */}
         <div className="mb-4 sm:mb-6">
-          <button
-            onClick={() => setShowCertificate(!showCertificate)}
-            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium hover:opacity-90 flex items-center justify-center gap-2"
-          >
-            <span>🎓</span>
-            <span>{showCertificate ? 'Hide Certificate' : 'Show Certificate'}</span>
-            <span className={`transition-transform ${showCertificate ? 'rotate-180' : ''}`}>▼</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setShowCertificate(!showCertificate)}
+              className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium hover:opacity-90 flex items-center justify-center gap-2"
+            >
+              <span>🎓</span>
+              <span>{showCertificate ? 'Hide Certificate' : 'Show Certificate'}</span>
+              <span className={`transition-transform ${showCertificate ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+            <button
+              onClick={handleDownloadCertificate}
+              disabled={isDownloadingCert}
+              className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isDownloadingCert ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <span>⬇️</span>
+                  <span>Download Certificate</span>
+                </>
+              )}
+            </button>
+          </div>
           {showCertificate && (
-            <div className="mt-4 animate-fadeIn">
+            <div className="mt-4 animate-fadeIn" ref={certRef}>
               <CertificateCard studentInfo={studentInfo} assessment={assessment} results={results} />
             </div>
           )}

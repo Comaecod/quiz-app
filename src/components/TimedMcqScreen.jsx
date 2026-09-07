@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import QuestionCard from './QuestionCard';
+import ConfirmModal from './ConfirmModal';
 import useFullscreenGuard from '../hooks/useFullscreenGuard';
 import FullscreenGuardOverlay from './FullscreenGuardOverlay';
+
+const guardDisabled = import.meta.env.VITE_DISABLE_FULLSCREEN_GUARD === 'true' && import.meta.env.DEV;
 
 const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,12 +14,13 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
   answersRef.current = answers;
   const [endTime, setEndTime] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const submittedRef = useRef(false);
   const startTime = useRef(Date.now());
   const mainRef = useRef(null);
 
   const { violation, countdown } = useFullscreenGuard({
-    enabled: true,
+    enabled: !guardDisabled,
     onViolation: useCallback(() => {
       if (submittedRef.current) return;
       submittedRef.current = true;
@@ -27,6 +31,33 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
 
   useEffect(() => {
     setEndTime(getEndTime());
+  }, []);
+
+  useEffect(() => {
+    if (!guardDisabled && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (submittedRef.current) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    const handleKeyDown = (e) => {
+      const isReloadShortcut = e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r');
+      if (isReloadShortcut) e.preventDefault();
+    };
+    const handleContextMenu = (e) => e.preventDefault();
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('contextmenu', handleContextMenu);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
   }, []);
 
   const currentQuestion = questions[currentIndex];
@@ -55,6 +86,14 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
     }
   }, [currentIndex, totalQuestions]);
 
+  const handlePrev = useCallback(() => {
+    if (currentIndex > 0) {
+      const prev = currentIndex - 1;
+      setCurrentIndex(prev);
+      setVisitedQuestions(prevSet => new Set([...prevSet, prev]));
+    }
+  }, [currentIndex]);
+
   const getEndTime = () => {
     if (!assessment?.timeLimitMinutes) return null;
     const deadline = new Date(startTime.current + assessment.timeLimitMinutes * 60 * 1000);
@@ -75,7 +114,13 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
     onComplete(answers, taken);
   }, [answers, onComplete]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmitClick = useCallback(() => {
+    if (submittedRef.current) return;
+    setShowSubmitConfirm(true);
+  }, []);
+
+  const confirmSubmit = useCallback(() => {
+    setShowSubmitConfirm(false);
     if (submittedRef.current) return;
     submittedRef.current = true;
     setSubmitting(true);
@@ -136,18 +181,19 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
           </div>
 
           <div className="flex gap-3">
-            {!isLastQuestion ? (
+            <button
+              onClick={handlePrev}
+              disabled={currentIndex === 0}
+              className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-black/5 dark:bg-white/10 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              👈 Previous
+            </button>
+
+            {isLastQuestion && (
               <button
-                className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all flex items-center gap-2"
-                onClick={handleNext}
-              >
-                Next 👉
-              </button>
-            ) : (
-              <button
-                className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                onClick={handleSubmit}
+                onClick={handleSubmitClick}
                 disabled={submitting}
+                className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <>
@@ -159,6 +205,14 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
                 )}
               </button>
             )}
+
+            <button
+              onClick={handleNext}
+              disabled={isLastQuestion || submitting}
+              className="px-4 sm:px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next 👉
+            </button>
           </div>
         </div>
       </div>
@@ -169,7 +223,7 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
             <div>
               <div className="text-base font-semibold text-gray-900 dark:text-white">{studentInfo.firstName} {studentInfo.lastName}</div>
             </div>
-            {endTime && <TimerDisplay endTime={endTime} />}
+            {endTime && <TimerDisplay endTime={endTime} onExpire={handleTimeUp} />}
           </div>
         </div>
 
@@ -207,16 +261,36 @@ const TimedMcqScreen = ({ questions, studentInfo, assessment, onComplete }) => {
         </div>
       </aside>
     </div>
+      <ConfirmModal
+        isOpen={showSubmitConfirm}
+        onClose={() => setShowSubmitConfirm(false)}
+        onConfirm={confirmSubmit}
+        title="Submit Assessment?"
+        description={`You are about to submit ${assessment?.title ? `"${assessment.title}"` : 'this assessment'}. Please review all your answers before submitting.`}
+        confirmText="Submit"
+        variant="success"
+      />
     </>
   );
 };
 
-const TimerDisplay = ({ endTime }) => {
+const TimerDisplay = ({ endTime, onExpire }) => {
   const calcRemaining = () => Math.max(0, Math.floor((endTime - new Date()) / 1000));
   const [remaining, setRemaining] = useState(calcRemaining);
+  const expiredRef = useRef(false);
+  const onExpireRef = useRef(onExpire);
+  onExpireRef.current = onExpire;
 
   useEffect(() => {
-    const interval = setInterval(() => setRemaining(calcRemaining()), 1000);
+    const interval = setInterval(() => {
+      const rem = calcRemaining();
+      setRemaining(rem);
+      if (rem <= 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        clearInterval(interval);
+        onExpireRef.current?.();
+      }
+    }, 1000);
     return () => clearInterval(interval);
   }, [endTime]);
 

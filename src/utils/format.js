@@ -4,12 +4,6 @@
 
 import { SUBJECTS } from '../config/schoolConfig';
 
-export const formatName = (name) => {
-  if (!name) return '';
-  const trimmed = name.trim();
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
-};
-
 export const subjectLabel = (val) => {
   if (typeof val === 'string' && isNaN(Number(val))) return val;
   const found = SUBJECTS.find(s => s.value === Number(val));

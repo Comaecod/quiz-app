@@ -4,7 +4,7 @@ const FullscreenGuardOverlay = ({ countdown }) => (
       <div className="text-6xl mb-6">🔒</div>
       <h2 className="text-2xl font-bold text-white mb-3">You left the test screen!</h2>
       <p className="text-gray-300 mb-6 text-lg">
-        Returning to fullscreen in <span className="text-red-400 font-bold text-2xl">{countdown}</span> seconds or the test will be auto-submitted.
+        Return to fullscreen in <span className="text-red-400 font-bold text-2xl">{countdown}</span> seconds or the test will be auto-submitted.
       </p>
       <div className="w-64 h-2 bg-white/10 rounded-full mx-auto overflow-hidden">
         <div
