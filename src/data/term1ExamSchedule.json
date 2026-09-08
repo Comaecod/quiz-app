@@ -13,72 +13,72 @@
   ],
   "teachers": {
     "IV": {
-      "Sanskrit": "Arjun",
-      "Hindi": "Gnanarajasri",
-      "Maths": "Anjana",
-      "English": "Anjana",
-      "EVS": "Anjana",
-      "Telugu": "Pratyusha",
-      "Computers": "Sriram"
+      "Sanskrit": "AP",
+      "Hindi": "GR",
+      "Maths": "AH",
+      "English": "AH",
+      "EVS": "AH",
+      "Telugu": "DP",
+      "Computers": "KSK"
     },
     "V": {
-      "Sanskrit": "Arjun",
-      "Telugu": "Pratyusha",
-      "EVS": "Sujatha",
-      "Hindi": "Gnanarajasri",
-      "English": "Sujatha",
-      "Maths": "Anjana",
-      "Computers": "Sriram"
+      "Sanskrit": "AP",
+      "Telugu": "DP",
+      "EVS": "CS",
+      "Hindi": "GR",
+      "English": "CS",
+      "Maths": "AH",
+      "Computers": "KSK"
     },
     "VI": {
-      "Computers": "Sriram",
-      "3L": [["Hindi", "Gnanarajasri"], ["Telugu", "SankaraNarayana"]],
-      "English": "Sujatha",
-      "Maths": "Goutham",
-      "Science": "Nagaraju",
-      "Sanskrit": "Arjun",
-      "Social Science": "Renjith",
-      "2L": [["Hindi", "Gnanarajasri"], ["Telugu", "Pratyusha"]]
+      "Computers": "KSK",
+      "3L": [["Hindi", "GR"], ["Telugu", "SN"]],
+      "English": "CS",
+      "Maths": "BGY",
+      "Science": "VNR",
+      "Sanskrit": "AP",
+      "Social Science": "MNR",
+      "2L": [["Hindi", "GR"], ["Telugu", "DP"]]
     },
     "VII": {
-      "Computers": "Sriram",
-      "3L": [["Hindi", "Geetha"], ["Telugu", "SankaraNarayana"]],
-      "Maths": "Goutham",
-      "2L": [["Hindi", "Geetha"], ["Telugu", "Pratyusha"]],
-      "English": "Sujatha",
-      "Sanskrit": "Arjun",
-      "Science": "Nagaraju",
-      "Social Science": "Renjith"
+      "Computers": "KSK",
+      "3L": [["Hindi", "GK"], ["Telugu", "SN"]],
+      "Maths": "BGY",
+      "2L": [["Hindi", "GK"], ["Telugu", "DP"]],
+      "English": "CS",
+      "Sanskrit": "AP",
+      "Science": "VNR",
+      "Social Science": "MNR"
     },
     "VIII": {
-      "Computers": "Sriram",
-      "3L": [["Hindi", "Narsingh"], ["Telugu", "Pratyusha"]],
-      "Social Science": "Renjith",
-      "English": "Anand",
-      "2L": [["Hindi", "Geetha"], ["Telugu", "SankaraNarayana"]],
-      "Sanskrit": "Arjun",
-      "Maths": "Kameswari",
-      "Science": [["Biology", "Nagaraju"], ["Physics", "Kameswari"], ["Chemistry", "Kameswari"]]
+      "Computers": "KSK",
+      "3L": [["Hindi", "DLN"], ["Telugu", "DP"]],
+      "Social Science": "MNR",
+      "English": "AG",
+      "2L": [["Hindi", "GK"], ["Telugu", "SN"]],
+      "Sanskrit": "AP",
+      "Maths": "VLK",
+      "Science": [["Biology", "VNR"], ["Physics", "VLK"], ["Chemistry", "VLK"]]
     },
     "IX": {
-      "Computers": "Sriram",
-      "3L": [["Hindi", "Geetha"], ["Telugu", "Pratyusha"]],
-      "Science": [["Biology", "Nagaraju"], ["Physics", "Rama Rao"], ["Chemistry", "Kameswari"]],
-      "Social Science": "Venugopal",
-      "Maths": "Rama Rao",
-      "Sanskrit": "Arjun",
-      "English": "Anand",
-      "2L": [["Hindi", "Narsingh"], ["Telugu", "SankaraNarayana"]]
+      "Computers": "KSK",
+      "3L": [["Hindi", "GK"], ["Telugu", "DP"]],
+      "Science": [["Biology", "VNR"], ["Physics", "CRR"], ["Chemistry", "VLK"]],
+      "Social Science": "JVG",
+      "Maths": "CRR",
+      "Sanskrit": "AP",
+      "English": "AG",
+      "2L": [["Hindi", "DLN"], ["Telugu", "SN"]]
     },
     "X": {
-      "Computers": "Sriram",
-      "Hindi": "Narsingh",
-      "Telugu": "SankaraNarayana",
-      "Science": [["Biology", "Nagaraju"], ["Physics", "Rama Rao"], ["Chemistry", "Kameswari"]],
-      "English": "Anand",
-      "Sanskrit": "Arjun",
-      "Maths": "Rama Rao",
-      "Social Science": "Venugopal"
+      "Computers": "KSK",
+      "Hindi": "DLN",
+      "Telugu": "SN",
+      "Science": [["Biology", "VNR"], ["Physics", "CRR"], ["Chemistry", "VLK"]],
+      "English": "AG",
+      "Sanskrit": "AP",
+      "Maths": "CRR",
+      "Social Science": "JVG"
     }
   }
 }

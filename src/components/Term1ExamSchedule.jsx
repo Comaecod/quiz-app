@@ -1,50 +1,27 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/contexts/AuthContext';
 import SCHEDULE from '../data/term1ExamSchedule.json';
 import staffData from '../data/staffDirectory.json';
 
-const OVERRIDES = {
-  'Pratyusha': 'Prathusha',
-  'Goutham': 'Gotham',
-  'SankaraNarayana': 'Sankara Narayana',
-  'Sriram': 'Sri Ram Kiran',
-};
-
 const MANUAL_ALIASES = {
-  'Rama Rao': { alias: 'CRR', name: 'Challa Rama Rao' },
+  CRR: 'Challa Rama Rao',
 };
 
-const gatherPersons = () => {
-  const out = [];
+const buildAliasNames = () => {
+  const map = { ...MANUAL_ALIASES };
+  const add = (p) => {
+    if (p && p.name && p.alias) map[p.alias] = p.name;
+  };
   Object.values(staffData).forEach((v) => {
-    if (Array.isArray(v)) v.forEach((p) => p && p.name && out.push(p));
-    else if (v && typeof v === 'object' && v.name) out.push(v);
+    if (Array.isArray(v)) v.forEach(add);
+    else if (v && typeof v === 'object' && v.name) add(v);
   });
-  return out;
+  return map;
 };
 
-const ALL_PERSONS = gatherPersons();
-
-const norm = (s) => (s || '').toLowerCase().replace(/[^a-z]/g, '');
-
-const findPerson = (name) => {
-  const target = norm(OVERRIDES[name] || name);
-  if (!target) return null;
-  return ALL_PERSONS.find((p) => {
-    const pn = norm(p.name);
-    return pn === target || pn.includes(target) || target.includes(pn);
-  }) || null;
-};
-
-const getMapping = (name) => {
-  const manual = MANUAL_ALIASES[name];
-  if (manual) return manual;
-  const person = findPerson(name);
-  if (person) return { alias: person.alias || person.name, name: person.name };
-  return { alias: name, name };
-};
-
-const resolveTeacher = (name) => getMapping(name).alias;
+const ALIAS_NAMES = buildAliasNames();
 
 const toEntries = (value) => {
   if (!value) return [];
@@ -85,17 +62,16 @@ const Fade = ({ children, delay = 0 }) => (
 );
 
 const Term1ExamSchedule = () => {
+  const { isAuthenticated } = useAuth();
+  const showTeachers = isAuthenticated;
   const teacherKey = useMemo(() => {
-    const key = {};
+    const aliases = new Set();
     Object.values(SCHEDULE.teachers).forEach((classMap) => {
       Object.values(classMap).forEach((value) => {
-        toEntries(value).forEach(({ teacher }) => {
-          const { alias, name } = getMapping(teacher);
-          if (!key[alias]) key[alias] = name;
-        });
+        toEntries(value).forEach(({ teacher }) => aliases.add(teacher));
       });
     });
-    return Object.entries(key).sort(([a], [b]) => a.localeCompare(b));
+    return [...aliases].map((alias) => [alias, ALIAS_NAMES[alias] || alias]).sort(([a], [b]) => a.localeCompare(b));
   }, []);
 
   return (
@@ -116,8 +92,9 @@ const Term1ExamSchedule = () => {
             <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
               <p>📌 {SCHEDULE.title} runs on the dates shown above. The first day falls on a <span className="font-semibold text-gray-800 dark:text-gray-200">Saturday</span>, with subjects held on the weekdays listed.</p>
               <p>📌 <span className="font-semibold text-gray-800 dark:text-gray-200">2L / 3L</span> cover both <span className="font-semibold">Hindi</span> and <span className="font-semibold">Telugu</span> in our school — both teachers are listed for those cells.</p>
-              <p>📌 <span className="font-semibold text-gray-800 dark:text-gray-200">Science</span> is split into Biology, Physics and Chemistry for Classes VIII–X — all three teachers are listed.</p>
-              <p>📌 Teacher short names (aliases) are used for readability; see the key below the table.</p>
+              <p>📌 <span className="font-semibold text-gray-800 dark:text-gray-200">Science</span> is split into Biology, Physics and Chemistry for Classes VIII–X.</p>
+              {showTeachers && <p>📌 Teacher short names (aliases) are used for readability; see the key below the table.</p>}
+              {!showTeachers && <p>🔒 Sign in to see the teachers associated with each subject.</p>}
             </div>
           </div>
         </Fade>
@@ -162,14 +139,16 @@ const Term1ExamSchedule = () => {
                             ) : (
                               <div className="space-y-0.5">
                                 <div className={`font-semibold text-xs truncate ${SUBJECT_STYLE[subject] || 'text-gray-900 dark:text-white'}`} title={subject}>{subject}</div>
-                                <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
-                                  {entries.map((e, k) => (
-                                    <span key={k} className="block">
-                                      {e.branch ? <span className="text-gray-400 dark:text-gray-500">{e.branch} · </span> : null}
-                                      <span className="font-medium text-gray-600 dark:text-gray-300">{resolveTeacher(e.teacher)}</span>
-                                    </span>
-                                  ))}
-                                </div>
+                                {showTeachers && (
+                                  <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+                                    {entries.map((e, k) => (
+                                      <span key={k} className="block">
+                                        {e.branch ? <span className="text-gray-400 dark:text-gray-500">{e.branch} · </span> : null}
+                                        <span className="font-medium text-gray-600 dark:text-gray-300">{e.teacher}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </td>
@@ -184,19 +163,30 @@ const Term1ExamSchedule = () => {
         </Fade>
 
         <Fade delay={0.05}>
-          <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
-            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-100 dark:border-white/5">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">🧑‍🏫 Teacher Key</h3>
-            </div>
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {teacherKey.map(([alias, name]) => (
-                <div key={alias} className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 px-4 py-2.5">
-                  <span className="inline-flex items-center justify-center min-w-9 px-2 py-1 rounded-lg bg-primary/10 text-primary dark:text-primary-light text-xs font-bold">{alias}</span>
-                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate" title={name}>{name}</span>
+          {showTeachers ? (
+            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
+              <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-100 dark:border-white/5">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">🧑‍🏫 Teacher Key</h3>
+              </div>
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {teacherKey.map(([alias, name]) => (
+<div key={alias} className="flex items-center gap-3 h-16 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 px-4 py-2.5 overflow-hidden">
+                  <span className="inline-flex items-center justify-center min-w-9 shrink-0 px-2 py-1 rounded-lg bg-primary/10 text-primary dark:text-primary-light text-xs font-bold">{alias}</span>
+                  <span className="text-sm leading-snug text-gray-700 dark:text-gray-300 line-clamp-2" title={name}>{name}</span>
                 </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 p-6 sm:p-8">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                🔒 Sign in to view the teachers associated with each subject in the date sheet.
+              </p>
+              <Link to="/login" className="inline-flex mt-4 items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-secondary px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-95 transition-opacity">
+                Login to view teachers →
+              </Link>
+            </div>
+          )}
         </Fade>
       </div>
     </div>
