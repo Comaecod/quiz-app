@@ -93,7 +93,7 @@ function App() {
           <Route path="/gallery" element={withLayout(GalleryScreen)} />
           <Route path="/contact" element={withLayout(ContactScreen)} />
           <Route path="/academic-calendar" element={withLayout(AcademicCalendar)} />
-          <Route path="/term-1-exam-schedule" element={withLayout(Term1ExamSchedule)} />
+          <Route path="/exams" element={withLayout(Term1ExamSchedule)} />
           <Route path="/feedback" element={withLayout(FeedbackScreen)} />
 
           {/* Auth Routes */}

@@ -188,6 +188,41 @@ const Term1ExamSchedule = () => {
             </div>
           )}
         </Fade>
+
+        {showTeachers && (
+          <Fade delay={0.1}>
+            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 overflow-hidden">
+              <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-6 py-4 border-b border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">📊 Class Strength</h3>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Students per class — language sections</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] table-fixed text-sm">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-primary/20 to-secondary/20 dark:from-primary/10 dark:to-secondary/10">
+                      {SCHEDULE.strength.headers.map((h, i) => (
+                        <th key={i} className={`px-2 py-3 text-center font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap ${i === 0 ? 'text-left w-20' : ''} ${i === SCHEDULE.strength.headers.length - 1 ? 'bg-primary/10 text-primary dark:text-primary-light' : ''}`}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SCHEDULE.strength.rows.map((row, i) => (
+                      <tr key={i} className={`border-t border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors ${i % 2 === 1 ? 'bg-gray-50/40 dark:bg-white/[0.02]' : ''}`}>
+                        {row.map((cell, j) => (
+                          <td key={j} className={`px-2 py-3 text-center align-middle ${j === 0 ? 'text-left font-bold text-gray-800 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'} ${j === row.length - 1 ? 'font-bold text-primary dark:text-primary-light' : ''}`}>
+                            {cell === null || cell === undefined ? <span className="text-gray-300 dark:text-gray-600">—</span> : cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Fade>
+        )}
       </div>
     </div>
   );
